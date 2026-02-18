@@ -200,7 +200,16 @@ setInterval(()=>clockEl.textContent=iso(),1000)
 const menuBar=document.querySelector('.menu-bar')
 const terminalWindow=document.getElementById('terminalWindow')
 const fileManagerWindow=document.getElementById('fileManagerWindow')
-document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>document.getElementById(b.dataset.close).classList.add('hidden'))
+function closeTerminalWindow(){
+terminalWindow.classList.add('hidden')
+terminal.innerHTML=''        // wipe terminal content
+observerBooted=false         // force full reboot next open
+}
+document.querySelectorAll('[data-close]').forEach(b=>{
+const id=b.dataset.close
+if(id==='terminalWindow') b.onclick=closeTerminalWindow
+else b.onclick=()=>document.getElementById(id).classList.add('hidden')
+})
 function drag(win){
   const header = win.querySelector('[data-drag]')
   let dragging = false
@@ -369,7 +378,7 @@ else if(lower==='observe'){printLine(narrativeStage<2?`${SYSTEM_NODE} observatio
 else if(lower==='think'){printLine(narrativeStage<2?`${SYSTEM_NODE} thought registered.`:`${SYSTEM_NODE} recursive cognition detected.`)}
 else if(lower==='listen'){printLine(`${SYSTEM_NODE} background signal present.`)}
 else if(lower==='status'){printLine(`${SYSTEM_NODE} behavioral model active.`);printLine(`psychological resolution: ${psychScore}/100`);printLine(`profile confidence: ${profileConfidence}%`);printLine(`narrative stage: ${narrativeStage}`);printLine(`emotional state: ${emotionalState}`)}
-else if(lower==='exit'){terminalWindow.classList.add('hidden');return}
+else if(lower==='exit'){closeTerminalWindow();return}
 else if(lower==='clear'){terminal.innerHTML='';return printPrompt()}
 else if(lower==='reboot'){terminal.innerHTML='';bootObserver();return}
 else{printLine(`${SYSTEM_NODE} input received.`)}
@@ -385,7 +394,11 @@ function spontaneousActivity(){setInterval(()=>{if(Math.random()<.25)randomPrese
 
 let observerBooted=false
 const terminalIcon=document.getElementById('terminalIcon')
-terminalIcon.ondblclick=()=>{terminalWindow.classList.remove('hidden');if(!observerBooted){bootObserver();observerBooted=true}else printPrompt()}
+terminalIcon.ondblclick=()=>{
+terminalWindow.classList.remove('hidden')
+bootObserver()
+observerBooted=true
+}
 
 </script>
 </body>
