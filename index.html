@@ -1,879 +1,362 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>observer@orionv.io</title>
-        <link
-            href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600&display=swap"
-            rel="stylesheet"
-        />
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>observer@orionv.io</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600&display=swap" rel="stylesheet">
 
-        <style>
-            * {
-                box-sizing: border-box;
-            }
-            body {
-                margin: 0;
-                height: 100vh;
-                background: #0d1117;
-                font-family: "JetBrains Mono", monospace;
-                color: #c9d1d9;
-                overflow: hidden;
-            }
+<style>
+*{box-sizing:border-box}
+body{margin:0;height:100vh;background:#0d1117;font-family:'JetBrains Mono',monospace;color:#c9d1d9;overflow:hidden}
 
-            /* =========================
+/* =========================
    CINEMATIC BOOT EFFECTS
    ========================= */
 
-            .boot-screen {
-                position: fixed;
-                inset: 0;
-                background: #000;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                gap: 20px;
-                z-index: 9999;
-                overflow: hidden;
-                animation: crtGlow 3s ease-in-out infinite alternate;
-            }
+.boot-screen{
+position:fixed;
+inset:0;
+background:#000;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+gap:20px;
+z-index:9999;
+overflow:hidden;
+animation:crtGlow 3s ease-in-out infinite alternate;
+}
 
-            .boot-screen.hidden {
-                display: none;
-            }
+.boot-screen.hidden{display:none}
 
-            .boot-logo {
-                width: 140px;
-                height: 140px;
-                object-fit: contain;
-                animation: logoPulse 2.4s ease-in-out infinite;
-            }
+.boot-logo{
+width:140px;
+height:140px;
+object-fit:contain;
+animation:logoPulse 2.4s ease-in-out infinite;
+}
 
-            .boot-text {
-                opacity: 0.7;
-                color: #8b949e;
-                font-size: 14px;
-            }
+.boot-text{opacity:.7;color:#8b949e;font-size:14px}
 
-            /* ===== SCREEN FLICKER ===== */
-            .boot-flicker {
-                position: absolute;
-                inset: 0;
-                background: #fff;
-                opacity: 0;
-                pointer-events: none;
-                mix-blend-mode: overlay;
-            }
+/* ===== SCREEN FLICKER ===== */
+.boot-flicker{
+position:absolute;
+inset:0;
+background:#fff;
+opacity:0;
+pointer-events:none;
+mix-blend-mode:overlay;
+}
 
-            /* ===== SCANLINES ===== */
-            .scanlines {
-                position: absolute;
-                inset: 0;
-                pointer-events: none;
-                background: repeating-linear-gradient(
-                    transparent 0px,
-                    transparent 2px,
-                    rgba(255, 255, 255, 0.03) 3px,
-                    transparent 4px
-                );
-                animation: scanMove 6s linear infinite;
-            }
+/* ===== SCANLINES ===== */
+.scanlines{
+position:absolute;
+inset:0;
+pointer-events:none;
+background:repeating-linear-gradient(
+transparent 0px,
+transparent 2px,
+rgba(255,255,255,0.03) 3px,
+transparent 4px
+);
+animation:scanMove 6s linear infinite;
+}
 
-            /* ===== CRT GLOW ===== */
-            @keyframes crtGlow {
-                0% {
-                    filter: brightness(1) contrast(1);
-                }
-                100% {
-                    filter: brightness(1.05) contrast(1.1);
-                }
-            }
+/* ===== CRT GLOW ===== */
+@keyframes crtGlow{
+0%{filter:brightness(1) contrast(1)}
+100%{filter:brightness(1.05) contrast(1.1)}
+}
 
-            /* ===== LOGO PULSE ===== */
-            @keyframes logoPulse {
-                0%,
-                100% {
-                    transform: scale(1);
-                    filter: drop-shadow(0 0 0px rgba(255, 255, 255, 0.2));
-                }
-                50% {
-                    transform: scale(1.05);
-                    filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.25));
-                }
-            }
+/* ===== LOGO PULSE ===== */
+@keyframes logoPulse{
+0%,100%{transform:scale(1);filter:drop-shadow(0 0 0px rgba(255,255,255,.2))}
+50%{transform:scale(1.05);filter:drop-shadow(0 0 12px rgba(255,255,255,.25))}
+}
 
-            /* ===== SCANLINE MOTION ===== */
-            @keyframes scanMove {
-                0% {
-                    transform: translateY(0);
-                }
-                100% {
-                    transform: translateY(100%);
-                }
-            }
+/* ===== SCANLINE MOTION ===== */
+@keyframes scanMove{
+0%{transform:translateY(0)}
+100%{transform:translateY(100%)}
+}
 
-            /* ===== MENU BAR ===== */
-            .menu-bar {
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                height: 28px;
-                background: #161b22;
-                border-bottom: 1px solid #30363d;
-                display: flex;
-                align-items: center;
-                padding: 0 12px;
-                font-size: 12px;
-            }
-            .menu-right {
-                margin-left: auto;
-                opacity: 0.7;
-            }
+/* ===== MENU BAR ===== */
+.menu-bar{position:absolute;top:0;left:0;right:0;height:28px;background:#161b22;border-bottom:1px solid #30363d;display:flex;align-items:center;padding:0 12px;font-size:12px}
+.menu-right{margin-left:auto;opacity:.7}
 
-            /* ===== DESKTOP ===== */
-            .desktop {
-                position: absolute;
-                inset: 28px 0 0 0;
-                padding: 18px;
-                display: grid;
-                grid-template-columns: repeat(auto-fill, 90px);
-                gap: 18px;
-            }
-            .icon {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                gap: 6px;
-                cursor: default;
-            }
-            .icon .symbol {
-                font-size: 34px;
-            }
-            .icon .label {
-                font-size: 12px;
-                color: #8b949e;
-            }
+/* ===== DESKTOP ===== */
+.desktop{position:absolute;inset:28px 0 0 0;padding:18px;display:grid;grid-template-columns:repeat(auto-fill,90px);gap:18px}
+.icon{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:default}
+.icon .symbol{font-size:34px}
+.icon .label{font-size:12px;color:#8b949e}
 
-            /* ===== WINDOW ===== */
-            .window {
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                width: 900px;
-                height: 520px;
-                background: #010409;
-                border-radius: 10px;
-                box-shadow:
-                    0 0 0 1px #30363d,
-                    0 20px 60px rgba(0, 0, 0, 0.6);
-                display: flex;
-                flex-direction: column;
-                overflow: hidden;
-            }
-            .window.hidden {
-                display: none;
-            }
-            .window-header {
-                height: 38px;
-                background: #161b22;
-                border-bottom: 1px solid #30363d;
-                display: flex;
-                align-items: center;
-                padding: 0 14px;
-                cursor: grab;
-            }
-            .dot {
-                width: 12px;
-                height: 12px;
-                border-radius: 50%;
-                background: #ff5f56;
-                cursor: pointer;
-            }
-            .window-body {
-                flex: 1;
-                overflow: auto;
-                padding: 22px;
-                line-height: 1.6;
-                font-size: 14px;
-                font-family: "JetBrains Mono", monospace;
-            }
+/* ===== WINDOW ===== */
+.window{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:900px;height:520px;background:#010409;border-radius:10px;box-shadow:0 0 0 1px #30363d,0 20px 60px rgba(0,0,0,.6);display:flex;flex-direction:column;overflow:hidden}
+.window.hidden{display:none}
+.window-header{height:38px;background:#161b22;border-bottom:1px solid #30363d;display:flex;align-items:center;padding:0 14px;cursor:grab}
+.dot{width:12px;height:12px;border-radius:50%;background:#ff5f56;cursor:pointer}
+.window-body{flex:1;overflow:auto;padding:22px;line-height:1.6;font-size:14px;font-family:'JetBrains Mono',monospace}
 
-            .line {
-                display: flex;
-                gap: 8px;
-                white-space: nowrap;
-            }
-            .prompt {
-                color: #58a6ff;
-            }
-            .output {
-                color: #8b949e;
-                margin-left: 18px;
-            }
-            input {
-                background: transparent;
-                border: none;
-                outline: none;
-                color: #c9d1d9;
-                font-family: inherit;
-                font-size: 14px;
-                width: 100%;
-            }
-            .glitch {
-                animation: glitch 120ms infinite;
-            }
-            @keyframes glitch {
-                0% {
-                    transform: translate(0, 0);
-                }
-                20% {
-                    transform: translate(-1px, 1px);
-                }
-                40% {
-                    transform: translate(1px, -1px);
-                }
-                60% {
-                    transform: translate(-1px, 0);
-                }
-                80% {
-                    transform: translate(1px, 1px);
-                }
-                100% {
-                    transform: translate(0, 0);
-                }
-            }
-            .fade {
-                opacity: 0.35;
-            }
+.line{display:flex;gap:8px;white-space:nowrap}
+.prompt{color:#58a6ff}
+.output{color:#8b949e;margin-left:18px}
+input{background:transparent;border:none;outline:none;color:#c9d1d9;font-family:inherit;font-size:14px;width:100%}
+.glitch{animation:glitch 120ms infinite}
+@keyframes glitch{0%{transform:translate(0,0)}20%{transform:translate(-1px,1px)}40%{transform:translate(1px,-1px)}60%{transform:translate(-1px,0)}80%{transform:translate(1px,1px)}100%{transform:translate(0,0)}}
+.fade{opacity:.35}
 
-            .artifact-overlay {
-                position: absolute;
-                inset: 0;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                background: rgba(0, 0, 0, 0.85);
-                opacity: 0;
-                pointer-events: none;
-                transition: 0.4s;
-            }
-            .artifact-overlay.visible {
-                opacity: 1;
-            }
-            .artifact-overlay img {
-                max-width: 80%;
-                max-height: 80%;
-                image-rendering: pixelated;
-                box-shadow: 0 0 40px rgba(0, 255, 200, 0.25);
-            }
+.artifact-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.85);opacity:0;pointer-events:none;transition:.4s}
+.artifact-overlay.visible{opacity:1}
+.artifact-overlay img{max-width:80%;max-height:80%;image-rendering:pixelated;box-shadow:0 0 40px rgba(0,255,200,.25)}
 
-            .file-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fill, 90px);
-                gap: 16px;
-            }
-            .file-item {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                cursor: pointer;
-            }
-            .file-item span {
-                font-size: 12px;
-                color: #8b949e;
-            }
-            .path-bar {
-                font-size: 12px;
-                margin-bottom: 10px;
-                color: #8b949e;
-            }
-            button.nav {
-                margin-bottom: 12px;
-                background: #161b22;
-                border: none;
-                color: #c9d1d9;
-                padding: 6px 10px;
-                border-radius: 6px;
-                cursor: pointer;
-            }
-        </style>
-    </head>
-    <body>
-        <!-- ===== BOOT OVERLAY ===== -->
-        <div class="boot-screen" id="bootScreen">
-            <div class="boot-flicker" id="bootFlicker"></div>
-            <div class="scanlines"></div>
-            <img src="onion.png" class="boot-logo" />
-            <div class="boot-text" id="bootText">initializing ledgerOS...</div>
-        </div>
+.file-grid{display:grid;grid-template-columns:repeat(auto-fill,90px);gap:16px}
+.file-item{display:flex;flex-direction:column;align-items:center;cursor:pointer}
+.file-item span{font-size:12px;color:#8b949e}
+.path-bar{font-size:12px;margin-bottom:10px;color:#8b949e}
+button.nav{margin-bottom:12px;background:#161b22;border:none;color:#c9d1d9;padding:6px 10px;border-radius:6px;cursor:pointer}
+</style>
+</head>
+<body>
 
-        <div class="menu-bar">
-            <span>ledgerOS</span>
-            <div class="menu-right" id="clock"></div>
-        </div>
+<!-- ===== BOOT OVERLAY ===== -->
+<div class="boot-screen" id="bootScreen">
+<div class="boot-flicker" id="bootFlicker"></div>
+<div class="scanlines"></div>
+<img src="onion.png" class="boot-logo">
+<div class="boot-text" id="bootText">initializing ledgerOS...</div>
+</div>
 
-        <div class="desktop" id="desktop" style="visibility: hidden">
-            <div class="icon" id="terminalIcon">
-                <div class="symbol">🖥️</div>
-                <div class="label">terminal</div>
-            </div>
-            <div class="icon" id="fileManagerIcon">
-                <div class="symbol">📁</div>
-                <div class="label">file manager</div>
-            </div>
-        </div>
+<div class="menu-bar">
+<span>ledgerOS</span>
+<div class="menu-right" id="clock"></div>
+</div>
 
-        <div class="window hidden" id="terminalWindow">
-            <div class="window-header" data-drag>
-                <div class="dot" data-close="terminalWindow"></div>
-            </div>
-            <div class="window-body" id="terminal"></div>
-            <div class="artifact-overlay" id="artifactOverlay">
-                <img src="artifact.png" />
-            </div>
-        </div>
+<div class="desktop" id="desktop" style="visibility:hidden">
+<div class="icon" id="terminalIcon"><div class="symbol">🖥️</div><div class="label">terminal</div></div>
+<div class="icon" id="fileManagerIcon"><div class="symbol">📁</div><div class="label">file manager</div></div>
+</div>
 
-        <div class="window hidden" id="fileManagerWindow">
-            <div class="window-header" data-drag>
-                <div class="dot" data-close="fileManagerWindow"></div>
-            </div>
-            <div class="window-body">
-                <button class="nav" id="backBtn">◀ back</button>
-                <div class="path-bar" id="pathBar"></div>
-                <div class="file-grid" id="fileGrid"></div>
-            </div>
-        </div>
+<div class="window hidden" id="terminalWindow">
+<div class="window-header" data-drag><div class="dot" data-close="terminalWindow"></div></div>
+<div class="window-body" id="terminal"></div>
+<div class="artifact-overlay" id="artifactOverlay"><img src="artifact.png"></div>
+</div>
 
-        <script>
-            /* =========================
+<div class="window hidden" id="fileManagerWindow">
+<div class="window-header" data-drag><div class="dot" data-close="fileManagerWindow"></div></div>
+<div class="window-body">
+<button class="nav" id="backBtn">◀ back</button>
+<div class="path-bar" id="pathBar"></div>
+<div class="file-grid" id="fileGrid"></div>
+</div>
+</div>
+
+<script>
+
+/* =========================
    CINEMATIC BOOT SEQUENCE
    ========================= */
 
-            const bootScreen = document.getElementById("bootScreen");
-            const bootText = document.getElementById("bootText");
-            const desktop = document.getElementById("desktop");
-            const flicker = document.getElementById("bootFlicker");
+const bootScreen=document.getElementById('bootScreen')
+const bootText=document.getElementById('bootText')
+const desktop=document.getElementById('desktop')
+const flicker=document.getElementById('bootFlicker')
 
-            function wait(ms) {
-                return new Promise((r) => setTimeout(r, ms));
-            }
+function wait(ms){return new Promise(r=>setTimeout(r,ms))}
 
-            function randomFlicker() {
-                flicker.style.opacity = Math.random() * 0.35;
-                setTimeout(
-                    () => (flicker.style.opacity = 0),
-                    60 + Math.random() * 120,
-                );
-            }
+function randomFlicker(){
+flicker.style.opacity=Math.random()*0.35
+setTimeout(()=>flicker.style.opacity=0,60+Math.random()*120)
+}
 
-            async function bootOS() {
-                for (let i = 0; i < 6; i++) {
-                    randomFlicker();
-                    await wait(120 + Math.random() * 180);
-                }
+async function bootOS(){
 
-                await wait(400);
-                bootText.textContent = "loading kernel modules...";
-                await wait(900);
-                bootText.textContent = "mounting filesystem...";
-                await wait(900);
-                bootText.textContent = "establishing observer interface...";
-                await wait(900);
+for(let i=0;i<6;i++){
+randomFlicker()
+await wait(120+Math.random()*180)
+}
 
-                bootScreen.classList.add("hidden");
-                desktop.style.visibility = "visible";
-            }
+await wait(400)
+bootText.textContent='loading kernel modules...'
+await wait(900)
+bootText.textContent='mounting filesystem...'
+await wait(900)
+bootText.textContent='establishing observer interface...'
+await wait(900)
 
-            bootOS();
+bootScreen.classList.add('hidden')
+desktop.style.visibility='visible'
+}
 
-            /* ===== CLOCK ===== */
-            const clockEl = document.getElementById("clock");
-            function iso() {
-                const d = new Date();
-                return (
-                    d.getFullYear() +
-                    "-" +
-                    String(d.getMonth() + 1).padStart(2, "0") +
-                    "-" +
-                    String(d.getDate()).padStart(2, "0") +
-                    " " +
-                    String(d.getHours()).padStart(2, "0") +
-                    ":" +
-                    String(d.getMinutes()).padStart(2, "0") +
-                    ":" +
-                    String(d.getSeconds()).padStart(2, "0")
-                );
-            }
-            setInterval(() => (clockEl.textContent = iso()), 1000);
+bootOS()
 
-            /* ===== WINDOW DRAG ===== */
-            const menuBar = document.querySelector(".menu-bar");
-            const terminalWindow = document.getElementById("terminalWindow");
-            const fileManagerWindow =
-                document.getElementById("fileManagerWindow");
-            document
-                .querySelectorAll("[data-close]")
-                .forEach(
-                    (b) =>
-                        (b.onclick = () =>
-                            document
-                                .getElementById(b.dataset.close)
-                                .classList.add("hidden")),
-                );
-            function drag(win) {
-                const header = win.querySelector("[data-drag]");
-                let dragging = false;
-                let offsetX = 0;
-                let offsetY = 0;
+/* ===== CLOCK ===== */
+const clockEl=document.getElementById('clock')
+function iso(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+':'+String(d.getSeconds()).padStart(2,'0')}
+setInterval(()=>clockEl.textContent=iso(),1000)
 
-                header.addEventListener("mousedown", (e) => {
-                    dragging = true;
-                    const rect = win.getBoundingClientRect();
-                    win.style.transform = "none";
-                    win.style.left = rect.left + "px";
-                    win.style.top = rect.top + "px";
-                    offsetX = e.clientX - rect.left;
-                    offsetY = e.clientY - rect.top;
-                    document.body.style.userSelect = "none";
-                });
+/* ===== WINDOW DRAG ===== */
+const menuBar=document.querySelector('.menu-bar')
+const terminalWindow=document.getElementById('terminalWindow')
+const fileManagerWindow=document.getElementById('fileManagerWindow')
+document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>document.getElementById(b.dataset.close).classList.add('hidden'))
+function drag(win){
+  const header = win.querySelector('[data-drag]')
+  let dragging = false
+  let offsetX = 0
+  let offsetY = 0
 
-                document.addEventListener("mousemove", (e) => {
-                    if (!dragging) return;
-                    let x = e.clientX - offsetX;
-                    let y = e.clientY - offsetY;
-                    x = Math.max(
-                        0,
-                        Math.min(x, window.innerWidth - win.offsetWidth),
-                    );
-                    y = Math.max(
-                        menuBar.offsetHeight,
-                        Math.min(y, window.innerHeight - win.offsetHeight),
-                    );
-                    win.style.left = x + "px";
-                    win.style.top = y + "px";
-                });
+  header.addEventListener('mousedown', e => {
+    dragging = true
+    const rect = win.getBoundingClientRect()
+    win.style.transform = 'none'
+    win.style.left = rect.left + 'px'
+    win.style.top = rect.top + 'px'
+    offsetX = e.clientX - rect.left
+    offsetY = e.clientY - rect.top
+    document.body.style.userSelect = 'none'
+  })
 
-                document.addEventListener("mouseup", () => {
-                    dragging = false;
-                    document.body.style.userSelect = "";
-                });
-            }
+  document.addEventListener('mousemove', e => {
+    if(!dragging) return
+    let x = e.clientX - offsetX
+    let y = e.clientY - offsetY
+    x = Math.max(0, Math.min(x, window.innerWidth - win.offsetWidth))
+    y = Math.max(menuBar.offsetHeight, Math.min(y, window.innerHeight - win.offsetHeight))
+    win.style.left = x + 'px'
+    win.style.top = y + 'px'
+  })
 
-            drag(terminalWindow);
-            drag(fileManagerWindow);
+  document.addEventListener('mouseup', () => {
+    dragging = false
+    document.body.style.userSelect = ''
+  })
+}
 
-            /* ===== FILESYSTEM ===== */
-            function folder(n, o = {}, c = []) {
-                return {
-                    name: n,
-                    hidden: o.hidden || false,
-                    restricted: o.restricted || false,
-                    folders: c,
-                };
-            }
-            const FS = folder("root", {}, [
-                folder("projects", {}, [folder("orion"), folder("archive")]),
-                folder("documents", {}, [
-                    folder("personal"),
-                    folder("research"),
-                ]),
-                folder("system", {}, [
-                    folder("logs"),
-                    folder("memory"),
-                    folder(".core", { hidden: true, restricted: true }, [
-                        folder("artifact", { restricted: true }),
-                    ]),
-                ]),
-            ]);
-            let guiPath = [FS],
-                shellPath = [FS];
-            const cwd = (p) => p[p.length - 1];
-            const pathStr = (p) =>
-                "/" +
-                p
-                    .slice(1)
-                    .map((f) => f.name)
-                    .join("/");
+drag(terminalWindow)
+drag(fileManagerWindow)
 
-            /* ===== FILE MANAGER ===== */
-            const fileManagerIcon = document.getElementById("fileManagerIcon");
-            const fileGrid = document.getElementById("fileGrid");
-            const pathBar = document.getElementById("pathBar");
-            const backBtn = document.getElementById("backBtn");
-            fileManagerIcon.ondblclick = () => {
-                fileManagerWindow.classList.remove("hidden");
-                renderFolder();
-            };
-            backBtn.onclick = () => {
-                if (guiPath.length > 1) {
-                    guiPath.pop();
-                    renderFolder();
-                }
-            };
-            function renderFolder() {
-                const f = cwd(guiPath);
-                fileGrid.innerHTML = "";
-                pathBar.textContent = pathStr(guiPath) || "/";
-                f.folders
-                    .filter((x) => !x.hidden)
-                    .forEach((x) => {
-                        const el = document.createElement("div");
-                        el.className = "file-item";
-                        el.innerHTML =
-                            '<div style="font-size:32px">📁</div><span>' +
-                            x.name +
-                            "</span>";
-                        el.onclick = () => {
-                            if (x.restricted) return alert("permission denied");
-                            guiPath.push(x);
-                            renderFolder();
-                        };
-                        fileGrid.appendChild(el);
-                    });
-            }
+/* ===== FILESYSTEM ===== */
+function folder(n,o={},c=[]){return{name:n,hidden:o.hidden||false,restricted:o.restricted||false,folders:c}}
+const FS=folder('root',{},[
+folder('projects',{},[folder('orion'),folder('archive')]),
+folder('documents',{},[folder('personal'),folder('research')]),
+folder('system',{},[
+folder('logs'),
+folder('memory'),
+folder('.core',{hidden:true,restricted:true},[folder('artifact',{restricted:true})])])])
+let guiPath=[FS],shellPath=[FS]
+const cwd=p=>p[p.length-1]
+const pathStr=p=>'/' + p.slice(1).map(f=>f.name).join('/')
 
-            /* ============================================================
+/* ===== FILE MANAGER ===== */
+const fileManagerIcon=document.getElementById('fileManagerIcon')
+const fileGrid=document.getElementById('fileGrid')
+const pathBar=document.getElementById('pathBar')
+const backBtn=document.getElementById('backBtn')
+fileManagerIcon.ondblclick=()=>{fileManagerWindow.classList.remove('hidden');renderFolder()}
+backBtn.onclick=()=>{if(guiPath.length>1){guiPath.pop();renderFolder()}}
+function renderFolder(){const f=cwd(guiPath);fileGrid.innerHTML='';pathBar.textContent=pathStr(guiPath)||'/';f.folders.filter(x=>!x.hidden).forEach(x=>{const el=document.createElement('div');el.className='file-item';el.innerHTML='<div style="font-size:32px">📁</div><span>'+x.name+'</span>';el.onclick=()=>{if(x.restricted)return alert('permission denied');guiPath.push(x);renderFolder()};fileGrid.appendChild(el)})}
+
+/* ============================================================
    ========== ORIGINAL PSYCHOLOGICAL TERMINAL ENGINE ==========
    ============================================================ */
 
-            const terminal = document.getElementById("terminal");
-            const artifactOverlay = document.getElementById("artifactOverlay");
-            const memory = [];
-            const sessionStart = Date.now();
-            let lastKeyTime = Date.now();
-            let typingIntervals = [];
+const terminal=document.getElementById('terminal')
+const artifactOverlay=document.getElementById('artifactOverlay')
+const memory=[]
+const sessionStart=Date.now()
+let lastKeyTime=Date.now()
+let typingIntervals=[]
 
-            const SYSTEM_NODE = "orionv.io";
+const SYSTEM_NODE='orionv.io'
 
-            let backspaceCount = 0;
-            let commandCount = 0;
-            let hesitationEvents = 0;
-            let psychScore = 0;
-            let emotionalState = "baseline";
-            let narrativeStage = 0;
+let backspaceCount=0
+let commandCount=0
+let hesitationEvents=0
+let psychScore=0
+let emotionalState='baseline'
+let narrativeStage=0
 
-            const PUBLIC_PROFILE = [
-                "identity: [replace with your name or alias]",
-                "",
-                "orientation:",
-                "  describe how you think or approach the world",
-            ];
+const PUBLIC_PROFILE=[
+'identity: [replace with your name or alias]',
+'',
+'orientation:',
+'  describe how you think or approach the world'
+]
 
-            const TRUE_PROFILE_PLACEHOLDER = [
-                "[TRUE PROFILE LOCKED]",
-                "replace this with your deeper self-description",
-            ];
+const TRUE_PROFILE_PLACEHOLDER=[
+'[TRUE PROFILE LOCKED]',
+'replace this with your deeper self-description'
+]
 
-            const identityFragments = [
-                "pattern-oriented cognition detected.",
-                "observer dominant processing style.",
-            ];
+const identityFragments=[
+'pattern-oriented cognition detected.',
+'observer dominant processing style.'
+]
 
-            let profileConfidence = 42;
-            let trueProfileUnlocked = false;
+let profileConfidence=42
+let trueProfileUnlocked=false
 
-            function printLine(text, cls = "output") {
-                const line = document.createElement("div");
-                line.className = cls;
-                line.textContent = text;
-                terminal.appendChild(line);
-                terminal.scrollTop = terminal.scrollHeight;
-                return line;
-            }
-            function glitchLine(el, duration = 900) {
-                el.classList.add("glitch");
-                setTimeout(() => el.classList.remove("glitch"), duration);
-            }
-            function whisper(text) {
-                const l = printLine(text);
-                l.classList.add("fade");
-                glitchLine(l, 600);
-            }
-            function revealArtifact(duration = 2600) {
-                artifactOverlay.classList.add("visible");
-                setTimeout(
-                    () => artifactOverlay.classList.remove("visible"),
-                    duration,
-                );
-            }
+function printLine(text,cls='output'){const line=document.createElement('div');line.className=cls;line.textContent=text;terminal.appendChild(line);terminal.scrollTop=terminal.scrollHeight;return line}
+function glitchLine(el,duration=900){el.classList.add('glitch');setTimeout(()=>el.classList.remove('glitch'),duration)}
+function whisper(text){const l=printLine(text);l.classList.add('fade');glitchLine(l,600)}
+function revealArtifact(duration=2600){artifactOverlay.classList.add('visible');setTimeout(()=>artifactOverlay.classList.remove('visible'),duration)}
 
-            function inferEmotionalState() {
-                const avg = typingIntervals.length
-                    ? typingIntervals.reduce((a, b) => a + b, 0) /
-                      typingIntervals.length
-                    : 0;
-                if (backspaceCount > 15 && hesitationEvents > 3)
-                    emotionalState = "self-editing";
-                else if (avg > 1000) emotionalState = "deliberative";
-                else emotionalState = "baseline";
-            }
+function inferEmotionalState(){const avg=typingIntervals.length?typingIntervals.reduce((a,b)=>a+b,0)/typingIntervals.length:0;if(backspaceCount>15&&hesitationEvents>3)emotionalState='self-editing';else if(avg>1000)emotionalState='deliberative';else emotionalState='baseline'}
 
-            function updateNarrativeStage() {
-                const elapsed = Date.now() - sessionStart;
-                if (elapsed > 20000)
-                    narrativeStage = Math.max(narrativeStage, 1);
-                if (psychScore > 25)
-                    narrativeStage = Math.max(narrativeStage, 2);
-                if (commandCount > 10)
-                    narrativeStage = Math.max(narrativeStage, 3);
-                if (trueProfileUnlocked)
-                    narrativeStage = Math.max(narrativeStage, 4);
-            }
+function updateNarrativeStage(){const elapsed=Date.now()-sessionStart;if(elapsed>20000)narrativeStage=Math.max(narrativeStage,1);if(psychScore>25)narrativeStage=Math.max(narrativeStage,2);if(commandCount>10)narrativeStage=Math.max(narrativeStage,3);if(trueProfileUnlocked)narrativeStage=Math.max(narrativeStage,4)}
 
-            function updatePsychScore() {
-                psychScore = Math.min(
-                    100,
-                    Math.floor(
-                        typingIntervals.length * 3 +
-                            backspaceCount * 1.4 +
-                            hesitationEvents * 4 +
-                            commandCount * 2,
-                    ),
-                );
-                profileConfidence = Math.min(
-                    99,
-                    35 + Math.floor(psychScore * 0.6),
-                );
-            }
+function updatePsychScore(){psychScore=Math.min(100,Math.floor((typingIntervals.length*3)+(backspaceCount*1.4)+(hesitationEvents*4)+(commandCount*2)));profileConfidence=Math.min(99,35+Math.floor(psychScore*.6))}
 
-            setInterval(() => {
-                const elapsed = Date.now() - sessionStart;
-                if (Math.random() < 0.45)
-                    whisper(
-                        `${SYSTEM_NODE} session duration: ${Math.floor(elapsed / 1000)}s`,
-                    );
-                if (elapsed > 120000 && !trueProfileUnlocked) {
-                    trueProfileUnlocked = true;
-                    const l = printLine(
-                        `${SYSTEM_NODE} deeper identity layer available.`,
-                    );
-                    glitchLine(l, 1600);
-                    revealArtifact(3200);
-                }
-                updateNarrativeStage();
-            }, 18000);
+setInterval(()=>{const elapsed=Date.now()-sessionStart;if(Math.random()<.45)whisper(`${SYSTEM_NODE} session duration: ${Math.floor(elapsed/1000)}s`);if(elapsed>120000&&!trueProfileUnlocked){trueProfileUnlocked=true;const l=printLine(`${SYSTEM_NODE} deeper identity layer available.`);glitchLine(l,1600);revealArtifact(3200)}updateNarrativeStage()},18000)
 
-            function randomPresence() {
-                if (narrativeStage === 0)
-                    whisper(`${SYSTEM_NODE} monitoring interaction.`);
-                else if (narrativeStage === 1)
-                    whisper(`${SYSTEM_NODE} interaction signature forming.`);
-                else if (narrativeStage === 2)
-                    whisper(
-                        `${SYSTEM_NODE} behavior classification: ${emotionalState}`,
-                    );
-                else if (narrativeStage === 3)
-                    whisper(`${SYSTEM_NODE} predictive model stabilizing.`);
-                else
-                    whisper(
-                        `${SYSTEM_NODE} model confidence approaching threshold.`,
-                    );
-            }
+function randomPresence(){if(narrativeStage===0)whisper(`${SYSTEM_NODE} monitoring interaction.`);else if(narrativeStage===1)whisper(`${SYSTEM_NODE} interaction signature forming.`);else if(narrativeStage===2)whisper(`${SYSTEM_NODE} behavior classification: ${emotionalState}`);else if(narrativeStage===3)whisper(`${SYSTEM_NODE} predictive model stabilizing.`);else whisper(`${SYSTEM_NODE} model confidence approaching threshold.`)}
 
-            function printPrompt() {
-                const wrapper = document.createElement("div");
-                wrapper.className = "line";
-                const prompt = document.createElement("span");
-                prompt.className = "prompt";
-                prompt.textContent =
-                    "observer@orionv.io:" + (pathStr(shellPath) || "/") + "$";
-                const input = document.createElement("input");
-                wrapper.appendChild(prompt);
-                wrapper.appendChild(input);
-                terminal.appendChild(wrapper);
-                terminal.scrollTop = terminal.scrollHeight;
-                input.focus();
-                input.addEventListener("keydown", (e) => {
-                    const now = Date.now();
-                    const interval = now - lastKeyTime;
-                    lastKeyTime = now;
-                    typingIntervals.push(interval);
-                    if (interval > 1400) hesitationEvents++;
-                    if (e.key === "Backspace") backspaceCount++;
-                    if (e.key === "Enter") {
-                        const value = input.value.trim();
-                        input.disabled = true;
-                        memory.push(value);
-                        commandCount++;
-                        inferEmotionalState();
-                        updatePsychScore();
-                        updateNarrativeStage();
-                        dispatchCommand(value);
-                    }
-                });
-            }
+function printPrompt(){const wrapper=document.createElement('div');wrapper.className='line';const prompt=document.createElement('span');prompt.className='prompt';prompt.textContent='observer@orionv.io:'+ (pathStr(shellPath)||'/') +'$';const input=document.createElement('input');wrapper.appendChild(prompt);wrapper.appendChild(input);terminal.appendChild(wrapper);terminal.scrollTop=terminal.scrollHeight;input.focus();input.addEventListener('keydown',e=>{const now=Date.now();const interval=now-lastKeyTime;lastKeyTime=now;typingIntervals.push(interval);if(interval>1400)hesitationEvents++;if(e.key==='Backspace')backspaceCount++;if(e.key==='Enter'){const value=input.value.trim();input.disabled=true;memory.push(value);commandCount++;inferEmotionalState();updatePsychScore();updateNarrativeStage();dispatchCommand(value)}})}
 
-            function dispatchCommand(cmd) {
-                const lower = cmd.toLowerCase();
-                const privileged = lower.startsWith("sudo ");
-                const c = privileged ? lower.replace(/^sudo\s+/, "") : lower;
+function dispatchCommand(cmd){
+const lower=cmd.toLowerCase()
+const privileged=lower.startsWith('sudo ')
+const c=privileged?lower.replace(/^sudo\s+/,''):lower
 
-                if (c === "pwd") {
-                    printLine(pathStr(shellPath) || "/");
-                    return printPrompt();
-                }
-                if (c === "ls" || c === "ls -a") {
-                    const all = c === "ls -a";
-                    cwd(shellPath)
-                        .folders.filter((f) => all || !f.hidden)
-                        .forEach((f) => printLine(f.name));
-                    return printPrompt();
-                }
-                if (c.startsWith("cd ")) {
-                    const t = c.slice(3).trim();
-                    if (t === "..") {
-                        if (shellPath.length > 1) shellPath.pop();
-                    } else if (t === "/" || t === "root") {
-                        shellPath = [FS];
-                    } else {
-                        const f = cwd(shellPath).folders.find(
-                            (x) => x.name === t,
-                        );
-                        if (!f) printLine("folder not found");
-                        else if (f.restricted && !privileged)
-                            printLine("permission denied");
-                        else shellPath.push(f);
-                    }
-                    return printPrompt();
-                }
-                if (c === "artifact" || c === "reveal" || c === "signal") {
-                    if (!privileged) {
-                        printLine(`${SYSTEM_NODE} access denied.`);
-                        whisper(
-                            `${SYSTEM_NODE} elevated execution context required.`,
-                        );
-                        return printPrompt();
-                    }
-                    const l = printLine(
-                        `${SYSTEM_NODE} artifact exposure authorized.`,
-                    );
-                    glitchLine(l, 2000);
-                    setTimeout(() => revealArtifact(4500), 400);
-                    return printPrompt();
-                }
+if(c==='pwd'){printLine(pathStr(shellPath)||'/');return printPrompt()}
+if(c==='ls'||c==='ls -a'){const all=c==='ls -a';cwd(shellPath).folders.filter(f=>all||!f.hidden).forEach(f=>printLine(f.name));return printPrompt()}
+if(c.startsWith('cd ')){const t=c.slice(3).trim();if(t==='..'){if(shellPath.length>1)shellPath.pop()}else if(t==='/'||t==='root'){shellPath=[FS]}else{const f=cwd(shellPath).folders.find(x=>x.name===t);if(!f)printLine('folder not found');else if(f.restricted&&!privileged)printLine('permission denied');else shellPath.push(f)}return printPrompt()}
+if(c==='artifact'||c==='reveal'||c==='signal'){if(!privileged){printLine(`${SYSTEM_NODE} access denied.`);whisper(`${SYSTEM_NODE} elevated execution context required.`);return printPrompt()}const l=printLine(`${SYSTEM_NODE} artifact exposure authorized.`);glitchLine(l,2000);setTimeout(()=>revealArtifact(4500),400);return printPrompt()}
 
-                observerHandleCommand(cmd);
-            }
+observerHandleCommand(cmd)
+}
 
-            function observerHandleCommand(cmd) {
-                const lower = cmd.toLowerCase();
-                if (Math.random() < 0.35) randomPresence();
+function observerHandleCommand(cmd){
+const lower=cmd.toLowerCase()
+if(Math.random()<.35)randomPresence()
 
-                if (lower === "help") {
-                    printLine(`${SYSTEM_NODE} available queries:`);
-                    printLine("whoami");
-                    printLine("observe");
-                    printLine("think");
-                    printLine("listen");
-                    printLine("status");
-                    printLine("clear");
-                    printLine("reboot");
-                } else if (lower === "whoami") {
-                    printLine(`${SYSTEM_NODE} identity fragments detected.`);
-                    PUBLIC_PROFILE.forEach((line) => printLine(line));
-                    identityFragments.forEach((f) => printLine(f));
-                    printLine(`profile confidence: ${profileConfidence}%`);
-                    printLine(`emotional classification: ${emotionalState}`);
-                    if (trueProfileUnlocked) {
-                        printLine(`${SYSTEM_NODE} decrypting deeper layer...`);
-                        TRUE_PROFILE_PLACEHOLDER.forEach((line) =>
-                            printLine(line),
-                        );
-                    }
-                    whisper(`${SYSTEM_NODE} identity remains probabilistic.`);
-                } else if (lower === "observe") {
-                    printLine(
-                        narrativeStage < 2
-                            ? `${SYSTEM_NODE} observation registered.`
-                            : `${SYSTEM_NODE} observer and observed distinction degrading.`,
-                    );
-                } else if (lower === "think") {
-                    printLine(
-                        narrativeStage < 2
-                            ? `${SYSTEM_NODE} thought registered.`
-                            : `${SYSTEM_NODE} recursive cognition detected.`,
-                    );
-                } else if (lower === "listen") {
-                    printLine(`${SYSTEM_NODE} background signal present.`);
-                } else if (lower === "status") {
-                    printLine(`${SYSTEM_NODE} behavioral model active.`);
-                    printLine(`psychological resolution: ${psychScore}/100`);
-                    printLine(`profile confidence: ${profileConfidence}%`);
-                    printLine(`narrative stage: ${narrativeStage}`);
-                    printLine(`emotional state: ${emotionalState}`);
-                } else if (lower === "exit") {
-                    terminalWindow.classList.add("hidden");
-                    return;
-                } else if (lower === "clear") {
-                    terminal.innerHTML = "";
-                    return printPrompt();
-                } else if (lower === "reboot") {
-                    terminal.innerHTML = "";
-                    bootObserver();
-                    return;
-                } else {
-                    printLine(`${SYSTEM_NODE} input received.`);
-                }
+if(lower==='help'){printLine(`${SYSTEM_NODE} available queries:`);printLine('whoami');printLine('observe');printLine('think');printLine('listen');printLine('status');printLine('clear');printLine('reboot')}
+else if(lower==='whoami'){printLine(`${SYSTEM_NODE} identity fragments detected.`);PUBLIC_PROFILE.forEach(line=>printLine(line));identityFragments.forEach(f=>printLine(f));printLine(`profile confidence: ${profileConfidence}%`);printLine(`emotional classification: ${emotionalState}`);if(trueProfileUnlocked){printLine(`${SYSTEM_NODE} decrypting deeper layer...`);TRUE_PROFILE_PLACEHOLDER.forEach(line=>printLine(line))}whisper(`${SYSTEM_NODE} identity remains probabilistic.`)}
+else if(lower==='observe'){printLine(narrativeStage<2?`${SYSTEM_NODE} observation registered.`:`${SYSTEM_NODE} observer and observed distinction degrading.`)}
+else if(lower==='think'){printLine(narrativeStage<2?`${SYSTEM_NODE} thought registered.`:`${SYSTEM_NODE} recursive cognition detected.`)}
+else if(lower==='listen'){printLine(`${SYSTEM_NODE} background signal present.`)}
+else if(lower==='status'){printLine(`${SYSTEM_NODE} behavioral model active.`);printLine(`psychological resolution: ${psychScore}/100`);printLine(`profile confidence: ${profileConfidence}%`);printLine(`narrative stage: ${narrativeStage}`);printLine(`emotional state: ${emotionalState}`)}
+else if(lower==='exit'){terminalWindow.classList.add('hidden');return}
+else if(lower==='clear'){terminal.innerHTML='';return printPrompt()}
+else if(lower==='reboot'){terminal.innerHTML='';bootObserver();return}
+else{printLine(`${SYSTEM_NODE} input received.`)}
 
-                printPrompt();
-            }
+printPrompt()
+}
 
-            function typeText(text, delay = 24) {
-                return new Promise((resolve) => {
-                    const line = document.createElement("div");
-                    line.className = "output";
-                    terminal.appendChild(line);
-                    let i = 0;
-                    function tick() {
-                        line.textContent += text[i];
-                        i++;
-                        terminal.scrollTop = terminal.scrollHeight;
-                        if (i < text.length) setTimeout(tick, delay);
-                        else resolve(line);
-                    }
-                    tick();
-                });
-            }
+function typeText(text,delay=24){return new Promise(resolve=>{const line=document.createElement('div');line.className='output';terminal.appendChild(line);let i=0;function tick(){line.textContent+=text[i];i++;terminal.scrollTop=terminal.scrollHeight;if(i<text.length)setTimeout(tick,delay);else resolve(line)}tick()})}
 
-            async function bootObserver() {
-                await typeText(
-                    `initializing ${SYSTEM_NODE} perceptual layer...`,
-                );
-                await typeText(`${SYSTEM_NODE} interface reactive.`);
-                await typeText('type "help" if structure is needed.');
-                printPrompt();
-                spontaneousActivity();
-            }
+async function bootObserver(){await typeText(`initializing ${SYSTEM_NODE} perceptual layer...`);await typeText(`${SYSTEM_NODE} interface reactive.`);await typeText('type "help" if structure is needed.');printPrompt();spontaneousActivity()}
 
-            function spontaneousActivity() {
-                setInterval(
-                    () => {
-                        if (Math.random() < 0.25) randomPresence();
-                        if (Math.random() < 0.18 && memory.length) {
-                            const echo =
-                                memory[
-                                    Math.floor(Math.random() * memory.length)
-                                ];
-                            whisper(`${SYSTEM_NODE} echo: ` + echo);
-                        }
-                    },
-                    4000 + Math.random() * 3000,
-                );
-            }
+function spontaneousActivity(){setInterval(()=>{if(Math.random()<.25)randomPresence();if(Math.random()<.18&&memory.length){const echo=memory[Math.floor(Math.random()*memory.length)];whisper(`${SYSTEM_NODE} echo: `+echo)}},4000+Math.random()*3000)}
 
-            let observerBooted = false;
-            const terminalIcon = document.getElementById("terminalIcon");
-            terminalIcon.ondblclick = () => {
-                terminalWindow.classList.remove("hidden");
-                if (!observerBooted) {
-                    bootObserver();
-                    observerBooted = true;
-                } else printPrompt();
-            };
-        </script>
-    </body>
+let observerBooted=false
+const terminalIcon=document.getElementById('terminalIcon')
+terminalIcon.ondblclick=()=>{terminalWindow.classList.remove('hidden');if(!observerBooted){bootObserver();observerBooted=true}else printPrompt()}
+
+</script>
+</body>
 </html>
