@@ -83,8 +83,6 @@ input {
 
 .fade { opacity: .35; }
 
-/* ---------- artifact image overlay ---------- */
-
 .artifact-overlay {
   position: absolute;
   inset: 0;
@@ -98,9 +96,7 @@ input {
   z-index: 50;
 }
 
-.artifact-overlay.visible {
-  opacity: 1;
-}
+.artifact-overlay.visible { opacity: 1; }
 
 .artifact-overlay img {
   max-width: 80%;
@@ -123,12 +119,9 @@ input {
   
   <div class="terminal-body" id="terminal"></div>
 
-  <!-- ===== SYSTEM ARTIFACT IMAGE ===== -->
-  <!-- replace src with your image file path -->
   <div class="artifact-overlay" id="artifactOverlay">
     <img src="artifact.png" alt="system artifact">
   </div>
-
 </div>
 
 <script>
@@ -139,20 +132,53 @@ const sessionStart = Date.now();
 let lastKeyTime = Date.now();
 let typingIntervals = [];
 
-/* ---------- system identity ---------- */
 const SYSTEM_NODE = 'orionv.io';
 
-/* ---------- behavioral metrics ---------- */
 let backspaceCount = 0;
 let commandCount = 0;
 let hesitationEvents = 0;
 let psychScore = 0;
 
-/* ---------- emotional + narrative modeling ---------- */
 let emotionalState = 'baseline';
 let narrativeStage = 0;
 
-/* ---------- identity system ---------- */
+/* =====================================================
+   PUBLIC ABOUT ME — EDIT THIS SECTION
+   This is what normal visitors see when running whoami
+   ===================================================== */
+
+const PUBLIC_PROFILE = [
+  'identity: [replace with your name or alias]',
+  '',
+  'orientation:',
+  '  describe how you think or approach the world',
+  '',
+  'core traits:',
+  '  • analytical',
+  '  • introspective',
+  '  • independent',
+  '  • [add your own]',
+  '',
+  'working style:',
+  '  how you solve problems or build things',
+  '',
+  'interests:',
+  '  areas that consistently capture your attention',
+  '',
+  'focus:',
+  '  what you are currently exploring or building'
+];
+
+/* =====================================================
+   DEEPER PROFILE — UNLOCKED LATER
+   ===================================================== */
+
+const TRUE_PROFILE_PLACEHOLDER = [
+  '[TRUE PROFILE LOCKED]',
+  'replace this with your deeper self-description',
+  'something more precise than the surface layer',
+  'something that feels slightly uncomfortable to read'
+];
 
 const identityFragments = [
   'pattern-oriented cognition detected.',
@@ -164,15 +190,6 @@ const identityFragments = [
 
 let profileConfidence = 42;
 let trueProfileUnlocked = false;
-
-const TRUE_PROFILE_PLACEHOLDER = [
-  '[TRUE PROFILE LOCKED]',
-  'replace this with your deeper self-description',
-  'something more precise than the surface layer',
-  'something that feels slightly uncomfortable to read'
-];
-
-/* ---------- utilities ---------- */
 
 function printLine(text, cls='output') {
   const line = document.createElement('div');
@@ -218,14 +235,10 @@ function decryptLine(text) {
   }, 18);
 }
 
-/* ---------- artifact reveal ---------- */
-
 function revealArtifact(duration=2600) {
   artifactOverlay.classList.add('visible');
   setTimeout(()=>artifactOverlay.classList.remove('visible'), duration);
 }
-
-/* ---------- emotional inference ---------- */
 
 function inferEmotionalState() {
   const avgTyping = typingIntervals.length
@@ -239,18 +252,13 @@ function inferEmotionalState() {
   else emotionalState = 'baseline';
 }
 
-/* ---------- narrative progression ---------- */
-
 function updateNarrativeStage() {
   const elapsed = Date.now() - sessionStart;
-
   if (elapsed > 20000) narrativeStage = Math.max(narrativeStage, 1);
   if (psychScore > 25) narrativeStage = Math.max(narrativeStage, 2);
   if (commandCount > 10) narrativeStage = Math.max(narrativeStage, 3);
   if (trueProfileUnlocked) narrativeStage = Math.max(narrativeStage, 4);
 }
-
-/* ---------- psych modeling ---------- */
 
 function updatePsychScore() {
   psychScore = Math.min(100,
@@ -261,11 +269,8 @@ function updatePsychScore() {
       (commandCount * 2)
     )
   );
-
   profileConfidence = Math.min(99, 35 + Math.floor(psychScore * .6));
 }
-
-/* ---------- time awareness ---------- */
 
 setInterval(()=>{
   const elapsed = Date.now() - sessionStart;
@@ -283,27 +288,13 @@ setInterval(()=>{
 
 }, 18000);
 
-/* ---------- presence ---------- */
-
 function randomPresence() {
-  if (narrativeStage === 0) {
-    whisper(`${SYSTEM_NODE} monitoring interaction.`);
-  }
-  else if (narrativeStage === 1) {
-    whisper(`${SYSTEM_NODE} interaction signature forming.`);
-  }
-  else if (narrativeStage === 2) {
-    whisper(`${SYSTEM_NODE} behavior classification: ${emotionalState}`);
-  }
-  else if (narrativeStage === 3) {
-    whisper(`${SYSTEM_NODE} predictive model stabilizing.`);
-  }
-  else {
-    whisper(`${SYSTEM_NODE} model confidence approaching threshold.`);
-  }
+  if (narrativeStage === 0) whisper(`${SYSTEM_NODE} monitoring interaction.`);
+  else if (narrativeStage === 1) whisper(`${SYSTEM_NODE} interaction signature forming.`);
+  else if (narrativeStage === 2) whisper(`${SYSTEM_NODE} behavior classification: ${emotionalState}`);
+  else if (narrativeStage === 3) whisper(`${SYSTEM_NODE} predictive model stabilizing.`);
+  else whisper(`${SYSTEM_NODE} model confidence approaching threshold.`);
 }
-
-/* ---------- prompt ---------- */
 
 function printPrompt() {
   const wrapper = document.createElement('div');
@@ -348,8 +339,6 @@ function printPrompt() {
   });
 }
 
-/* ---------- command handling ---------- */
-
 function delayedEcho(text) {
   setTimeout(()=>{
     const l = printLine(text);
@@ -360,7 +349,9 @@ function delayedEcho(text) {
 function handleCommand(cmd) {
   if (!cmd) return printPrompt();
 
-  const c = cmd.toLowerCase();
+  const lower = cmd.toLowerCase();
+  const privileged = lower.startsWith('sudo ');
+  const c = privileged ? lower.replace(/^sudo\s+/, '') : lower;
 
   if (Math.random() < .35) randomPresence();
 
@@ -375,18 +366,34 @@ function handleCommand(cmd) {
     printLine('reboot');
   }
 
+  else if (c === 'artifact' || c === 'reveal' || c === 'signal') {
+
+    if (!privileged) {
+      const l = printLine(`${SYSTEM_NODE} access denied.`);
+      glitchLine(l, 1400);
+      setTimeout(()=> whisper(`${SYSTEM_NODE} insufficient privilege level.`), 400);
+      setTimeout(()=> whisper(`${SYSTEM_NODE} elevated execution context required.`), 1400);
+      return printPrompt();
+    }
+
+    const l = printLine(`${SYSTEM_NODE} artifact exposure authorized.`);
+    glitchLine(l, 2000);
+    setTimeout(()=>revealArtifact(4500), 400);
+  }
+
   else if (c === 'whoami') {
     printLine(`${SYSTEM_NODE} identity fragments detected.`);
     printLine('assembling model...');
 
+    PUBLIC_PROFILE.forEach(line => printLine(line));
+
+    printLine('');
     identityFragments.forEach(f => printLine(f));
 
     printLine(`profile confidence: ${profileConfidence}%`);
     printLine(`emotional classification: ${emotionalState}`);
 
-    if (narrativeStage >= 3) {
-      printLine(`${SYSTEM_NODE} behavioral interpretation enabled.`);
-    }
+    if (narrativeStage >= 3) printLine(`${SYSTEM_NODE} behavioral interpretation enabled.`);
 
     if (trueProfileUnlocked) {
       printLine(`${SYSTEM_NODE} decrypting deeper layer...`);
@@ -440,8 +447,6 @@ function handleCommand(cmd) {
   printPrompt();
 }
 
-/* ---------- typing intro ---------- */
-
 function typeText(text, delay=24) {
   return new Promise(resolve => {
     const line = document.createElement('div');
@@ -460,8 +465,6 @@ function typeText(text, delay=24) {
   });
 }
 
-/* ---------- boot ---------- */
-
 async function boot() {
   await typeText(`initializing ${SYSTEM_NODE} perceptual layer...`);
   await typeText(`${SYSTEM_NODE} loading residual traces...`);
@@ -477,13 +480,8 @@ async function boot() {
   await typeText('');
   printPrompt();
 
-  /* brief artifact flash on first boot */
-  setTimeout(()=>revealArtifact(1800), 600);
-
   spontaneousActivity();
 }
-
-/* ---------- spontaneous ---------- */
 
 function spontaneousActivity() {
   setInterval(()=>{
