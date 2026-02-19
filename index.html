@@ -95,6 +95,14 @@ animation:scanMove 6s linear infinite;
 .window{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:900px;height:520px;background:#010409;border-radius:10px;box-shadow:0 0 0 1px #30363d,0 20px 60px rgba(0,0,0,.6);display:flex;flex-direction:column;overflow:hidden}
 .window.hidden{display:none}
 .window-header{height:38px;background:#161b22;border-bottom:1px solid #30363d;display:flex;align-items:center;padding:0 14px;cursor:grab}
+.window-title{
+margin-left:12px;
+font-size:13px;
+color:#c9d1d9;
+opacity:.75;
+pointer-events:none;
+}
+
 .dot{width:12px;height:12px;border-radius:50%;background:#ff5f56;cursor:pointer}
 .window-body{flex:1;overflow:auto;padding:22px;line-height:1.6;font-size:14px;font-family:'JetBrains Mono',monospace}
 
@@ -138,6 +146,10 @@ button.nav{margin-bottom:12px;background:#161b22;border:none;color:#c9d1d9;paddi
 </div>
 
 <div class="window hidden" id="terminalWindow">
+    <div class="window-header" data-drag>
+    <div class="dot" data-close="terminalWindow"></div>
+    <div class="window-title">terminal</div>
+    </div>
 <div class="window-header" data-drag><div class="dot" data-close="terminalWindow"></div></div>
 <div class="window-body" id="terminal"></div>
 <div class="artifact-overlay" id="artifactOverlay"><img src="artifact.png"></div>
