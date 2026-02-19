@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>observer@orionv.io</title>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="onion.png">
+
 
 <style>
 *{box-sizing:border-box}
@@ -39,7 +41,6 @@ animation:logoPulse 2.4s ease-in-out infinite;
 
 .boot-text{opacity:.7;color:#8b949e;font-size:14px}
 
-/* ===== SCREEN FLICKER ===== */
 .boot-flicker{
 position:absolute;
 inset:0;
@@ -49,7 +50,6 @@ pointer-events:none;
 mix-blend-mode:overlay;
 }
 
-/* ===== SCANLINES ===== */
 .scanlines{
 position:absolute;
 inset:0;
@@ -63,19 +63,16 @@ transparent 4px
 animation:scanMove 6s linear infinite;
 }
 
-/* ===== CRT GLOW ===== */
 @keyframes crtGlow{
 0%{filter:brightness(1) contrast(1)}
 100%{filter:brightness(1.05) contrast(1.1)}
 }
 
-/* ===== LOGO PULSE ===== */
 @keyframes logoPulse{
 0%,100%{transform:scale(1);filter:drop-shadow(0 0 0px rgba(255,255,255,.2))}
 50%{transform:scale(1.05);filter:drop-shadow(0 0 12px rgba(255,255,255,.25))}
 }
 
-/* ===== SCANLINE MOTION ===== */
 @keyframes scanMove{
 0%{transform:translateY(0)}
 100%{transform:translateY(100%)}
@@ -95,16 +92,11 @@ animation:scanMove 6s linear infinite;
 .window{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:900px;height:520px;background:#010409;border-radius:10px;box-shadow:0 0 0 1px #30363d,0 20px 60px rgba(0,0,0,.6);display:flex;flex-direction:column;overflow:hidden}
 .window.hidden{display:none}
 .window-header{height:38px;background:#161b22;border-bottom:1px solid #30363d;display:flex;align-items:center;padding:0 14px;cursor:grab}
-.window-title{
-margin-left:12px;
-font-size:13px;
-color:#c9d1d9;
-opacity:.75;
-pointer-events:none;
-}
+.window-title{margin-left:12px;font-size:13px;color:#c9d1d9;opacity:.75;pointer-events:none}
 
 .dot{width:12px;height:12px;border-radius:50%;background:#ff5f56;cursor:pointer}
 .window-body{flex:1;overflow:auto;padding:22px;line-height:1.6;font-size:14px;font-family:'JetBrains Mono',monospace}
+.editor-area{width:100%;height:100%;background:#010409;color:#c9d1d9;border:none;outline:none;font-family:'JetBrains Mono',monospace;font-size:14px;resize:none}
 
 .line{display:flex;gap:8px;white-space:nowrap}
 .prompt{color:#58a6ff}
@@ -143,24 +135,38 @@ button.nav{margin-bottom:12px;background:#161b22;border:none;color:#c9d1d9;paddi
 <div class="desktop" id="desktop" style="visibility:hidden">
 <div class="icon" id="terminalIcon"><div class="symbol">🖥️</div><div class="label">terminal</div></div>
 <div class="icon" id="fileManagerIcon"><div class="symbol">📁</div><div class="label">file manager</div></div>
+<div class="icon" id="notepadIcon"><div class="symbol">📝</div><div class="label">text edit</div></div>
 </div>
 
 <div class="window hidden" id="terminalWindow">
-    <div class="window-header" data-drag>
-    <div class="dot" data-close="terminalWindow"></div>
-    <div class="window-title">terminal</div>
-    </div>
-<div class="window-header" data-drag><div class="dot" data-close="terminalWindow"></div></div>
+<div class="window-header" data-drag>
+<div class="dot" data-close="terminalWindow"></div>
+<div class="window-title">terminal</div>
+</div>
 <div class="window-body" id="terminal"></div>
 <div class="artifact-overlay" id="artifactOverlay"><img src="artifact.png"></div>
 </div>
 
 <div class="window hidden" id="fileManagerWindow">
-<div class="window-header" data-drag><div class="dot" data-close="fileManagerWindow"></div></div>
+<div class="window-header" data-drag>
+<div class="dot" data-close="fileManagerWindow"></div>
+<div class="window-title">file manager</div>
+</div>
 <div class="window-body">
 <button class="nav" id="backBtn">◀ back</button>
 <div class="path-bar" id="pathBar"></div>
 <div class="file-grid" id="fileGrid"></div>
+</div>
+</div>
+
+<!-- TEXT EDITOR WINDOW -->
+<div class="window hidden" id="textEditorWindow">
+<div class="window-header" data-drag>
+<div class="dot" data-close="textEditorWindow"></div>
+<div class="window-title" id="editorTitle">text editor</div>
+</div>
+<div class="window-body" style="padding:0">
+<textarea id="editor" class="editor-area"></textarea>
 </div>
 </div>
 
@@ -212,16 +218,23 @@ setInterval(()=>clockEl.textContent=iso(),1000)
 const menuBar=document.querySelector('.menu-bar')
 const terminalWindow=document.getElementById('terminalWindow')
 const fileManagerWindow=document.getElementById('fileManagerWindow')
+const textEditorWindow=document.getElementById('textEditorWindow')
+const editor=document.getElementById('editor')
+const editorTitle=document.getElementById('editorTitle')
+const notepadIcon=document.getElementById('notepadIcon')
+
 function closeTerminalWindow(){
 terminalWindow.classList.add('hidden')
-terminal.innerHTML=''        // wipe terminal content
-observerBooted=false         // force full reboot next open
+terminal.innerHTML=''
+observerBooted=false
 }
+
 document.querySelectorAll('[data-close]').forEach(b=>{
 const id=b.dataset.close
 if(id==='terminalWindow') b.onclick=closeTerminalWindow
 else b.onclick=()=>document.getElementById(id).classList.add('hidden')
 })
+
 function drag(win){
   const header = win.querySelector('[data-drag]')
   let dragging = false
@@ -257,6 +270,29 @@ function drag(win){
 
 drag(terminalWindow)
 drag(fileManagerWindow)
+drag(textEditorWindow)
+
+/* =========================
+   TEXT DOCUMENT STORAGE
+   ========================= */
+
+const documents={"note.txt":""}
+let currentDoc="note.txt"
+
+function openTextEditor(name="note.txt"){
+if(!(name in documents)) documents[name]=""
+currentDoc=name
+editor.value=documents[name]
+editorTitle.textContent=name+' — text editor'
+textEditorWindow.classList.remove('hidden')
+editor.focus()
+}
+
+editor.addEventListener('input',()=>{
+documents[currentDoc]=editor.value
+})
+
+notepadIcon.ondblclick=()=>openTextEditor('note.txt')
 
 /* ===== FILESYSTEM ===== */
 function folder(n,o={},c=[]){return{name:n,hidden:o.hidden||false,restricted:o.restricted||false,folders:c}}
@@ -372,6 +408,26 @@ const lower=cmd.toLowerCase()
 const privileged=lower.startsWith('sudo ')
 const c=privileged?lower.replace(/^sudo\s+/,''):lower
 
+/* ===== TEXT EDITOR TERMINAL COMMANDS ===== */
+if(c.startsWith('edit ')){
+const name=c.replace('edit ','').trim()||'note.txt'
+openTextEditor(name)
+printLine(`${SYSTEM_NODE} editor opened for ${name}`)
+return printPrompt()
+}
+
+if(c==='note'){
+openTextEditor('note.txt')
+printLine(`${SYSTEM_NODE} editor opened.`)
+return printPrompt()
+}
+
+if(c.startsWith('cat ')){
+const name=c.replace('cat ','').trim()
+printLine(documents[name]||'[empty]')
+return printPrompt()
+}
+
 if(c==='pwd'){printLine(pathStr(shellPath)||'/');return printPrompt()}
 if(c==='ls'||c==='ls -a'){const all=c==='ls -a';cwd(shellPath).folders.filter(f=>all||!f.hidden).forEach(f=>printLine(f.name));return printPrompt()}
 if(c.startsWith('cd ')){const t=c.slice(3).trim();if(t==='..'){if(shellPath.length>1)shellPath.pop()}else if(t==='/'||t==='root'){shellPath=[FS]}else{const f=cwd(shellPath).folders.find(x=>x.name===t);if(!f)printLine('folder not found');else if(f.restricted&&!privileged)printLine('permission denied');else shellPath.push(f)}return printPrompt()}
@@ -384,7 +440,7 @@ function observerHandleCommand(cmd){
 const lower=cmd.toLowerCase()
 if(Math.random()<.35)randomPresence()
 
-if(lower==='help'){printLine(`${SYSTEM_NODE} available queries:`);printLine('whoami');printLine('observe');printLine('think');printLine('listen');printLine('status');printLine('clear');printLine('reboot')}
+if(lower==='help'){printLine(`${SYSTEM_NODE} available queries:`);printLine('whoami');printLine('observe');printLine('think');printLine('listen');printLine('status');printLine('clear');printLine('reboot');printLine('edit <file>');printLine('cat <file>')}
 else if(lower==='whoami'){printLine(`${SYSTEM_NODE} identity fragments detected.`);PUBLIC_PROFILE.forEach(line=>printLine(line));identityFragments.forEach(f=>printLine(f));printLine(`profile confidence: ${profileConfidence}%`);printLine(`emotional classification: ${emotionalState}`);if(trueProfileUnlocked){printLine(`${SYSTEM_NODE} decrypting deeper layer...`);TRUE_PROFILE_PLACEHOLDER.forEach(line=>printLine(line))}whisper(`${SYSTEM_NODE} identity remains probabilistic.`)}
 else if(lower==='observe'){printLine(narrativeStage<2?`${SYSTEM_NODE} observation registered.`:`${SYSTEM_NODE} observer and observed distinction degrading.`)}
 else if(lower==='think'){printLine(narrativeStage<2?`${SYSTEM_NODE} thought registered.`:`${SYSTEM_NODE} recursive cognition detected.`)}
