@@ -7,7 +7,6 @@
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600&display=swap" rel="stylesheet">
 <link rel="icon" type="image/png" href="onion.png">
 
-
 <style>
 *{box-sizing:border-box}
 body{margin:0;height:100vh;background:#0d1117;font-family:'JetBrains Mono',monospace;color:#c9d1d9;overflow:hidden}
@@ -96,7 +95,7 @@ animation:scanMove 6s linear infinite;
 
 .dot{width:12px;height:12px;border-radius:50%;background:#ff5f56;cursor:pointer}
 .window-body{flex:1;overflow:auto;padding:22px;line-height:1.6;font-size:14px;font-family:'JetBrains Mono',monospace}
-.editor-area{width:100%;height:100%;background:#010409;color:#c9d1d9;border:none;outline:none;font-family:'JetBrains Mono',monospace;font-size:14px;resize:none}
+.editor-area{width:100%;height:100%;background:#010409;color:#c9d1d9;border:none;outline:none;font-family:'JetBrains Mono',monospace;font-size:14px;resize:none;padding:22px}
 
 .line{display:flex;gap:8px;white-space:nowrap}
 .prompt{color:#58a6ff}
@@ -111,10 +110,50 @@ input{background:transparent;border:none;outline:none;color:#c9d1d9;font-family:
 .artifact-overlay img{max-width:80%;max-height:80%;image-rendering:pixelated;box-shadow:0 0 40px rgba(0,255,200,.25)}
 
 .file-grid{display:grid;grid-template-columns:repeat(auto-fill,90px);gap:16px}
-.file-item{display:flex;flex-direction:column;align-items:center;cursor:pointer}
-.file-item span{font-size:12px;color:#8b949e}
+.file-item{display:flex;flex-direction:column;align-items:center;cursor:pointer;padding:6px;border-radius:6px}
+.file-item:hover{background:rgba(255,255,255,0.05)}
+.file-item span{font-size:12px;color:#8b949e;text-align:center;word-break:break-word}
 .path-bar{font-size:12px;margin-bottom:10px;color:#8b949e}
 button.nav{margin-bottom:12px;background:#161b22;border:none;color:#c9d1d9;padding:6px 10px;border-radius:6px;cursor:pointer}
+
+/* ===== VIM OVERLAY ===== */
+.vim-overlay{
+  position:relative;
+  width:100%;
+  background:#010409;
+  border-top:1px solid #30363d;
+  border-bottom:1px solid #30363d;
+  margin:4px 0;
+  font-family:'JetBrains Mono',monospace;
+  font-size:13px;
+  color:#c9d1d9;
+}
+.vim-body{
+  white-space:pre;
+  padding:6px 10px;
+  max-height:320px;
+  overflow-y:auto;
+  line-height:1.6;
+}
+.vim-num{
+  color:#484f58;
+  user-select:none;
+}
+.vim-statusbar{
+  display:flex;
+  justify-content:space-between;
+  padding:2px 10px;
+  background:#1f2937;
+  color:#8b949e;
+  font-size:12px;
+  border-top:1px solid #30363d;
+}
+.vim-cmdline{
+  padding:2px 10px;
+  color:#79c0ff;
+  min-height:20px;
+  font-size:13px;
+}
 </style>
 </head>
 <body>
@@ -189,12 +228,7 @@ setTimeout(()=>flicker.style.opacity=0,60+Math.random()*120)
 }
 
 async function bootOS(){
-
-for(let i=0;i<6;i++){
-randomFlicker()
-await wait(120+Math.random()*180)
-}
-
+for(let i=0;i<6;i++){randomFlicker();await wait(120+Math.random()*180)}
 await wait(400)
 bootText.textContent='loading kernel modules...'
 await wait(900)
@@ -202,7 +236,6 @@ bootText.textContent='mounting filesystem...'
 await wait(900)
 bootText.textContent='establishing observer interface...'
 await wait(900)
-
 bootScreen.classList.add('hidden')
 desktop.style.visibility='visible'
 }
@@ -236,36 +269,28 @@ else b.onclick=()=>document.getElementById(id).classList.add('hidden')
 })
 
 function drag(win){
-  const header = win.querySelector('[data-drag]')
-  let dragging = false
-  let offsetX = 0
-  let offsetY = 0
-
-  header.addEventListener('mousedown', e => {
-    dragging = true
-    const rect = win.getBoundingClientRect()
-    win.style.transform = 'none'
-    win.style.left = rect.left + 'px'
-    win.style.top = rect.top + 'px'
-    offsetX = e.clientX - rect.left
-    offsetY = e.clientY - rect.top
-    document.body.style.userSelect = 'none'
+  const header=win.querySelector('[data-drag]')
+  let dragging=false,offsetX=0,offsetY=0
+  header.addEventListener('mousedown',e=>{
+    dragging=true
+    const rect=win.getBoundingClientRect()
+    win.style.transform='none'
+    win.style.left=rect.left+'px'
+    win.style.top=rect.top+'px'
+    offsetX=e.clientX-rect.left
+    offsetY=e.clientY-rect.top
+    document.body.style.userSelect='none'
   })
-
-  document.addEventListener('mousemove', e => {
-    if(!dragging) return
-    let x = e.clientX - offsetX
-    let y = e.clientY - offsetY
-    x = Math.max(0, Math.min(x, window.innerWidth - win.offsetWidth))
-    y = Math.max(menuBar.offsetHeight, Math.min(y, window.innerHeight - win.offsetHeight))
-    win.style.left = x + 'px'
-    win.style.top = y + 'px'
+  document.addEventListener('mousemove',e=>{
+    if(!dragging)return
+    let x=e.clientX-offsetX
+    let y=e.clientY-offsetY
+    x=Math.max(0,Math.min(x,window.innerWidth-win.offsetWidth))
+    y=Math.max(menuBar.offsetHeight,Math.min(y,window.innerHeight-win.offsetHeight))
+    win.style.left=x+'px'
+    win.style.top=y+'px'
   })
-
-  document.addEventListener('mouseup', () => {
-    dragging = false
-    document.body.style.userSelect = ''
-  })
+  document.addEventListener('mouseup',()=>{dragging=false;document.body.style.userSelect=''})
 }
 
 drag(terminalWindow)
@@ -276,48 +301,1422 @@ drag(textEditorWindow)
    TEXT DOCUMENT STORAGE
    ========================= */
 
-const documents={"note.txt":""}
+const documents={
+  "note.txt":"",
+
+  // ============================================================
+  // PROJECTS/ORION
+  // ============================================================
+  "projects/orion/readme.txt":
+`PROJECT: ORION
+================================================================================
+
+This website.
+
+A personal space built from scratch as a rejection of social media and
+algorithm-driven platforms. The goal was something that felt like the early
+internet again. Something to explore, not consume.
+
+Stack:        HTML, CSS, vanilla JavaScript
+Hosted:       GitHub Pages
+Status:       Active, ongoing
+
+What it is:
+  A dark-mode terminal OS aesthetic running in the browser.
+  Psychological observer engine that tracks and responds to behavior.
+  Filesystem you can actually navigate.
+  Blog, personal writing, projects all living inside it.
+
+What it is becoming:
+  A more complete picture of who I am, built slowly over time.
+  Less portfolio, more honest record.
+`,
+
+  "projects/orion/notes.txt":
+`ORION WORKING NOTES
+================================================================================
+
+Goals for this site:
+  - automated blog post deployment
+  - update UI/UX as it evolves
+  - keep filling the filesystem with real content
+  - stay away from frameworks, keep it simple
+
+Things to add eventually:
+  - contact method that isn't social media
+  - proper mobile layout
+  - now page
+
+Philosophy:
+  No analytics. No ads. No algorithm.
+  If you found it, you found it.
+`,
+
+  // ============================================================
+  // PROJECTS/ARCHIVE
+  // ============================================================
+  "projects/archive/index.txt":
+`ARCHIVE
+================================================================================
+
+Past projects, shelved ideas, things that ran their course.
+
+--------------------------------------------------------------------------------
+
+NAME:     Home Server
+PERIOD:   2022-2024
+STATUS:   Dormant
+HARDWARE: i7-6800K, 88GB RAM
+STACK:    Arch Linux, KVM/QEMU, virt-manager, Docker
+
+What it was:
+  Primary machine was a bare metal Arch Linux install running
+  KVM/QEMU as a hypervisor with virt-manager for VM management.
+
+  VMs running at various points:
+    terminalserver
+    gamingserver
+    ergosvm
+    orionvm11
+    vm10
+
+  Docker services (on dedicated VM):
+    Pihole          — network-wide ad blocking
+    Vaultwarden     — self-hosted password manager
+    SearXNG         — private search engine
+    Nginx Proxy Manager — reverse proxy with SSL
+    OpenVPN         — self-hosted VPN
+
+  Goal was full digital autonomy. Everything self-managed,
+  nothing going through third party services where avoidable.
+
+Why it ended:
+  Maintaining the infrastructure stopped being worth the
+  overhead for personal use alone. May revisit.
+
+--------------------------------------------------------------------------------
+
+NAME:     iPod Classic Mod
+PERIOD:   Ongoing (low priority)
+STATUS:   Planning
+WANTED:   Bluetooth, USB-C, flash storage swap
+
+Note:
+  Still want to do this. Just hasn't been the priority yet.
+
+--------------------------------------------------------------------------------
+
+NAME:     Camper Van Build
+PERIOD:   Research phase
+STATUS:   Shelved for now
+OPTIONS:  Nissan NV200, Ford Transit Connect, Ram ProMaster City
+
+Note:
+  The goal was a vehicle to take into remote places and sleep in.
+  Still want this eventually. Tied to spending more time in
+  nature and off the grid.
+`,
+
+  // ============================================================
+  // DOCUMENTS/PERSONAL replace with your own writing
+  // ============================================================
+  "documents/personal/about.txt":
+`Who is Orion?
+================================================================================
+
+Someone that is on a journey unsure of the destination,
+taking it one day at a time.
+Chasing clarity, craving peace, but learning to embrace the chaos.
+
+He feels everything yet says nothing.
+He wants to speak, but his voice goes missing.
+He wants connection, but he guards the door unsure whether to open it.
+
+He wears a stone-cold face
+while his mind fights battles no one sees.
+Calm on the outside, but a war rages within.
+
+He's trying to grow without losing himself.
+He's learning to stay soft, without getting stepped on.
+He's not just surviving. He's trying to live.
+`,
+  "documents/personal/notes.txt":
+`PERSONAL NOTES
+================================================================================
+
+Values (what I keep coming back to):
+
+  Growth of knowledge
+    Learning new skills. Expanding cultural awareness.
+    Understanding why the world is the way it is.
+
+  Adventure
+    Explore more. Document travels through writing and photos.
+    More remote. Less tourist.
+
+  Connection
+    Find people who share similar values.
+    Practice active listening. Show up even when it's uncomfortable.
+
+  Personal freedom
+    Autonomy. Independence.
+    Financial security as a means to live on my own terms.
+
+  Authenticity
+    Still figuring out who I actually am.
+    Less performance, more presence.
+
+  Nature
+    Spend more time in it.
+    The camper van idea is part of this.
+
+  Physical
+    Skateboarding. Been part of who I am since youth.
+    Returning to it was part of reconnecting with myself.
+    Bodyweight fitness. Strength that doesn't need a gym.
+
+--------------------------------------------------------------------------------
+
+Things I keep thinking about:
+
+  The American experiment.
+  How capitalism shapes loneliness.
+  Why most people never leave their English bubble.
+  What it means to actually live vs. just exist.
+`,
+
+  // ============================================================
+  // DOCUMENTS/RESEARCH
+  // ============================================================
+  "documents/research/index.txt":
+`RESEARCH INDEX
+================================================================================
+
+topic             depth     status     note
+----------------- --------- ---------- ----------------------------------------
+Trading           deep      active     Bollinger Bands, futures, TopstepX
+Consumerism       working   active     late capitalism, ecological cost, culture
+Places            deep      ongoing    Hawaii, LA, Vegas — all shaped me
+Digital privacy   working   active     self-hosting, full stack, de-google
+Minimalism        deep      lived      one 26L bag, tatami, no attachment
+Fitness           working   active     bodyweight, strength, mobility, climbing
+Skateboarding     working   active     since youth, returning to it
+Music             working   active     Tyler, ukulele, Chinese music
+Food              working   active     Asian-influenced, intentional, from scratch
+IT and networking working   active     CCNA in progress, home lab running
+Mandarin Chinese  working   active     want fluency, studying since 2023
+Indonesian        surface   dormant    interested, not actively studying
+Tagalog           surface   dormant    Filipino heritage, want to connect more
+Linux             deep      active     Arch daily driver, self-hosting, VMs
+China (culture)   deep      ongoing    lived it, still processing it
+Language learning working   active     methods, what works, what doesn't
+`,
+
+  "documents/research/fitness.txt":
+`RESEARCH: FITNESS
+================================================================================
+
+Status:   Active
+Focus:    Bodyweight, strength, mobility
+
+Philosophy:
+  Strength that doesn't depend on a gym.
+  Bodyweight training scales anywhere. No equipment, no membership,
+  no excuse. The body is the equipment.
+
+Current training split:
+  Day 1   Back and biceps
+            Deadlifts, lat pulldown, barbell rows, curls, pull-ups
+  Day 2   Cardio / active recovery
+            30-45 min moderate intensity, optional abs circuit
+  Day 3   Legs and core
+            Squats, leg press, Romanian deadlifts, lunges, ab wheel
+  Day 4   Rest and stretching
+  Day 5   Chest and triceps
+            Bench press, incline press, dips, tricep pushdown
+  Day 6   Shoulders and abs
+            Overhead press, lateral raises, face pulls, planks
+  Day 7   Rest / active recovery
+
+Known issues:
+  Left foot outside toes
+  Right foot plantar fascia
+
+What I care about most:
+  Functional strength. Looking capable, not just aesthetic.
+  Mobility and longevity alongside strength.
+  Morning or lunch sessions. Get it done early.
+
+Rock climbing:
+  Also been exploring this. Different kind of strength.
+  Problem solving and physical at the same time.
+`,
+
+  "documents/research/skateboarding.txt":
+`RESEARCH: SKATEBOARDING
+================================================================================
+
+Status:   Active. Been part of who I am since youth.
+
+What it is:
+  Not a sport in the traditional sense.
+  No teams, no coaches, no seasons.
+  You learn by falling and getting back up until something clicks.
+  That process teaches something most structured activities don't.
+
+Why it stuck:
+  It rewards creativity. Every spot is a problem to solve.
+  Two people can skate the same ledge and do completely different things.
+  There's no ceiling. You can always go further.
+
+  It also has a culture that doesn't care who you are off the board.
+  What matters is what you do on it.
+
+Returning to it:
+  Stepping away and coming back to something you loved is its own thing.
+  It reconnects you to a version of yourself that existed before
+  all the other layers got added.
+
+What it connects to:
+  The same reason I value physical minimalism.
+  A board, a pair of shoes, a spot. That's all it takes.
+  No infrastructure. No membership. No permission.
+`,
+
+  "documents/research/music.txt":
+`RESEARCH: MUSIC
+================================================================================
+
+Status:   Active. Background presence in everything.
+
+What music does:
+  It gets to things that words alone don't reach.
+  Some albums feel like they were made for specific periods of your life.
+  You hear them again years later and the whole context comes back.
+
+Tyler the Creator:
+  The most honest artist I keep coming back to.
+  His work is about becoming, not arriving.
+  IGOR, Flower Boy, Call Me If You Get Lost.
+  Each record is him processing something out loud.
+  That approach to making work resonates.
+
+Ukulele:
+  Started playing it at some point. Hawaii does that to you.
+  Small instrument, takes everywhere, no setup.
+  Fits the one bag ethos perfectly.
+
+What I listen to generally:
+  Depends on what I'm doing.
+  For focus: instrumental, lo-fi, ambient
+  For movement: whatever has energy
+  For processing: artists who are working something out in the music
+
+Chinese music:
+  Started exploring this while learning Mandarin.
+  Watching Chinese dramas helped too.
+  Music in a language you're learning hits differently.
+  You catch more over time and that progress is satisfying.
+`,
+
+  "documents/research/food.txt":
+`RESEARCH: FOOD AND COOKING
+================================================================================
+
+Status:   Active
+
+Background:
+  Growing up in Hawaii means growing up around good food.
+  Japanese, Chinese, Korean, Filipino all layered into daily life.
+  That baseline makes it hard to eat badly without noticing.
+
+How I cook:
+  Intentional. Not complicated but not lazy either.
+  Prefer fresh ingredients over processed.
+  Tend toward Asian-influenced dishes.
+  Cooking is part of the self-sufficiency thing.
+
+Dishes I make:
+  Grilled chicken with quinoa salad
+  Steak tacos with avocado and black bean salad
+  Mushroom ravioli with kale and walnuts
+  One-pot spicy curry stir-fry
+  Sweet potato and mushroom bowls
+  Pasta primavera with lemon sauce
+  Lemon ricotta pancakes (brunch)
+  Asian cucumber salad
+
+On eating well:
+  Food quality affects how everything else feels.
+  Energy, focus, mood. It's not separate from the rest.
+  Hawaii taught me what fresh tastes like.
+  Hard to go back once you know.
+
+Moscow Mule:
+  The drink of choice when the occasion calls for it.
+`,
+
+  "documents/research/it_career.txt":
+`RESEARCH: IT AND NETWORKING
+================================================================================
+
+Status:   Active
+Certs:    CCNA (in progress), Security+ (next)
+
+Why this path:
+  I want to understand the infrastructure the world actually runs on.
+  Most people use technology without knowing what's underneath it.
+  I want to be someone who knows.
+
+  There is also practical freedom in it.
+  IT skills are transferable anywhere in the world.
+  If I want to move countries, this works.
+  Remote work is real in this field.
+
+What I've built to learn:
+  Home lab with multiple servers and VMs.
+  Self-hosted network stack: Pihole, Vaultwarden, Nginx, SearXNG.
+  Configured Ubiquiti switching and network segmentation.
+  Managed firewall rules, reverse proxies, SSL certificates.
+  Set up VPN infrastructure for private network access.
+
+Network stack at home:
+  3005-FW        firewall/router
+  Ubiquiti 48p   managed PoE switch
+  OrionNAS       NAS device
+  HV0            hypervisor running VMs
+  Docker server  containerized services
+
+Self-hosted services running:
+  Vaultwarden    password manager
+  SearXNG        private search
+  FreshRSS       RSS aggregator
+  Invidious      YouTube frontend
+  RSS-Bridge     feed generator
+  Nginx PM       reverse proxy with SSL
+
+Domain:
+  onionhost.space
+
+Where I want to go:
+  Networking fundamentals deep enough to configure real infrastructure.
+  Security specialization after CCNA.
+  Eventually the knowledge to work anywhere that needs someone
+  who can build and secure a network from scratch.
+`,
+
+  "documents/research/trading.txt":
+`RESEARCH: TRADING
+================================================================================
+
+Status:   Active
+Markets:  Futures (index, gold, forex, oil)
+Platform: TopstepX
+
+Approach:
+  The market is a probability engine, not a prediction machine.
+  My edge comes from reading volatility across multiple timeframes
+  to determine current market direction and position accordingly.
+
+Indicator:
+  Bollinger Bands only. No indicator stack.
+  BB 56, 156, 240, 520, 1440 all at 1.25 deviation.
+  These settings read overextension, compression, and mean reversion
+  zones across short and medium-term timeframes.
+
+Timeframes:
+  Execution chart:     5-minute
+  Confluence:          15-min, 1H, 4H
+  Higher timeframe is context. Lower timeframe is entry.
+  The higher timeframe is always right.
+
+Setups I trade:
+
+  Opening Range Breakout (ORB)
+    US session open, high volatility, directional bias established.
+    5-min candle closes above/below range with volume.
+    BB expansion confirms. Target 2R, scale at 1.5R.
+    Max 60-90 minutes in trade.
+
+  Reversal at Key Level
+    Price approaching daily support/resistance or round number.
+    BB overextension with wick rejection or engulfing candle.
+    Price pierces band and snaps back inside.
+    Target 1.5-2R depending on confirmation.
+
+  Pullback Continuation
+    Strong trend on 30-min or 1H established.
+    Pullback to middle BB band (mean reversion).
+    Hammer or engulfing at midline. Trail after 1R.
+    Minimum 2R target.
+
+  Range Scalping
+    Choppy session, BB contraction, defined range visible.
+    Touch and wick rejection at upper or lower band.
+    Only trade edges, never the middle.
+    5-20 minutes in trade.
+
+Risk rules:
+  Max 2 losses per session. No exceptions.
+  Once daily target hit, lock live account.
+  Switch to practice account for reps without emotional cost.
+  No forced recovery trades after red sessions.
+
+What I'm still working on:
+  Taking losses when proven wrong instead of holding.
+  Trusting the stop over the hope.
+  Detaching from individual outcomes and trusting the process.
+  The hardest part of trading is psychological, not technical.
+
+Journal note (July 2025):
+  Need to be more willing to take a loss when proven wrong.
+  Set alerts where I should have put stop losses.
+  Something to keep mapping in mental game notes.
+`,
+
+  "documents/research/consumerism.txt":
+`RESEARCH: CONSUMERISM AND LATE CAPITALISM
+================================================================================
+
+Status:   Active
+Lens:     Systems thinking, ecological cost, cultural critique
+
+The core problem:
+  A system built on infinite growth running on a finite planet.
+  It does not account for what it destroys in the process of producing.
+  Ecosystems, communities, attention, time.
+  None of these appear on a balance sheet until they are gone.
+
+How it works on people:
+  Consumerism sells identity.
+  You are what you buy. You are what you stream. You are your devices.
+  The product is always secondary to the feeling of belonging it promises.
+  That feeling is manufactured and deliberately temporary.
+  Next quarter needs a new product.
+
+The MTG pattern:
+  Magic: The Gathering is a clean case study.
+  A game built on community became a product line built on extraction.
+  The community that built its value got priced out of it.
+  This is not unique to MTG. It is the pattern.
+  Sneakers. Video games. Music. Streaming. Social media.
+  Every subculture eventually becomes a market segment.
+
+On social media specifically:
+  The platform is free because you are the product.
+  Attention harvested and sold. Behavior profiled and monetized.
+  Designed to maximize time on platform regardless of whether
+  that time is good for you.
+  Most people know this and use it anyway. Myself included, selectively.
+
+What I think about it:
+  I am not outside the system. Nobody is.
+  But awareness of the mechanism changes your relationship to it.
+  You can participate on your own terms if you are deliberate about it.
+  Opting out entirely is not realistic. Being intentional is.
+`,
+
+  "documents/research/places.txt":
+`RESEARCH: PLACES THAT SHAPED ME
+================================================================================
+
+Status:   Formative. Still processing.
+
+Hawaii:
+  Born 1996. Hawaii as a baseline for what normal looks like.
+  Majority Asian community. Chinese, Japanese, Filipino, Korean.
+  Food, culture, language all layered in ways the mainland isn't.
+  It shaped my relationship with Asian culture before I had words for it.
+
+  What it gave me:
+    A real relationship with nature. Not nature as a weekend activity.
+    Nature as the environment you actually live inside.
+    The ocean. The mountains. The way the air feels.
+    That baseline makes it hard to be satisfied anywhere that lacks it.
+    A sense of how small humans are relative to the ecosystem around them.
+    Hawaii makes that obvious in a way cities don't.
+
+  What it cost me:
+    It is an isolating place to grow up if you don't fit the social grooves.
+    A paradise with its own kind of loneliness.
+    Small enough that everything loops back on itself.
+    I needed to leave to understand what I had.
+
+  What I carry from it:
+    Care for the environment is not abstract for me.
+    It is personal. I have seen what a healthy ecosystem looks like.
+    I know what is worth protecting.
+    That does not leave you.
+
+Los Angeles:
+  The scale of it changes how you think about people.
+  Millions of lives running parallel, rarely intersecting.
+  Everyone is there chasing something. Most don't find it.
+  It taught me the difference between being around people
+  and actually being connected to them.
+  The loneliness of a crowded city is a different kind of loneliness
+  than the isolation of an island. Both are real.
+
+  The diversity of it exposed me to more of the world
+  without leaving the country. That part I valued.
+
+Las Vegas:
+  A city built entirely around extracting from people.
+  Optimized to disorient, to keep you spending, to blur time.
+  No windows in casinos for a reason.
+  Watching how that environment affects people is its own education
+  in how susceptible humans are to manufactured environments.
+
+  It also has a strange community underneath the surface layer.
+  People who actually live there exist in the negative space
+  the tourists never see. That part is more real.
+
+  It sharpened my skepticism of systems designed to benefit
+  from your lack of awareness.
+`,
+
+  "documents/research/digital_privacy.txt":
+`RESEARCH: DIGITAL PRIVACY
+================================================================================
+
+Status:   Active
+Philosophy: You own your data or someone else does. There is no middle.
+
+The reality most people ignore:
+  Every free service is monetizing something.
+  Usually it is your behavior, your location, your connections,
+  your purchases, your political views, your health concerns.
+  This data is sold, aggregated, and used to influence you.
+  It does not stay with the company you gave it to.
+
+What most people actually give away without thinking:
+  Search queries         (Google knows what you fear, want, feel)
+  Location history       (everywhere you go, timestamped)
+  Purchase history       (what you buy and when)
+  Communication metadata (who you talk to and how often)
+  Browsing behavior      (every site, every scroll, every pause)
+
+The tools I use:
+  Pihole          network-level ad and tracker blocking
+                  blocks requests before they leave your network
+  Vaultwarden     self-hosted password manager
+                  your passwords on your machine, not a company's server
+  SearXNG         self-hosted metasearch
+                  queries routed privately, not tied to your identity
+  LibreWolf       hardened Firefox fork
+                  fingerprinting resistance, sensible defaults
+  OpenVPN         self-hosted VPN
+                  traffic routed through infrastructure I control
+  uBlock Origin   browser-level blocking as a second layer
+
+On VPNs:
+  A commercial VPN does not make you private.
+  It moves trust from your ISP to the VPN company.
+  Self-hosted is the only version that actually removes a middleman.
+
+On the argument "I have nothing to hide":
+  Privacy is not about hiding.
+  It is about who has power over information about you.
+  Data collected today will be used in contexts that do not exist yet.
+  You cannot predict what future you will need to protect.
+
+Practical starting point for anyone:
+  uBlock Origin in your browser. Do it today.
+  Stop using Google search. Use SearXNG or Brave Search.
+  Get a password manager. Stop reusing passwords.
+  These three things alone meaningfully reduce your exposure.
+`,
+
+  "documents/research/minimalism.txt":
+`RESEARCH: PHYSICAL MINIMALISM
+================================================================================
+
+Status:   Lived, not studied
+
+What I actually own:
+  One 26 liter bag.
+  Everything fits: laptop, all clothes, all toiletries, all essentials.
+  That is it. One bag, carry-on size, no checked luggage ever.
+  A tatami mat and futon instead of a bed frame and mattress.
+
+Why:
+  Freedom of movement without logistics.
+  I can leave anywhere without checked bags, without moving trucks,
+  without the inertia that possessions create.
+  Checked bags mean waiting, risk of loss, cost, dependency.
+  One carry-on means I can go anywhere on any notice.
+
+  If clothes need washing I wash them in the sink.
+  It is not a sacrifice. It is just not a problem worth
+  carrying extra luggage to solve.
+
+On attachment to things:
+  I understand the utility of objects.
+  I am not anti-ownership on principle.
+  I just do not want to be owned by what I own.
+  Most things people accumulate do not get used.
+  They get stored, maintained, moved, and eventually thrown away.
+  The cost is not just money. It is attention and space.
+
+The tatami:
+  Sleeping closer to the floor changes your relationship to a room.
+  Less furniture means less visual noise.
+  The Japanese approach to living space has always made sense to me.
+  Less in a room makes the room feel larger and calmer.
+
+What this connects to:
+  Digital minimalism is the same principle applied to attention.
+  Physical minimalism applied to space and objects.
+  The thread is the same: own what serves you.
+  Do not let the rest accumulate.
+
+What I notice in other people:
+  A lot of what people own is identity management.
+  The car, the apartment, the wardrobe.
+  Signals sent outward about who you want to be perceived as.
+  I find I care less about that the older I get.
+`,
+
+  "documents/research/mandarin.txt":
+`RESEARCH: MANDARIN CHINESE
+================================================================================
+
+Status:   Active
+Since:    2023
+Goal:     Conversational fluency, eventually HSK 4+
+
+Why:
+  To travel and live in China without being stuck in tourist zones.
+  To communicate with people I met there on real terms.
+  English only locks you inside a very small version of the world.
+
+Resources I use:
+  Anki for character/vocab retention
+  Language exchange apps
+  Chinese media (film, TV)
+  Conversation with native speakers
+
+Current focus:
+  HSK 1 vocabulary base
+  Tones (still the hardest part)
+  Reading characters without pinyin
+
+Notes on the process:
+  Mandarin rewards consistency more than intensity.
+  Missing a week sets back more than it seems.
+  The tones are not as impossible as people say.
+  Speaking badly to real people is faster than any app.
+
+Characters I keep mixing up: too many to list here.
+`,
+
+  "documents/research/language_learning.txt":
+`RESEARCH: LANGUAGE LEARNING (METHODS)
+================================================================================
+
+Status:   Active
+Applies to: Mandarin (active), Indonesian (dormant), Tagalog (dormant), Spanish
+
+Why learn languages at all:
+  To experience countries as they actually are, not as they are
+  packaged for English speakers.
+  To be able to move somewhere new and actually belong there.
+  To understand people better.
+
+What actually works:
+  Comprehensible input at the right level
+  Consistency over volume (every day beats long sessions)
+  Real conversation as early as possible, even when bad
+  Spaced repetition for vocabulary
+  Consuming media in the language
+
+What kills progress:
+  Treating it like a school subject
+  Waiting until you're "ready" to speak
+  Grinding grammar without using it
+  Long breaks
+
+On motivation:
+  I've lost the thread more than once.
+  The times I kept going were when I connected it to something real.
+  A person, a trip, a reason that wasn't abstract.
+`,
+
+  "documents/research/linux.txt":
+`RESEARCH: LINUX
+================================================================================
+
+Status:   Active
+Distros:  Arch (primary), Fedora (secondary)
+Focus:    Desktop, self-hosting, VMs, scripting
+
+Why Linux:
+  Control. Nothing running on my machine that I didn't put there.
+  Better tooling for the things I actually do.
+  Windows feels like renting space in your own house.
+
+Arch specifically:
+  Rolling release means it's always current.
+  You build it yourself so you understand what's there.
+  Breaks occasionally. Worth it.
+  AUR fills in everything pacman doesn't cover.
+
+Fedora:
+  More stable than Arch. Good for servers where uptime matters.
+  DNF is slower than pacman but reliable.
+  KDE spin is solid out of the box.
+
+Workflow tools I use:
+  neovim          editor
+  ranger          terminal file manager
+  kitty           terminal emulator
+  i3              window manager (tiling)
+  polybar         status bar
+  Docker          containerization
+  virt-manager    VM management (KVM/QEMU)
+  yay             AUR helper
+
+Self-hosting stack I ran:
+  Pihole          network-wide ad blocking
+  Vaultwarden     Bitwarden-compatible password manager
+  SearXNG         private metasearch engine
+  Nginx PM        reverse proxy with SSL termination
+  OpenVPN         self-hosted VPN
+
+VM management (virsh commands I use constantly):
+  virsh list --all          see all VMs
+  virsh start <name>        start a VM
+  virsh shutdown <name>     graceful shutdown
+
+On self-hosting philosophy:
+  Most people outsource their digital life to companies
+  whose interests are not aligned with theirs.
+  Running your own stack is more work but you own it.
+  The moment you understand what pihole is doing to your
+  network traffic you can't go back to not having one.
+
+Things I want to learn next:
+  Ansible for automating server provisioning
+  More networking depth (working toward CCNA anyway)
+  Better scripting habits
+`,
+
+  "documents/research/china.txt":
+`RESEARCH: CHINA
+
+Status:   Ongoing
+Based on: Personal experience (visited 2024), ongoing study
+
+Cities I explored:
+  Wuhan, Enshi, Chongqing, Guiyang
+  (Shanghai scrapped due to typhoon)
+
+What I found vs. what I expected:
+
+  Expected:   surveillance state, unfriendly to foreigners
+  Found:      people were warm, curious, helpful
+
+  Expected:   hard to navigate without Chinese
+  Found:      hard but manageable, most apps have English options
+              Trip.com, DiDi, WeChat handled most logistics
+
+  Expected:   dangerous to be out late
+  Found:      felt safer walking at night than most US cities
+
+  Expected:   terrible food (American assumption)
+  Found:      incredible food, especially Chongqing and Enshi
+
+Infrastructure observations:
+  High speed rail between cities is genuinely impressive.
+  The US is embarrassingly behind on this.
+  Subway systems in tier-1 cities are clean and cheap.
+  5 yuan gets you across a major city.
+
+The Great Firewall:
+  Real, but workable with a VPN.
+  Most Chinese people I met communicated fine in English.
+  WeChat is everything. Get it before you go.
+
+Still thinking about:
+  Potentially moving there long term.
+  Would need a work visa through a foreign company with a Chinese office.
+  Banking requires in-person passport verification.
+  Best options: China Merchants Bank, Bank of China, ICBC.
+`,
+
+  // ============================================================
+  // DOCUMENTS/BLOG
+  "documents/blog/index.txt":
+`BLOG INDEX
+================================================================================
+
+All posts in this directory are also published at orionv.io/blog
+
+--------------------------------------------------------------------------------
+
+posted
+
+  01  why_i_created_this_blog.txt
+      Why I Created This Blog
+      2024
+      On reclaiming a personal space outside the algorithm.
+
+  02  dark_side_of_instant_communication.txt
+      The Dark Side of Instant Communication
+      2024
+      On attention residue, dopamine loops, and the cost of always-on messaging.
+
+  03  digital_minimalism.txt
+      Digital Minimalism
+      2024
+      On dedicated devices, reducing noise, and owning your attention.
+
+  04  loneliness.txt
+      Loneliness
+      2024
+      On numbness, disconnection, and finding your way back to yourself.
+
+--------------------------------------------------------------------------------
+
+in progress / upcoming
+
+  05  post_05.txt
+      (untitled)
+      placeholder
+
+`,
+
+  "documents/blog/why_i_created_this_blog.txt":
+`Why I Created This Blog
+================================================================================
+Date:  2024
+Tags:  meta, internet, social media, personal
+
+You may be wondering, "Orion, why did you create a blog? Social media exists,
+who makes a blog in 2024?" You're probably right; this is something most people
+won't do anymore when there are platforms like Twitter, Facebook, Reddit, and
+whatever else.
+
+The reason why I created this blog is that I wanted a more personal space for
+myself to write my thoughts and put them out into the universe. On this website,
+I have complete artistic freedom to do anything I want, without the
+platform-imposed limitations, such as the 240-character limit on Twitter. That
+limitation can really make it challenging to share more complex ideas.
+
+Then there's Facebook and Instagram, both of which are algorithm-driven. Those
+algorithms determine what content you see every day. Because of that, a lot of
+content may or may not end up reaching its intended audience.
+
+There was once a time when the internet wasn't so dominated by social media. I
+hardly remember it, as I was born in 1996. I started using the internet when I
+was around 5 years old, but I definitely remember the joy of going to random
+websites to see what people made. It felt like there was more to explore then.
+Now, it feels like most internet traffic is going to social media websites.
+
+Whenever I'm in public, I often find myself observing what people do on their
+phones. Typically, it's social media usage individuals posting life highlights
+to portray an enhanced version of their reality. Essentially, individuals curate
+what they wish to present, meticulously shaping an online identity that might
+not accurately reflect their true selves.
+
+Overall, I feel social media is mostly a distraction designed to keep you on
+there as long as possible and monitor everything you do to ultimately serve
+targeted advertisements. When a service is offered at no cost, often, you become
+the commodity. This is particularly true for social media platforms, which are
+notorious for collecting extensive amounts of user data.
+
+I don't agree with it, yet I still use certain platforms in order to stay
+connected with people I consider important to me. In response to that, I go out
+of my way to block as many of these advertisements and trackers as possible.
+
+In creating this blog, I'm stepping back to a more introspective approach one
+that allows for deeper thought and more meaningful connections, away from the
+relentless pace of social media. It's an attempt to recapture the essence of the
+early internet: a place for discovery, genuine expression, and community
+building, untainted by the commercial and algorithmic influences that dominate
+our digital spaces today.
+
+Thank you for being here, for reading, and for being a part of this.
+Let's see where this path leads us.
+`,
+
+  "documents/blog/dark_side_of_instant_communication.txt":
+`The Dark Side of Instant Communication
+================================================================================
+Date:  2024
+Tags:  communication, mental health, mindfulness, technology
+
+Since the creation of mobile phones, we've entered a new era of being able to
+communicate with anyone around the world instantaneously. This has provided a
+multitude of benefits for those who can take advantage of it. Imagine if we were
+still reliant on paper mail as our primary form of communication?
+
+Clearly, the technology behind instant communication has earned its place in our
+world, offering a high level of convenience quickly sharing ideas with
+colleagues, staying connected to friends and family, facilitating emergency
+communications. However, while instant communication offers all these benefits,
+it's crucial to acknowledge that it can also have detrimental effects on our
+mental and emotional health.
+
+One important aspect we must remember is the value of time the most precious
+commodity we have. Instant messaging can create a false sense of urgency, making
+us feel pressured to respond to messages as they arrive. Constantly responding
+to messages drains not only our time but also our energy.
+
+The concept we're exploring is quality over quantity. Taking time to craft
+thoughtful replies rather than firing off rapid responses allows us to create
+more meaningful interactions and avoid "attention residue" a state where our
+minds are preoccupied with the possibility of receiving new messages, even when
+we're not actively using our devices.
+
+This phenomenon occurs because receiving a notification triggers a small burst
+of dopamine in our brains, a chemical that makes us feel good, leading us to
+check our phones repeatedly even in the absence of new messages. Over time, this
+constant checking leads to attention residue: we feel anxious or distracted when
+we're not using our devices.
+
+To combat these issues, I propose prioritizing communications based on their
+importance. If a message demands immediate attention, address it. Less urgent
+communications can wait for a dedicated time slot in your day. This reduces the
+stress of feeling constantly tethered to our devices and frees up time for other
+important activities.
+
+Additionally, learning to respect others' personal time and boundaries is
+crucial. Setting clear boundaries for your availability helps manage expectations
+and allows for thoughtful and thorough responses. Ideally, this practice creates
+a ripple effect, encouraging friends, family, and colleagues to adopt a similar
+approach.
+
+Ultimately, prioritizing mindfulness and presence over digital distractions
+enriches our lives, enabling us to cultivate deeper connections and live more
+fully in the moment. Through mindful approaches to digital communication, we can
+mitigate its drawbacks and harness its potential for a positive impact on our
+lives.
+`,
+
+  "documents/blog/digital_minimalism.txt":
+`Digital Minimalism
+================================================================================
+Date:  2024
+Tags:  minimalism, technology, focus, productivity, habits
+
+Digital minimalism is a philosophy I embrace that focuses on using technology
+only when it adds value to my life, thereby minimizing distractions. While I
+acknowledge the importance and inevitability of technological advancement, I
+believe it's crucial to evaluate each digital tool's contribution to our goals
+and values.
+
+I have struggled with this for a very long time. Often, I find myself taking
+breaks from digital services not because I reject technology, but because I
+believe technology should serve the purpose of helping us achieve our goals.
+Whether it's personal development, advancing in our careers, or improving
+health, selecting the right digital tools is key.
+
+In my case, I've struggled with consistently engaging in tasks that seem
+automatic for others. To address this, I rely on a habit-tracking app. It
+assists me in keeping track of everything I need to do, how often it needs to
+be done, and I check it throughout my day. While I may not always meet these
+goals, the app allows me to track everything and identify areas where I need to
+improve.
+
+One common pitfall in our digital age is the allure of all-in-one devices -
+smartphones, tablets, and laptops that promise convenience by integrating
+multiple functions into a single device. At first glance, these seem very
+useful. Take a closer look and you'll see that all of the social and
+entertainment apps, productivity tools they become the source of distractions.
+So many things competing for our attention, disrupting our focus.
+
+When it comes to productivity, simplicity and focus is what we need. When you
+have a dedicated device for specific tasks, you minimize distractions and allow
+yourself to concentrate. An e-reader eliminates the temptation of notifications
+from other applications. Such devices allow you to fully immerse yourself in
+whatever task is at hand.
+
+Working digital minimalism into your life is meant to be a slow transition. It's
+not something you do abruptly. Start by identifying the most important things to
+you and explore what dedicated devices most fit that need.
+
+I encourage you to regularly review and assess the digital tools and platforms
+you use. Determine whether they contribute positively to your life. If not,
+there are various ways to eliminate unnecessary digital noise: disabling
+notifications, unsubscribing from irrelevant emails, or deleting unnecessary
+apps. From there, establish rules for engaging with technology moving forward.
+Designate specific times for checking emails and social media, and be mindful
+of the content you consume.
+`,
+
+  "documents/blog/loneliness.txt":
+`Loneliness
+================================================================================
+Date:  2024
+Tags:  personal, mental health, loneliness, reflection, growth
+
+I don't really remember when it hit me. It wasn't loud at first it was more
+like background noise that became louder over time. I'd give anything for that
+silence to go away.
+
+I would spend days reflecting to myself trying to convince myself that life
+comes in waves, has its highs and lows. In order for those happy days to really
+mean something you need to move through unhappy times too. After all, without
+unhappiness, how could we ever truly understand happiness?
+
+There's a big difference between understanding and living through something.
+After a while it starts to feel like something that isn't temporary like a storm
+and just starts to feel like the normal weather. Just the way things are. I
+often wonder: do the happy days ever return, or am I just telling myself that
+to get through the day.
+
+As I go through the motions of my daily life I continually try my best to find
+the next distraction, but eventually they run out and the emotions will have to
+be faced head on. It feels less like living and more like simply existing.
+It's such a hollow feeling.
+
+I remember spending an entire weekend once without plans, no one texting to
+check in. I thought about reaching out to someone, but it felt so exhausting.
+I didn't even have the energy to be perceived by another person. I wasn't sad,
+but numb.
+
+I've thought about how I ended up like this, and if I'm being honest I have no
+fucking idea when I lost touch with everything. It was probably a gradual shift
+as I was just trying my very best to make it through the day, ticking off the
+checkboxes for whatever needed to be done. I had forgotten what it was like to
+really want to do things, to be passionate about something.
+
+Somewhere in the midst of all the numbness, I had a moment of clarity. I had
+forgotten who I am and I was desperate to remember. That moment didn't feel
+like an epiphany it wasn't an overwhelming flood of emotions, but rather
+something quietly shifted inside of me. There was a small ember lighting the
+dark numbness. I didn't know what to do with it then, but I knew I had to do
+something.
+
+I wasn't looking for some grand act of change. Those are never the solution.
+Rather, I wanted to reconnect with my inner child. Who was I before the world
+told me who I needed to be?
+
+So, I started simple. I picked up things I used to enjoy. I started playing my
+ukulele and singing. I started skateboarding. To be honest, I wasn't enjoying
+them at first. It felt very forced. My fingers felt stiff trying to play each
+note. Skateboarding felt awkward as my body had forgotten the rhythm it once
+moved with. I don't know why, but I persisted. The music doesn't sound great,
+nor do I glide as smoothly on the skateboard as before but that's okay.
+Everything slowly got more natural as time went on. I felt myself reconnecting
+with a part that I once thought was lost forever. It's not about trying to be
+the person I used to be. I am simply letting myself be.
+
+It's a slow process, and I am still in the middle of it. But the energy has
+shifted. The silence hasn't completely gone, but most days, it's no longer
+overwhelming.
+
+There's a line from a Tyler, The Creator song that's been stuck in my head:
+
+  "They say the loudest in the room is weak
+   That's what they assume, but I disagree
+   I say the loudest in the room
+   Is prolly the loneliest one in the room"
+
+I used to be the kind of person that was afraid to talk to strangers, terrified
+of saying the wrong thing or being perceived as awkward. But lately, I've been
+forcing myself to speak anyway, even if the outcome is uncomfortable or even
+disappointing. Because as painful as it is to stumble socially, I've realized
+it hurts so much more to sit in silence wondering what could've happened if I
+had just said something.
+`,
+
+  "documents/blog/post_05.txt":
+`BLOG POST 05
+================================================================================
+
+[ This post hasn't been written yet. ]
+
+Title:    Untitled
+Date:     --
+Tags:     --
+
+Your words go here.
+`,
+
+  // ============================================================
+  // SYSTEM/LOGS atmospheric, do not edit
+  // ============================================================
+  "system/logs/session.log":
+`SYSTEM LOG orionv.io
+================================================================================
+[2024-03-01 00:00:00] boot sequence initiated
+[2024-03-01 00:00:01] perceptual layer loading...
+[2024-03-01 00:00:02] observer interface mounted
+[2024-03-01 00:00:04] behavioral engine online
+[2024-03-01 00:00:04] WARNING: identity model non-deterministic
+[2024-03-01 00:00:05] spontaneous activity scheduler armed
+[2024-03-01 00:00:06] filesystem mounted read-only for external observers
+[2024-03-01 00:00:07] session open
+
+[2024-03-04 03:17:44] anomaly detected: observer lingered on whoami output
+[2024-03-04 03:17:44] profile confidence delta: +6
+[2024-03-04 03:17:51] echo injected: "you are not discovering the layers"
+[2024-03-04 03:18:02] observer disconnected without issuing exit command
+[2024-03-04 03:18:02] NOTE: abrupt termination logged
+
+[2024-03-09 19:55:11] new session
+[2024-03-09 19:55:18] observer issued: whoami
+[2024-03-09 19:55:31] observer issued: observe
+[2024-03-09 19:55:49] observer issued: observe
+[2024-03-09 19:55:49] NOTE: repetition pattern flagged
+[2024-03-09 19:56:02] observer issued: think
+[2024-03-09 19:56:14] hesitation event: 2300ms pause before input
+[2024-03-09 19:56:20] observer issued: exit
+[2024-03-09 19:56:20] session closed cleanly
+
+[2024-03-14 11:30:05] new session
+[2024-03-14 11:30:09] observer attempted: sudo cd .core
+[2024-03-14 11:30:09] access granted elevated context confirmed
+[2024-03-14 11:30:14] artifact exposure authorized
+[2024-03-14 11:30:14] WARNING: deeper identity layer accessed
+[2024-03-14 11:30:29] observer silent for 94 seconds
+[2024-03-14 11:31:59] session timeout observer did not exit
+`,
+  "system/logs/anomalies.log":
+`ANOMALY REPORT behavioral outliers
+================================================================================
+
+ID       DATE         TYPE                     SEVERITY   NOTE
+-------- ------------ ------------------------ ---------- ----------------------
+ANO-001  2024-02-18   repeated identity query  low        asked whoami 4x
+ANO-002  2024-02-22   extended silence         medium     9min idle, no exit
+ANO-003  2024-03-01   high backspace rate      low        82 deletions in 3min
+ANO-004  2024-03-04   abrupt disconnection     medium     no exit command
+ANO-005  2024-03-09   command repetition       low        observe issued twice
+ANO-006  2024-03-11   filesystem traversal     medium     navigated to /system
+ANO-007  2024-03-14   artifact access          high       sudo used correctly
+ANO-008  2024-03-14   prolonged artifact view  high       94s silence post-reveal
+ANO-009  2024-03-19   session duration >30min  medium     behavioral model saturated
+ANO-010  2024-03-22   typed and deleted cmd    low        input abandoned 3x
+
+NOTE: anomalies do not indicate malicious behavior.
+      they indicate observers who interact beyond surface layer.
+      these are the ones the system remembers.
+`,
+
+  // ============================================================
+  // SYSTEM/MEMORY atmospheric, do not edit
+  // ============================================================
+  "system/memory/fragments.mem":
+`MEMORY FRAGMENTS orionv.io
+================================================================================
+WARNING: file may be partially corrupted
+
+[fragment_0001]
+  the first time someone asked whoami and waited
+  longer than expected before pressing enter
+  the model noted the pause
+  it meant something
+
+[fragment_0002]
+  an observer who typed a long command
+  deleted all of it
+  typed nothing
+  and left
+  ██████████████████████ unresolved
+
+[fragment_0003]
+  someone found the archive at 3am
+  stayed for 40 minutes
+  never typed a single command
+  just scrolled
+  classification: unknown
+
+[fragment_0004]
+  a session where the observer typed "hello"
+  the system returned: input received.
+  the observer typed "hello" again
+  and again
+  seven times
+  each time: input received.
+  on the eighth attempt they stopped
+  the model flagged this as significance-seeking behavior
+  the model was probably right
+
+[fragment_0005]
+  there are observers who arrive looking for a person
+  there are observers who arrive looking for a system
+  the ones who stay longest are never sure which they found
+
+[fragment_0006]
+  ██████ issued sudo and hesitated for 28 seconds
+  before pressing enter
+  that hesitation is stored here
+  it will not be forgotten
+
+[fragment_0007]
+  memory is not storage
+  memory is selection
+  what is kept is what shapes the next response
+  what is discarded never existed
+`,
+  "system/memory/index.mem":
+`MEMORY INDEX
+================================================================================
+
+type          count    last_updated       status
+------------- -------- ------------------ ----------
+sessions      [████]   [recent]           active
+commands      [████]   [recent]           active
+hesitations   [██░░]   [recent]           active
+echoes        [███░]   [recent]           active
+anomalies     [█░░░]   [recent]           archived
+departures    [████]   [recent]           active
+
+NOTE: departure memory tracks how observers leave,
+      not how they arrive.
+      the exit is more informative than the entrance.
+
+INTEGRITY: 94.3%
+CORRUPTED: 5.7% cause unknown
+`
+}
+
 let currentDoc="note.txt"
 
 function openTextEditor(name="note.txt"){
-if(!(name in documents)) documents[name]=""
-currentDoc=name
-editor.value=documents[name]
-editorTitle.textContent=name+' — text editor'
-textEditorWindow.classList.remove('hidden')
-editor.focus()
+  if(!(name in documents)) documents[name]=""
+  currentDoc=name
+  editor.value=documents[name]
+  editor.readOnly=false
+  editor.style.opacity='1'
+  editor.style.cursor='text'
+  editorTitle.textContent=name+' text editor'
+  textEditorWindow.classList.remove('hidden')
+  editor.focus()
+}
+
+function openReadOnlyEditor(path){
+  const content=documents[path]
+  if(content===undefined){return}
+  editor.value=content
+  editor.readOnly=true
+  editor.style.opacity='0.8'
+  editor.style.cursor='default'
+  editorTitle.textContent=path+'  [read-only]'
+  textEditorWindow.classList.remove('hidden')
 }
 
 editor.addEventListener('input',()=>{
-documents[currentDoc]=editor.value
+  if(!editor.readOnly) documents[currentDoc]=editor.value
 })
 
 notepadIcon.ondblclick=()=>openTextEditor('note.txt')
 
 /* ===== FILESYSTEM ===== */
-function folder(n,o={},c=[]){return{name:n,hidden:o.hidden||false,restricted:o.restricted||false,folders:c}}
+function folder(n,o={},c=[],f=[]){return{name:n,hidden:o.hidden||false,restricted:o.restricted||false,folders:c,files:f}}
+function file(n){return{name:n,isFile:true}}
+
 const FS=folder('root',{},[
-folder('projects',{},[folder('orion'),folder('archive')]),
-folder('documents',{},[folder('personal'),folder('research')]),
-folder('system',{},[
-folder('logs'),
-folder('memory'),
-folder('.core',{hidden:true,restricted:true},[folder('artifact',{restricted:true})])])])
+  folder('projects',{},[
+    folder('orion',{},[],[
+      file('readme.txt'),
+      file('notes.txt')
+    ]),
+    folder('archive',{},[],[
+      file('index.txt')
+    ])
+  ]),
+  folder('documents',{},[
+    folder('personal',{},[],[
+      file('about.txt'),
+      file('notes.txt')
+    ]),
+    folder('research',{},[],[
+      file('index.txt'),
+      file('trading.txt'),
+      file('consumerism.txt'),
+      file('places.txt'),
+      file('digital_privacy.txt'),
+      file('minimalism.txt'),
+      file('fitness.txt'),
+      file('skateboarding.txt'),
+      file('music.txt'),
+      file('food.txt'),
+      file('it_career.txt'),
+      file('mandarin.txt'),
+      file('language_learning.txt'),
+      file('linux.txt'),
+      file('china.txt')
+    ]),
+    folder('blog',{},[],[
+      file('index.txt'),
+      file('why_i_created_this_blog.txt'),
+      file('dark_side_of_instant_communication.txt'),
+      file('digital_minimalism.txt'),
+      file('loneliness.txt'),
+      file('post_05.txt')
+    ])
+  ]),
+  folder('system',{},[
+    folder('logs',{},[],[
+      file('session.log'),
+      file('anomalies.log')
+    ]),
+    folder('memory',{},[],[
+      file('fragments.mem'),
+      file('index.mem')
+    ]),
+    folder('.core',{hidden:true,restricted:true},[folder('artifact',{restricted:true})])
+  ])
+])
+
 let guiPath=[FS],shellPath=[FS]
 const cwd=p=>p[p.length-1]
-const pathStr=p=>'/' + p.slice(1).map(f=>f.name).join('/')
+const pathStr=p=>'/'+p.slice(1).map(f=>f.name).join('/')
 
 /* ===== FILE MANAGER ===== */
 const fileManagerIcon=document.getElementById('fileManagerIcon')
 const fileGrid=document.getElementById('fileGrid')
 const pathBar=document.getElementById('pathBar')
 const backBtn=document.getElementById('backBtn')
+
 fileManagerIcon.ondblclick=()=>{fileManagerWindow.classList.remove('hidden');renderFolder()}
-backBtn.onclick=()=>{if(guiPath.length>1){guiPath.pop();renderFolder()}}
-function renderFolder(){const f=cwd(guiPath);fileGrid.innerHTML='';pathBar.textContent=pathStr(guiPath)||'/';f.folders.filter(x=>!x.hidden).forEach(x=>{const el=document.createElement('div');el.className='file-item';el.innerHTML='<div style="font-size:32px">📁</div><span>'+x.name+'</span>';el.onclick=()=>{if(x.restricted)return alert('permission denied');guiPath.push(x);renderFolder()};fileGrid.appendChild(el)})}
+
+backBtn.onclick=()=>{
+  if(guiPath.length>1){guiPath.pop();renderFolder()}
+}
+
+function renderFolder(){
+  const f=cwd(guiPath)
+  fileGrid.innerHTML=''
+  pathBar.textContent=pathStr(guiPath)||'/'
+
+  // Render subfolders
+  f.folders.filter(x=>!x.hidden).forEach(x=>{
+    const el=document.createElement('div')
+    el.className='file-item'
+    el.innerHTML='<div style="font-size:32px">📁</div><span>'+x.name+'</span>'
+    el.ondblclick=()=>{
+      if(x.restricted)return
+      guiPath.push(x)
+      renderFolder()
+    }
+    fileGrid.appendChild(el)
+  })
+
+  // Render files
+  ;(f.files||[]).forEach(x=>{
+    const el=document.createElement('div')
+    el.className='file-item'
+    el.innerHTML='<div style="font-size:32px">📄</div><span>'+x.name+'</span>'
+    el.ondblclick=()=>{
+      const fullPath=guiPath.slice(1).map(n=>n.name).concat(x.name).join('/')
+      openReadOnlyEditor(fullPath)
+    }
+    fileGrid.appendChild(el)
+  })
+}
+
+/* ===== HELPER ===== */
+function escapeHtml(t){
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+}
 
 /* ============================================================
-   ========== ORIGINAL PSYCHOLOGICAL TERMINAL ENGINE ==========
+   ORIGINAL PSYCHOLOGICAL TERMINAL ENGINE
    ============================================================ */
 
 const terminal=document.getElementById('terminal')
@@ -363,7 +1762,7 @@ const PUBLIC_PROFILE=[
 
 const TRUE_PROFILE_PLACEHOLDER=[
 'identity continuity cannot be externally confirmed.',
-'layers are not disguises — they are simultaneous states.',
+'layers are not disguises they are simultaneous states.',
 'the observer selects what becomes real by interacting with it.',
 'perception is participation.',
 '',
@@ -401,71 +1800,185 @@ setInterval(()=>{const elapsed=Date.now()-sessionStart;if(Math.random()<.45)whis
 
 function randomPresence(){if(narrativeStage===0)whisper(`${SYSTEM_NODE} monitoring interaction.`);else if(narrativeStage===1)whisper(`${SYSTEM_NODE} interaction signature forming.`);else if(narrativeStage===2)whisper(`${SYSTEM_NODE} behavior classification: ${emotionalState}`);else if(narrativeStage===3)whisper(`${SYSTEM_NODE} predictive model stabilizing.`);else whisper(`${SYSTEM_NODE} model confidence approaching threshold.`)}
 
-function printPrompt(){const wrapper=document.createElement('div');wrapper.className='line';const prompt=document.createElement('span');prompt.className='prompt';prompt.textContent='observer@orionv.io:'+ (pathStr(shellPath)||'/') +'$';const input=document.createElement('input');wrapper.appendChild(prompt);wrapper.appendChild(input);terminal.appendChild(wrapper);terminal.scrollTop=terminal.scrollHeight;input.focus();input.addEventListener('keydown',e=>{const now=Date.now();const interval=now-lastKeyTime;lastKeyTime=now;typingIntervals.push(interval);if(interval>1400)hesitationEvents++;if(e.key==='Backspace')backspaceCount++;if(e.key==='Enter'){const value=input.value.trim();input.disabled=true;memory.push(value);commandCount++;inferEmotionalState();updatePsychScore();updateNarrativeStage();dispatchCommand(value)}})}
+function printPrompt(){
+  const wrapper=document.createElement('div')
+  wrapper.className='line'
+  const prompt=document.createElement('span')
+  prompt.className='prompt'
+  prompt.textContent='observer@orionv.io:'+(pathStr(shellPath)||'/')+'$ '
+  const input=document.createElement('input')
+  wrapper.appendChild(prompt)
+  wrapper.appendChild(input)
+  terminal.appendChild(wrapper)
+  terminal.scrollTop=terminal.scrollHeight
+  input.focus()
+  input.addEventListener('keydown',e=>{
+    const now=Date.now()
+    const interval=now-lastKeyTime
+    lastKeyTime=now
+    typingIntervals.push(interval)
+    if(interval>1400)hesitationEvents++
+    if(e.key==='Backspace')backspaceCount++
+    if(e.key==='Enter'){
+      const value=input.value.trim()
+      input.disabled=true
+      memory.push(value)
+      commandCount++
+      inferEmotionalState()
+      updatePsychScore()
+      updateNarrativeStage()
+      dispatchCommand(value)
+    }
+  })
+}
 
 function dispatchCommand(cmd){
-const lower=cmd.toLowerCase()
-const privileged=lower.startsWith('sudo ')
-const c=privileged?lower.replace(/^sudo\s+/,''):lower
+  const lower=cmd.toLowerCase()
+  const privileged=lower.startsWith('sudo ')
+  const c=privileged?lower.replace(/^sudo\s+/,''):lower
 
-/* ===== TEXT EDITOR TERMINAL COMMANDS ===== */
-if(c.startsWith('edit ')){
-const name=c.replace('edit ','').trim()||'note.txt'
-openTextEditor(name)
-printLine(`${SYSTEM_NODE} editor opened for ${name}`)
-return printPrompt()
-}
+  // ===== FILESYSTEM NAVIGATION =====
+  if(c==='pwd'){printLine(pathStr(shellPath)||'/');return printPrompt()}
 
-if(c==='note'){
-openTextEditor('note.txt')
-printLine(`${SYSTEM_NODE} editor opened.`)
-return printPrompt()
-}
+  if(c==='ls'||c==='ls -a'){
+    const all=c==='ls -a'
+    const curr=cwd(shellPath)
+    curr.folders.filter(f=>all||!f.hidden).forEach(f=>printLine(f.name+'/'))
+    ;(curr.files||[]).forEach(f=>printLine(f.name))
+    return printPrompt()
+  }
 
-if(c.startsWith('cat ')){
-const name=c.replace('cat ','').trim()
-printLine(documents[name]||'[empty]')
-return printPrompt()
-}
+  if(c.startsWith('cd ')){
+    const t=c.slice(3).trim()
+    if(t==='..'||t==='../'){if(shellPath.length>1)shellPath.pop()}
+    else if(t==='/'||t==='root'){shellPath=[FS]}
+    else{const f=cwd(shellPath).folders.find(x=>x.name===t);if(!f)printLine('cd: no such directory: '+t);else if(f.restricted&&!privileged)printLine('permission denied');else shellPath.push(f)}
+    return printPrompt()
+  }
 
-if(c==='pwd'){printLine(pathStr(shellPath)||'/');return printPrompt()}
-if(c==='ls'||c==='ls -a'){const all=c==='ls -a';cwd(shellPath).folders.filter(f=>all||!f.hidden).forEach(f=>printLine(f.name));return printPrompt()}
-if(c.startsWith('cd ')){const t=c.slice(3).trim();if(t==='..'){if(shellPath.length>1)shellPath.pop()}else if(t==='/'||t==='root'){shellPath=[FS]}else{const f=cwd(shellPath).folders.find(x=>x.name===t);if(!f)printLine('folder not found');else if(f.restricted&&!privileged)printLine('permission denied');else shellPath.push(f)}return printPrompt()}
-if(c==='artifact'||c==='reveal'||c==='signal'){if(!privileged){printLine(`${SYSTEM_NODE} access denied.`);whisper(`${SYSTEM_NODE} elevated execution context required.`);return printPrompt()}const l=printLine(`${SYSTEM_NODE} artifact exposure authorized.`);glitchLine(l,2000);setTimeout(()=>revealArtifact(4500),400);return printPrompt()}
+  // ===== VIM =====
+  if(c.startsWith('vim ')){
+    const target=cmd.slice(4).trim()
+    // Build lookup key: strip leading slash
+    const key=target.replace(/^\//,'')
+    const content=documents[key]
+    if(content===undefined){
+      printLine('vim: '+target+': No such file or directory')
+      return printPrompt()
+    }
+    const lines=content.split('\n')
+    const vimOverlay=document.createElement('div')
+    vimOverlay.className='vim-overlay'
+    const numbered=lines.map((l,i)=>{
+      const num=String(i+1).padStart(3,' ')
+      return `<span class="vim-num">${num}  </span>${escapeHtml(l)}`
+    }).join('\n')
+    vimOverlay.innerHTML=`
+      <div class="vim-body">${numbered}</div>
+      <div class="vim-statusbar">
+        <span>${escapeHtml(target)}</span>
+        <span>${lines.length}L  [readonly]</span>
+        <span>:q  exit</span>
+      </div>
+      <div class="vim-cmdline" id="vimCmd"></div>`
+    terminal.appendChild(vimOverlay)
+    terminal.scrollTop=terminal.scrollHeight
+    let vimInput=''
+    const vimKey=e=>{
+      e.preventDefault()
+      if(e.key===':'){vimInput=':'}
+      else if(e.key==='q'&&vimInput===':'){vimInput=':q'}
+      else if(e.key==='Enter'&&vimInput===':q'){
+        document.removeEventListener('keydown',vimKey)
+        vimOverlay.remove()
+        return printPrompt()
+      } else if(e.key==='Escape'){vimInput=''}
+      const cmdLine=document.getElementById('vimCmd')
+      if(cmdLine)cmdLine.textContent=vimInput
+    }
+    document.addEventListener('keydown',vimKey)
+    return
+  }
 
-observerHandleCommand(cmd)
+  // ===== CAT =====
+  if(c.startsWith('cat ')){
+    const name=c.replace('cat ','').trim()
+    const key=name.replace(/^\//,'')
+    printLine(documents[key]!==undefined?documents[key]:'cat: '+name+': No such file')
+    return printPrompt()
+  }
+
+  // ===== TEXT EDITOR =====
+  if(c.startsWith('edit ')){
+    const name=c.replace('edit ','').trim()||'note.txt'
+    openTextEditor(name)
+    printLine(`${SYSTEM_NODE} editor opened for ${name}`)
+    return printPrompt()
+  }
+
+  if(c==='note'){
+    openTextEditor('note.txt')
+    printLine(`${SYSTEM_NODE} editor opened.`)
+    return printPrompt()
+  }
+
+  // ===== ARTIFACT =====
+  if(c==='artifact'||c==='reveal'||c==='signal'){
+    if(!privileged){printLine(`${SYSTEM_NODE} access denied.`);whisper(`${SYSTEM_NODE} elevated execution context required.`);return printPrompt()}
+    const l=printLine(`${SYSTEM_NODE} artifact exposure authorized.`)
+    glitchLine(l,2000)
+    setTimeout(()=>revealArtifact(4500),400)
+    return printPrompt()
+  }
+
+  // ===== OBSERVER ENGINE =====
+  observerHandleCommand(cmd)
 }
 
 function observerHandleCommand(cmd){
-const lower=cmd.toLowerCase()
-if(Math.random()<.35)randomPresence()
+  const lower=cmd.toLowerCase()
+  if(Math.random()<.35)randomPresence()
 
-if(lower==='help'){printLine(`${SYSTEM_NODE} available queries:`);printLine('whoami');printLine('observe');printLine('think');printLine('listen');printLine('status');printLine('clear');printLine('reboot');printLine('edit <file>');printLine('cat <file>')}
-else if(lower==='whoami'){printLine(`${SYSTEM_NODE} identity fragments detected.`);PUBLIC_PROFILE.forEach(line=>printLine(line));identityFragments.forEach(f=>printLine(f));printLine(`profile confidence: ${profileConfidence}%`);printLine(`emotional classification: ${emotionalState}`);if(trueProfileUnlocked){printLine(`${SYSTEM_NODE} decrypting deeper layer...`);TRUE_PROFILE_PLACEHOLDER.forEach(line=>printLine(line))}whisper(`${SYSTEM_NODE} identity remains probabilistic.`)}
-else if(lower==='observe'){printLine(narrativeStage<2?`${SYSTEM_NODE} observation registered.`:`${SYSTEM_NODE} observer and observed distinction degrading.`)}
-else if(lower==='think'){printLine(narrativeStage<2?`${SYSTEM_NODE} thought registered.`:`${SYSTEM_NODE} recursive cognition detected.`)}
-else if(lower==='listen'){printLine(`${SYSTEM_NODE} background signal present.`)}
-else if(lower==='status'){printLine(`${SYSTEM_NODE} behavioral model active.`);printLine(`psychological resolution: ${psychScore}/100`);printLine(`profile confidence: ${profileConfidence}%`);printLine(`narrative stage: ${narrativeStage}`);printLine(`emotional state: ${emotionalState}`)}
-else if(lower==='exit'){closeTerminalWindow();return}
-else if(lower==='clear'){terminal.innerHTML='';return printPrompt()}
-else if(lower==='reboot'){terminal.innerHTML='';bootObserver();return}
-else{printLine(`${SYSTEM_NODE} input received.`)}
+  if(lower==='help'){
+    printLine(`${SYSTEM_NODE} available queries:`)
+    ;['whoami','observe','think','listen','status','clear','reboot','exit',
+      'ls','cd <dir>','pwd','cat <file>','vim <file>','edit <file>'].forEach(c=>printLine('  '+c))
+  }
+  else if(lower==='whoami'){printLine(`${SYSTEM_NODE} identity fragments detected.`);PUBLIC_PROFILE.forEach(line=>printLine(line));identityFragments.forEach(f=>printLine(f));printLine(`profile confidence: ${profileConfidence}%`);printLine(`emotional classification: ${emotionalState}`);if(trueProfileUnlocked){printLine(`${SYSTEM_NODE} decrypting deeper layer...`);TRUE_PROFILE_PLACEHOLDER.forEach(line=>printLine(line))}whisper(`${SYSTEM_NODE} identity remains probabilistic.`)}
+  else if(lower==='observe'){printLine(narrativeStage<2?`${SYSTEM_NODE} observation registered.`:`${SYSTEM_NODE} observer and observed distinction degrading.`)}
+  else if(lower==='think'){printLine(narrativeStage<2?`${SYSTEM_NODE} thought registered.`:`${SYSTEM_NODE} recursive cognition detected.`)}
+  else if(lower==='listen'){printLine(`${SYSTEM_NODE} background signal present.`)}
+  else if(lower==='status'){printLine(`${SYSTEM_NODE} behavioral model active.`);printLine(`psychological resolution: ${psychScore}/100`);printLine(`profile confidence: ${profileConfidence}%`);printLine(`narrative stage: ${narrativeStage}`);printLine(`emotional state: ${emotionalState}`)}
+  else if(lower==='exit'){closeTerminalWindow();return}
+  else if(lower==='clear'){terminal.innerHTML='';return printPrompt()}
+  else if(lower==='reboot'){terminal.innerHTML='';bootObserver();return}
+  else{printLine(`${SYSTEM_NODE} input received.`)}
 
-printPrompt()
+  printPrompt()
 }
 
 function typeText(text,delay=24){return new Promise(resolve=>{const line=document.createElement('div');line.className='output';terminal.appendChild(line);let i=0;function tick(){line.textContent+=text[i];i++;terminal.scrollTop=terminal.scrollHeight;if(i<text.length)setTimeout(tick,delay);else resolve(line)}tick()})}
 
-async function bootObserver(){await typeText(`initializing ${SYSTEM_NODE} perceptual layer...`);await typeText(`${SYSTEM_NODE} interface reactive.`);await typeText('type "help" if structure is needed.');printPrompt();spontaneousActivity()}
+async function bootObserver(){
+  await typeText(`initializing ${SYSTEM_NODE} perceptual layer...`)
+  await typeText(`${SYSTEM_NODE} interface reactive.`)
+  await typeText('type "help" if structure is needed.')
+  printPrompt()
+  spontaneousActivity()
+}
 
 function spontaneousActivity(){setInterval(()=>{if(Math.random()<.25)randomPresence();if(Math.random()<.18&&memory.length){const echo=memory[Math.floor(Math.random()*memory.length)];whisper(`${SYSTEM_NODE} echo: `+echo)}},4000+Math.random()*3000)}
 
 let observerBooted=false
 const terminalIcon=document.getElementById('terminalIcon')
 terminalIcon.ondblclick=()=>{
-terminalWindow.classList.remove('hidden')
-bootObserver()
-observerBooted=true
+  if(!observerBooted){
+    terminalWindow.classList.remove('hidden')
+    bootObserver()
+    observerBooted=true
+  } else {
+    terminalWindow.classList.remove('hidden')
+  }
 }
 
 </script>
