@@ -2190,31 +2190,31 @@ const browserBack=document.getElementById('browserBack')
 const browserIcon=document.getElementById('browserIcon')
 
 const BOOKMARKS=[
-  {icon:'🏠',title:'home',url:'home://start'},
-  {icon:'📡',title:'web.archive.org',url:'web.archive.org/orionv.io/2003'},
-  {icon:'💬',title:'4ch.net/g/',url:'4ch.net/g/'},
-  {icon:'🔴',title:'error404.net',url:'error404.net'},
-  {icon:'🧅',title:'onion.social',url:'onion.social'},
-  {icon:'📰',title:'orionv.io/blog',url:'orionv.io/blog'},
-  {icon:'📍',title:'orionv.io/now',url:'orionv.io/now'},
-  {icon:'🎵',title:'music.orionv.io',url:'music.orionv.io'},
-  {icon:'📖',title:'en.wikipedia.org/wiki/Orion_(observer)',url:'en.wikipedia.org/wiki/Orion_(observer)'},
-  {icon:'🧅',title:'*.onion',url:'3g2upl4pq6kufc4m.onion'},
-  {icon:'✉️',title:'orionv.io/contact',url:'orionv.io/contact'},
-  {icon:'👁',title:'orionv.io/observer',url:'orionv.io/observer'},
-  {icon:'📡',title:'status.orionv.io',url:'status.orionv.io'},
-  {icon:'🔧',title:'orionv.io/uses',url:'orionv.io/uses'},
-  {icon:'🗺',title:'orionv.io/travel',url:'orionv.io/travel'},
-  {icon:'❓',title:'ask.orionv.io',url:'ask.orionv.io'},
-  {icon:'⛏',title:'MC HCSMP',url:'orionv.io/mcchronicles'},
-  {icon:'🪞',title:'mirror.orionv.io',url:'mirror.orionv.io'},
-  {icon:'⚙️',title:'orionv.io/setup',url:'orionv.io/setup'},
-  {icon:'📻',title:'signal.orionv.io',url:'signal.orionv.io'},
-  {icon:'✊',title:'orionv.io/manifesto',url:'orionv.io/manifesto'},
-  {icon:'🌑',title:'void.orionv.io',url:'void.orionv.io'},
-  {icon:'🕸',title:'webring',url:'webring.net'},
-  {icon:'📄',title:'orionv.io/readme',url:'orionv.io/readme'},
-  {icon:'📝',title:'changelog.orionv.io',url:'changelog.orionv.io'},
+  {icon:'🏠',title:'home',url:'home://start',cat:''},
+  {icon:'📻',title:'latest transmission',url:'signal.orionv.io',cat:'transmit'},
+  {icon:'📍',title:'what im up to right now',url:'orionv.io/now',cat:'transmit'},
+  {icon:'✉️',title:'orionv.io/contact',url:'orionv.io/contact',cat:'transmit'},
+  {icon:'📄',title:'orionv.io/readme',url:'orionv.io/readme',cat:'the archive'},
+  {icon:'✊',title:'orionv.io/manifesto',url:'orionv.io/manifesto',cat:'the archive'},
+  {icon:'📰',title:'orionv.io/blog',url:'orionv.io/blog',cat:'the archive'},
+  {icon:'🔧',title:'orionv.io/uses',url:'orionv.io/uses',cat:'the archive'},
+  {icon:'⚙️',title:'orionv.io/setup',url:'orionv.io/setup',cat:'the archive'},
+  {icon:'🗺',title:'orionv.io/travel',url:'orionv.io/travel',cat:'the archive'},
+  {icon:'⛏',title:'MC HCSMP',url:'orionv.io/mcchronicles',cat:'the archive'},
+  {icon:'👁',title:'anomalies: 15',url:'observer.orionv.io',cat:'the deep end'},
+  {icon:'🪞',title:'the mirror does not show you what you look like...',url:'mirror.orionv.io',cat:'the deep end'},
+  {icon:'🌑',title:' ',url:'void.orionv.io',cat:'the deep end'},
+  {icon:'📖',title:'en.wikipedia.org/wiki/Orion_(observer)',url:'en.wikipedia.org/wiki/Orion_(observer)',cat:'artifacts'},
+  {icon:'📡',title:'web.archive.org',url:'web.archive.org/orionv.io/2003',cat:'artifacts'},
+  {icon:'💬',title:'4ch.net/g/',url:'4ch.net/g/',cat:'artifacts'},
+  {icon:'🔴',title:'error404.net',url:'error404.net',cat:'artifacts'},
+  {icon:'🧅',title:'onion.social',url:'onion.social',cat:'artifacts'},
+  {icon:'🧅',title:'*.onion',url:'3g2upl4pq6kufc4m.onion',cat:'artifacts'},
+  {icon:'🕸',title:'webring',url:'webring.net',cat:'artifacts'},
+  {icon:'📡',title:'status.orionv.io',url:'status.orionv.io',cat:'backend'},
+  {icon:'❓',title:'ask.orionv.io',url:'ask.orionv.io',cat:'backend'},
+  {icon:'🎵',title:'music.orionv.io',url:'music.orionv.io',cat:'backend'},
+  {icon:'📝',title:'changelog.orionv.io',url:'changelog.orionv.io',cat:'backend'},
 ]
 
 let browserHistory=[]
@@ -2245,12 +2245,22 @@ function renderSite(url){
   div.style.minHeight='100%'
 
   if(url==='home://start'){
-    div.innerHTML=`<div class="browser-home">${BOOKMARKS.filter(b=>b.url!=='home://start').map(b=>`
-      <div class="bookmark-card" onclick="browserNavigate('${b.url}')">
-        <div class="bk-icon">${b.icon}</div>
-        <div class="bk-title">${b.title}</div>
-        <div class="bk-url">${b.url}</div>
-      </div>`).join('')}</div>`
+    const cats=['transmit','the archive','the deep end','artifacts','backend'];
+    const grouped=cats.map(cat=>({cat,items:BOOKMARKS.filter(b=>b.cat===cat)}));
+    div.innerHTML=`<div style="padding:40px;">
+      ${grouped.map(g=>`
+        <div style="margin-bottom:40px;">
+          <div style="font-size:10px;color:#30363d;letter-spacing:.12em;text-transform:lowercase;margin-bottom:14px;">${g.cat}</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,160px);gap:12px;">
+            ${g.items.map(b=>`
+              <div class="bookmark-card" onclick="browserNavigate('${b.url}')">
+                <div class="bk-icon">${b.icon}</div>
+                <div class="bk-title">${b.title}</div>
+                <div class="bk-url">${b.url}</div>
+              </div>`).join('')}
+          </div>
+        </div>`).join('')}
+    </div>`
   }
 
   else if(url==='web.archive.org/orionv.io/2003'){
@@ -2465,7 +2475,7 @@ function renderSite(url){
     </div>`
   }
 
-  else if(url==='orionv.io/observer'){
+  else if(url==='observer.orionv.io'){
     const anomalies=[
       {id:'ANO-011',date:'2026-03-02',type:'extended read',sev:'low',note:'loneliness.txt 2m26s'},
       {id:'ANO-012',date:'2026-03-01',type:'filesystem traversal',sev:'medium',note:'all dirs opened'},
@@ -2667,13 +2677,17 @@ function renderSite(url){
   else if(url==='orionv.io/travel'){
     const visited=[
       {place:'Wuhan',country:'China',note:'first city. warmer than expected in every sense.'},
-      {place:'Beijing',country:'China',note:'weight of history is physical here.'},
       {place:'Enshi',country:'China',note:'canyon fog. one of the most unexpectedly beautiful places.'},
-      {place:'Shanghai',country:'China',note:'scale and speed unlike anywhere else.'},
-      {place:'Yichang',country:'China',note:'gateway to the three gorges. quieter than expected.'},
-      {place:'Dangyang',country:'China',note:'off the map. that was the point.'},
-            {place:'Chongqing',country:'China',note:'scale is incomprehensible at night from the hillside.'},
+      {place:'Shanghai',country:'China',note:'scale and speed unlike anywhere else. 2025.'},
+      {place:'Yichang',country:'China',note:'gateway to the three gorges. quieter than expected. 2025.'},
+      {place:'Dangyang',country:'China',note:'off the map. that was the point. 2025.'},
+      {place:'Beijing',country:'China',note:'weight of history is physical here. 2025.'},
+      {place:'Chongqing',country:'China',note:'scale is incomprehensible at night from the hillside.'},
       {place:'Guiyang',country:'China',note:'quieter. less on the radar. that was the point.'},
+      {place:'Yichang',country:'China',note:'gateway to the three gorges. river city.'},
+      {place:'Dangyang',country:'China',note:'off the tourist circuit entirely.'},
+      {place:'Shanghai',country:'China',note:'what everyone imagines china looks like. more layered than that.'},
+      {place:'Beijing',country:'China',note:'history and infrastructure at the same time.'},
       {place:'Hawaii',country:'USA',note:'home. baseline for everything else.'},
       {place:'Los Angeles',country:'USA',note:'crowded loneliness. learned something from it.'},
       {place:'Las Vegas',country:'USA',note:'city engineered to extract. studied it.'},
@@ -3984,6 +3998,7 @@ like the world was deciding whether to continue.`},
         'blog posts from vault: why i created this blog, loneliness, digital minimalism, dark side of instant communication',
         'in-progress posts in filesystem: my experience in china (partially written, intro drafted), living with purpose, mystery and monotonous days',
         'hosting corrected from digitalocean to github pages',
+        'all em dashes removed from codebase per preference no hyphens as replacements either',
       ]},
       {version:'0.5',date:'2026-02-22',label:'research expansion',entries:[
         'added 11 research files to documents/research/',
@@ -4416,6 +4431,8 @@ const VISITED_PINS=[
   {name:'Dangyang',lat:30.82,lon:111.78,color:'#58a6ff',note:'china 2024/2025'},
   {name:'Shanghai',lat:31.23,lon:121.47,color:'#58a6ff',note:'china 2025'},
   {name:'Beijing',lat:39.91,lon:116.39,color:'#58a6ff',note:'china 2025'},
+  {name:'Shanghai',lat:31.23,lon:121.47,color:'#58a6ff',note:'china 2024'},
+  {name:'Beijing',lat:39.9,lon:116.4,color:'#58a6ff',note:'china 2024'},
 ]
 const NEXT_PINS=[
   {name:'Singapore',lat:1.35,lon:103.82,color:'#3fb950',note:'next'},
