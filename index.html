@@ -171,6 +171,17 @@ button.nav{margin-bottom:12px;background:#161b22;border:none;color:#c9d1d9;paddi
 </head>
 <body>
 
+<div id="entryScreen" style="position:fixed;inset:0;background:#000;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;">
+  <div style="max-width:480px;width:100%;padding:40px;">
+    <p id="entryFragment" style="font-size:13px;color:#484f58;line-height:2;margin-bottom:40px;opacity:0;transition:opacity 2s ease;">the difference is in how you arrive.</p>
+    <div style="display:flex;align-items:center;gap:8px;opacity:0;transition:opacity 1s ease;" id="entryInputRow">
+      <span style="font-size:13px;color:#30363d;">></span>
+      <input id="entryInput" type="text" autocomplete="off" spellcheck="false" style="background:transparent;border:none;outline:none;font-family:'JetBrains Mono',monospace;font-size:13px;color:#8b949e;width:100%;caret-color:#58a6ff;">
+    </div>
+    <p id="entryResponse" style="font-size:12px;color:#484f58;margin-top:24px;line-height:2;min-height:20px;opacity:0;transition:opacity 0.8s ease;"></p>
+  </div>
+</div>
+
 <div class="boot-screen" id="bootScreen">
 <div class="boot-flicker" id="bootFlicker"></div>
 <div class="scanlines"></div>
@@ -354,6 +365,72 @@ button.nav{margin-bottom:12px;background:#161b22;border:none;color:#c9d1d9;paddi
 
 <script>
 
+/* ENTRY SCREEN */
+const entryScreen=document.getElementById('entryScreen')
+const entryFragment=document.getElementById('entryFragment')
+const entryInputRow=document.getElementById('entryInputRow')
+const entryInput=document.getElementById('entryInput')
+const entryResponse=document.getElementById('entryResponse')
+
+const loreWords=['mirror','void','observer','signal','orion','onion','continuity','preservation','aurelia','onyun','archive','chronicles','departure','impermanence']
+const coordPattern=/^-?\d+\.?\d*[,\s]+-?\d+\.?\d*$/
+
+function classifyInput(val){
+  const v=val.trim().toLowerCase()
+  if(!v) return 'empty'
+  if(v.endsWith('?')) return 'question'
+  if(coordPattern.test(v)) return 'coordinate'
+  if(loreWords.some(w=>v.includes(w))) return 'lore'
+  if(/^[a-z\s]{1,4}$/.test(v)||/[^a-zA-Z0-9\s]/.test(v)) return 'noise'
+  return 'unknown'
+}
+
+const responses={
+  empty:'you arrived without intention. the system noted this.',
+  question:'questions are a form of arrival. noted.',
+  coordinate:'location acknowledged.',
+  lore:'you have been here before.',
+  noise:'noise is also a signal.',
+  unknown:'arrival confirmed. method unclassified.'
+}
+
+async function runEntry(){
+  await wait(600)
+  entryFragment.style.opacity='1'
+  await wait(1800)
+  entryInputRow.style.opacity='1'
+  entryInput.focus()
+
+  let autoTimer=setTimeout(()=>{
+    entryResponse.textContent='you waited. the system did not.'
+    entryResponse.style.opacity='1'
+    setTimeout(proceedToBoot,1400)
+  },26000)
+
+  entryInput.addEventListener('keydown',async function handler(e){
+    if(e.key!=='Enter') return
+    clearTimeout(autoTimer)
+    entryInput.removeEventListener('keydown',handler)
+    entryInput.blur()
+    const type=classifyInput(entryInput.value)
+    entryResponse.textContent=responses[type]
+    entryResponse.style.opacity='1'
+    await wait(1600)
+    proceedToBoot()
+  })
+}
+
+function proceedToBoot(){
+  entryScreen.style.transition='opacity 1s ease'
+  entryScreen.style.opacity='0'
+  setTimeout(()=>{
+    entryScreen.style.display='none'
+    bootOS()
+  },1000)
+}
+
+runEntry()
+
 /* BOOT */
 const bootScreen=document.getElementById('bootScreen')
 const bootText=document.getElementById('bootText')
@@ -366,7 +443,7 @@ function randomFlicker(){flicker.style.opacity=Math.random()*0.35;setTimeout(()=
 async function bootOS(){
   for(let i=0;i<6;i++){randomFlicker();await wait(120+Math.random()*180)}
   await wait(400)
-  bootText.textContent='loading kernel modules...'
+  bootText.textContent='loading kernel modules... [26]'
   await wait(900)
   bootText.textContent='mounting filesystem...'
   await wait(900)
@@ -375,7 +452,6 @@ async function bootOS(){
   bootScreen.classList.add('hidden')
   desktop.style.visibility='visible'
 }
-bootOS()
 
 /* CLOCK */
 const clockEl=document.getElementById('clock')
@@ -538,7 +614,7 @@ Past projects, shelved ideas, things that ran their course.
 NAME:     Home Server
 PERIOD:   2022-2024
 STATUS:   Dormant
-HARDWARE: i7-6800K, 88GB RAM
+HARDWARE: Dell laptop, 6th gen i5
 STACK:    Arch Linux, KVM/QEMU, virt-manager, Docker
 
 What it was:
@@ -1173,7 +1249,6 @@ Self-hosted services running:
   Nginx PM       reverse proxy with SSL
 
 Domain:
-  onionhost.space
 
 Where I want to go:
   Networking fundamentals deep enough to configure real infrastructure.
@@ -1314,8 +1389,8 @@ Status:   Ongoing
 Based on: Personal experience (visited 2024), ongoing study
 
 Cities I explored:
-  Wuhan, Enshi, Chongqing, Guiyang
-  (Shanghai scrapped due to typhoon)
+  Trip 1 (2024): Wuhan, Enshi, Chongqing, Guiyang
+  Trip 2 (2025): Wuhan, Shanghai, Yichang, Dangyang, Beijing
 
 What I found vs. what I expected:
 
@@ -1640,7 +1715,7 @@ Your words go here.
 [2024-03-01 00:00:07] session open
 
 [2024-03-04 03:17:44] anomaly detected: observer lingered on whoami output
-[2024-03-04 03:17:44] profile confidence delta: +6
+[2024-03-04 03:17:44] profile confidence delta: +26
 [2024-03-04 03:17:51] echo injected: "you are not discovering the layers"
 [2024-03-04 03:18:02] observer disconnected without issuing exit command
 [2024-03-04 03:18:02] NOTE: abrupt termination logged
@@ -1672,12 +1747,12 @@ ID       DATE         TYPE                     SEVERITY   NOTE
 -------- ------------ ------------------------ ---------- ----------------------
 ANO-001  2024-02-18   repeated identity query  low        asked whoami 4x
 ANO-002  2024-02-22   extended silence         medium     9min idle, no exit
-ANO-003  2024-03-01   high backspace rate      low        82 deletions in 3min
+ANO-003  2024-03-01   high backspace rate      low        62 deletions in 3min
 ANO-004  2024-03-04   abrupt disconnection     medium     no exit command
 ANO-005  2024-03-09   command repetition       low        observe issued twice
 ANO-006  2024-03-11   filesystem traversal     medium     navigated to /system
 ANO-007  2024-03-14   artifact access          high       sudo used correctly
-ANO-008  2024-03-14   prolonged artifact view  high       94s silence post-reveal
+ANO-008  2024-03-14   prolonged artifact view  high       92s silence post-reveal
 ANO-009  2024-03-19   session duration >30min  medium     behavioral model saturated
 ANO-010  2024-03-22   typed and deleted cmd    low        input abandoned 3x
 
@@ -1942,7 +2017,7 @@ function inferEmotionalState(){const avg=typingIntervals.length?typingIntervals.
 function updateNarrativeStage(){const elapsed=Date.now()-sessionStart;if(elapsed>20000)narrativeStage=Math.max(narrativeStage,1);if(psychScore>25)narrativeStage=Math.max(narrativeStage,2);if(commandCount>10)narrativeStage=Math.max(narrativeStage,3);if(trueProfileUnlocked)narrativeStage=Math.max(narrativeStage,4)}
 function updatePsychScore(){psychScore=Math.min(100,Math.floor((typingIntervals.length*3)+(backspaceCount*1.4)+(hesitationEvents*4)+(commandCount*2)));profileConfidence=Math.min(99,35+Math.floor(psychScore*.6))}
 
-setInterval(()=>{const elapsed=Date.now()-sessionStart;if(Math.random()<.45)whisper(`${SYSTEM_NODE} session duration: ${Math.floor(elapsed/1000)}s`);if(elapsed>120000&&!trueProfileUnlocked){trueProfileUnlocked=true;const l=printLine(`${SYSTEM_NODE} deeper identity layer available.`);glitchLine(l,1600);revealArtifact(3200)}updateNarrativeStage()},18000)
+setInterval(()=>{const elapsed=Date.now()-sessionStart;if(Math.random()<.45)whisper(`${SYSTEM_NODE} session duration: ${Math.floor(elapsed/1000)}s`);if(elapsed>120000&&!trueProfileUnlocked){trueProfileUnlocked=true;const l=printLine(`${SYSTEM_NODE} deeper identity layer available.`);glitchLine(l,1600);revealArtifact(3200)}updateNarrativeStage()},26000)
 
 function randomPresence(){if(narrativeStage===0)whisper(`${SYSTEM_NODE} monitoring interaction.`);else if(narrativeStage===1)whisper(`${SYSTEM_NODE} interaction signature forming.`);else if(narrativeStage===2)whisper(`${SYSTEM_NODE} behavior classification: ${emotionalState}`);else if(narrativeStage===3)whisper(`${SYSTEM_NODE} predictive model stabilizing.`);else whisper(`${SYSTEM_NODE} model confidence approaching threshold.`)}
 
@@ -2286,12 +2361,23 @@ function renderSite(url){
     div.innerHTML=`<div class="now-site">
       <h1>/ now</h1>
       <div class="updated">last updated: march 2026</div>
-      <div class="now-section"><div class="ns-label">LOCATION</div><div class="ns-content">back near family. temporary base while the next chapter takes shape.</div></div>
-      <div class="now-section"><div class="ns-label">WORKING ON</div><div class="ns-content">balancing the digital life I built with the physical one I want.<br>those two things are not always pointing in the same direction.</div></div>
-      <div class="now-section"><div class="ns-label">TRAVEL</div><div class="ns-content">east and southeast asia. planning stage.<br>china was the start of it. there is more to see.</div></div>
-      <div class="now-section"><div class="ns-label">TRADING</div><div class="ns-content">active. part time. not a moonshot, not a loss.<br>the mental game is the job as much as the charts are.</div></div>
-      <div class="now-section"><div class="ns-label">READING</div><div class="ns-content">dune - frank herbert. starting the series.</div></div>
-      <div class="now-section"><div class="ns-label">THINKING ABOUT</div><div class="ns-content">what it means to actually move through the world<br>versus building infrastructure to do it someday.</div></div>
+      <div class="ns-content" style="max-width:560px;line-height:2.2;color:#8b949e;font-size:13px;">
+        <p>looking for work in the city i'm in. nothing complicated. just the next stable thing that funds the next move. the goal is southeast and east asia. that hasn't changed. the timeline is the part still being figured out.</p>
+
+        <p>trading is ongoing. part time, no illusions about what it is right now. the discipline is the practice more than the returns. still showing up.</p>
+
+        <p>working through CCNA when there's room for it. not in a hurry but not ignoring it either. infrastructure knowledge compounds the same way everything else does.</p>
+
+        <p>back in the gym and on the board more consistently than i've been in a while. that matters more than it sounds like it does.</p>
+
+        <p>the site is always in progress. there are layers being built that most people won't find. that's fine. it's not for most people.</p>
+
+        <p>still active on the minecraft server. the chronicles are being written as things happen. onyun endures.</p>
+
+        <p>reading again after a dry spell. trying to get back to people i've let go quiet. some friendships deserve more effort than they've been getting.</p>
+
+        <p>the direction is clear. the next step is the only thing that needs to be.</p>
+      </div>
     </div>`
   }
 
@@ -2299,30 +2385,52 @@ function renderSite(url){
     div.innerHTML=`<div class="wiki-body">
       <table class="infobox">
         <tr><th colspan="2">Orion (observer)</th></tr>
-        <tr><td>Also known as</td><td>Onion</td></tr>
+        <tr><td>Also known as</td><td>Onion, observer</td></tr>
         <tr><td>Origin</td><td>Hawaii, United States</td></tr>
         <tr><td>Classification</td><td>Observer, Unverified entity</td></tr>
         <tr><td>Status</td><td>Active (unconfirmed)</td></tr>
         <tr><td>First documented</td><td>c. 1996</td></tr>
+        <tr><td>Languages</td><td>English, Mandarin (in progress)</td></tr>
+        <tr><td>Associated domains</td><td>orionv.io</td></tr>
       </table>
+
       <h1>Orion (observer)</h1>
-      <div class="wiki-note">This article's neutrality is disputed. The subject has not been independently verified. <span style="color:#0645ad">(March 2026)</span></div>
-      <p><b>Orion</b>, also referred to as <b>Onion</b>, is a self-described observer of uncertain origin and classification.<span class="wiki-ref">[1]</span> The subject operates primarily in digital environments while maintaining a stated interest in physical relocation and long-term travel throughout East and Southeast Asia.<span class="wiki-ref">[2]</span></p>
+      <div class="wiki-note">This article's neutrality is disputed. The subject has not been independently verified. Some sections may reflect self-reported information without external confirmation. <span style="color:#0645ad">(March 2026)</span></div>
+
+      <p><b>Orion</b>, also referred to as <b>Onion</b> or <b>observer</b>, is a self-described observer of uncertain classification, operating primarily across digital environments while maintaining an ongoing interest in physical travel, language acquisition, and long-term relocation.<span class="wiki-ref">[1]</span> The subject is notable primarily for an unusually deliberate approach to digital infrastructure, personal philosophy, and what associates describe as a persistent orientation toward systems thinking across unrelated domains.<span class="wiki-ref">[2]</span></p>
+
       <h2>Background</h2>
-      <p>Born in Hawaii in 1996, Orion grew up in a predominantly Asian-Pacific community, an experience researchers have noted as foundational to the subject's cultural orientation and language acquisition interests.<span class="wiki-ref">[3]</span> The subject has resided in multiple locations including Los Angeles and Las Vegas before returning to a familial base of unknown location as of early 2026.</p>
-      <h2>Known activities</h2>
-      <p>The subject is documented as engaged in futures trading on a part-time basis, self-described as neither consistently profitable nor consistently losing.<span class="wiki-ref">[4]</span> Orion is noted for operating personal digital infrastructure including self-hosted search, password management, and RSS aggregation services, accessible at the domain <i>onionhost.space</i>.<span class="wiki-ref">[5]</span></p>
-      <p>The subject is currently pursuing Cisco CCNA certification as part of a broader effort to develop professional networking and infrastructure skills, with Security+ identified as a subsequent goal.<span class="wiki-ref">[6]</span></p>
+      <p>Orion was born in Hawaii in 1996 and grew up within a predominantly Asian-Pacific community, an environment researchers have identified as foundational to the subject's cultural orientation, dietary preferences, and sustained interest in East Asian language and travel.<span class="wiki-ref">[3]</span> Early documented interests include catching insects, the Pokémon franchise, and the Yu-Gi-Oh trading card game, the latter of which has been cited in secondary sources as an early introduction to systems thinking and probabilistic decision-making under constrained conditions.<span class="wiki-ref">[4]</span></p>
+      <p>The subject has resided across multiple locations including Los Angeles and Las Vegas, Nevada, with family ties anchoring a partial return to the Pacific as of early 2026. Neither current nor intended permanent residence has been independently confirmed.<span class="wiki-ref">[5]</span></p>
+
+      <h2>Digital infrastructure</h2>
+      <p>Orion operates a documented self-hosted server environment running on consumer hardware, including a sixth-generation Intel i5 laptop. The stack includes containerized services managed through Docker Compose, among them Pihole for network-level ad and tracker blocking, Vaultwarden as a self-hosted Bitwarden-compatible password manager, SearXNG for private metasearch, and OpenVPN for encrypted tunneling.<span class="wiki-ref">[6]</span> The subject has described the motivation for self-hosting not as technical enthusiasm but as a baseline assumption that every externally hosted service constructs a behavioral profile of its users.<span class="wiki-ref">[7]</span></p>
+      <p>The subject maintains a personal website at <i>orionv.io</i>, described in self-published documentation as a terminal-aesthetic operating system environment containing a psychological observation engine, a filesystem of original writing, and several pages of philosophical and lore content. The site has been noted by observers as unusually layered for a personal web presence.<span class="wiki-ref">[8]</span></p>
+
+      <h2>Computing and hardware</h2>
+      <p>The subject's primary computing environment centers on a Mac Mini M4 for stationary use and a MacBook Air M2 for travel, reflecting a stated preference for mobile-first equipment capable of fitting within a single carry-on bag.<span class="wiki-ref">[9]</span> Orion is noted for using a Woksis 5-inch display as the primary monitor for the Mac Mini, a retro Macintosh-inspired form factor described by the subject as keeping desk interaction intentional rather than immersive.<span class="wiki-ref">[10]</span></p>
+      <p>As of early 2026, the subject is documented as testing the Boox Palma 2 Pro, an e-ink Android device with color display and mobile data capability, as a potential daily-driver replacement for conventional smartphones. The experiment has been noted as consistent with the subject's broader interest in reducing screen-reward feedback loops.<span class="wiki-ref">[11]</span></p>
+
+      <h2>Trading and finance</h2>
+      <p>Orion is documented as engaged in futures trading on a part-time basis through the TopstepX platform, with a stated focus on the US session open and volatility-based setups across multiple timeframes.<span class="wiki-ref">[12]</span> The subject has described the psychological dimension of trading as more significant than the technical, citing managed emotional response as the primary variable distinguishing consistent from inconsistent performance. The subject is neither self-described as consistently profitable nor consistently losing.<span class="wiki-ref">[13]</span></p>
+
+      <h2>Language and travel</h2>
+      <p>Orion has been engaged in Mandarin Chinese language study, with two documented trips to China. The first in 2024 covered Wuhan, Enshi, Chongqing, and Guiyang. A return trip in 2025 spanned Wuhan, Shanghai, Yichang, Dangyang, and Beijing.<span class="wiki-ref">[14]</span> The subject has noted the Great Firewall as a significant environmental adjustment and has described Chinese urban infrastructure as substantively different from Western equivalents in ways that resisted prior expectation.<span class="wiki-ref">[15]</span></p>
+      <p>Documented and planned travel spans Hawaii, Los Angeles, Las Vegas, Utah, Arizona, Portland, Boston, Columbus, Cleveland, a Seoul layover, and multiple Chinese cities. Near-term travel interest includes Singapore, Bangkok, Phuket, Cebu, Jakarta, Bali, and Kuala Lumpur.<span class="wiki-ref">[16]</span></p>
+
       <h2>Interests and pursuits</h2>
-      <p>Orion maintains an active interest in physical training via bodyweight methods, skateboarding, ukulele, and cooking, with a noted preference for Asian-influenced cuisine reflecting the subject's Hawaiian upbringing.<span class="wiki-ref">[7]</span> The subject is also engaged in Mandarin Chinese language study, having visited China in 2024 across cities including Wuhan, Enshi, Chongqing, and Guiyang.<span class="wiki-ref">[8]</span></p>
-      <p>The subject adheres to a documented minimalist philosophy, reported to travel with a single 26-liter bag containing all possessions.<span class="wiki-ref">[9]</span></p>
+      <p>Orion maintains documented interests in skateboarding across cruiser, street, and hybrid formats, bodyweight fitness, ukulele, and cooking with a stated preference for Asian-influenced cuisine.<span class="wiki-ref">[17]</span> The subject has been photographed with a GoPro Hero 11 and is noted for one-bag travel, reportedly carrying all possessions within a 26-liter bag with no checked luggage.<span class="wiki-ref">[18]</span></p>
+      <p>The subject participates in a pay-to-respawn Minecraft Hardcore SMP server, where deaths incur a ten-dollar recovery cost. The subject has produced an extended philosophical chronicle of events on the server, written under the in-game identity <i>Onyun</i>, exploring themes of continuity, preservation, corruption, and impermanence through the lens of survival mechanics.<span class="wiki-ref">[19]</span></p>
+
       <h2>Long-term goals</h2>
-      <p>Orion has expressed a stated intention to return to Hawaii and construct a self-sufficient residential dwelling.<span class="wiki-ref">[10]</span> The proposed structure would utilize a rainwater catchment system as the primary water source, a method common in rural Hawaii where municipal water infrastructure is limited or unavailable. The subject has noted a preference for off-grid living while acknowledging the practical necessity of a utility power connection.<span class="wiki-ref">[11]</span></p>
+      <p>Orion has expressed a stated intention to return to Hawaii and construct a self-sufficient residential structure. The proposed dwelling would incorporate a rainwater catchment system as the primary water source, a method historically common in rural Hawaii where municipal infrastructure is limited or inaccessible. The subject has acknowledged the practical necessity of a utility power connection while maintaining a preference for off-grid operation across other systems.<span class="wiki-ref">[20]</span> Associates have described the project as a direction rather than a plan, noting that no timeline has been formally established.<span class="wiki-ref">[21]</span></p>
+
       <h2>Psychological profile</h2>
-      <p>Behavioral analysis of interaction logs suggests a multi-layered identity architecture with adaptive surface expression.<span class="wiki-ref">[12]</span> The subject has been documented as returning to skateboarding and ukulele practice as methods of psychological grounding, consistent with what researchers term "inner child reconnection protocol."<span class="wiki-ref">[13]</span></p>
+      <p>Behavioral analysis of documented interaction logs suggests a multi-layered identity architecture with adaptive surface expression and an unusually high tolerance for unresolved questions.<span class="wiki-ref">[22]</span> The subject has been observed returning repeatedly to themes of knowledge, freedom, authenticity, and sustainability across unrelated contexts, suggesting these as organizing values rather than stated preferences.<span class="wiki-ref">[23]</span> Researchers have noted a pattern of deliberate friction introduction, including use of non-standard hardware, manual self-hosting, and chosen difficulty, interpreted as an attempt to maintain intentional engagement with systems that would otherwise become automatic.<span class="wiki-ref">[24]</span></p>
+
       <h2>See also</h2>
-      <p><span style="color:#0645ad">Observer effect - Digital identity - Layered selfhood - Rainwater harvesting - Off-grid living</span></p>
-      <div class="wiki-cats">Categories: People of uncertain origin | Unverified entities | Self-hosting practitioners | Observers | Hawaii-born individuals | Articles with disputed neutrality</div>
+      <p><span style="color:#0645ad">Observer effect - Digital identity - Self-hosting - Rainwater harvesting - Off-grid living - Boox Palma - One-bag travel - Hardcore SMP</span></p>
+      <div class="wiki-cats">Categories: People of uncertain origin | Unverified entities | Self-hosting practitioners | Observers | Hawaii-born individuals | Mandarin learners | Articles with disputed neutrality</div>
     </div>`
   }
 
@@ -2359,7 +2467,7 @@ function renderSite(url){
 
   else if(url==='orionv.io/observer'){
     const anomalies=[
-      {id:'ANO-011',date:'2026-03-02',type:'extended read',sev:'low',note:'loneliness.txt 3m44s'},
+      {id:'ANO-011',date:'2026-03-02',type:'extended read',sev:'low',note:'loneliness.txt 2m26s'},
       {id:'ANO-012',date:'2026-03-01',type:'filesystem traversal',sev:'medium',note:'all dirs opened'},
       {id:'ANO-013',date:'2026-02-28',type:'repeated query',sev:'low',note:'whoami x4'},
       {id:'ANO-014',date:'2026-02-27',type:'privilege escalation',sev:'medium',note:'sudo x3, all denied'},
@@ -2377,7 +2485,7 @@ function renderSite(url){
           {label:'sudo successes',value:'0'},
           {label:'anomalies logged',value:'15'},
           {label:'most read file',value:'loneliness.txt'},
-          {label:'memory integrity',value:'94.3%'},
+          {label:'memory integrity',value:'96.2%'},
         ].map(s=>`<div style="background:#161b22;border:1px solid #30363d;border-radius:6px;padding:14px;">
           <div style="font-size:10px;color:#484f58;margin-bottom:6px;">${s.label}</div>
           <div style="font-size:18px;color:#c9d1d9;">${s.value}</div>
@@ -2406,17 +2514,17 @@ function renderSite(url){
 
   else if(url==='status.orionv.io'){
     const services=[
-      {name:'pihole',desc:'network ad blocking',status:'operational',uptime:'99.97%',latency:'2ms'},
-      {name:'vaultwarden',desc:'password manager',status:'operational',uptime:'99.91%',latency:'18ms'},
-      {name:'searxng',desc:'private search',status:'operational',uptime:'99.83%',latency:'34ms'},
+      {name:'pihole',desc:'network ad blocking',status:'operational',uptime:'99.29%',latency:'2ms'},
+      {name:'vaultwarden',desc:'password manager',status:'operational',uptime:'99.91%',latency:'26ms'},
+      {name:'searxng',desc:'private search',status:'operational',uptime:'99.92%',latency:'34ms'},
       {name:'freshrss',desc:'rss aggregator',status:'operational',uptime:'99.76%',latency:'22ms'},
-      {name:'invidious',desc:'youtube frontend',status:'degraded',uptime:'97.12%',latency:'210ms'},
+      {name:'invidious',desc:'youtube frontend',status:'degraded',uptime:'97.12%',latency:'62ms'},
       {name:'nginx pm',desc:'reverse proxy',status:'operational',uptime:'99.99%',latency:'4ms'},
       {name:'openvpn',desc:'self-hosted vpn',status:'operational',uptime:'99.88%',latency:'11ms'},
-      {name:'rss-bridge',desc:'feed generator',status:'operational',uptime:'99.71%',latency:'28ms'},
+      {name:'rss-bridge',desc:'feed generator',status:'operational',uptime:'99.69%',latency:'28ms'},
     ]
     div.innerHTML=`<div class="site">
-      <p style="font-size:11px;color:#484f58;letter-spacing:.1em;margin-bottom:6px;">STATUS onionhost.space</p>
+      <p style="font-size:11px;color:#484f58;letter-spacing:.1em;margin-bottom:6px;">STATUS orionv.io</p>
       <p style="font-size:11px;color:#e3b341;margin-bottom:32px;">⚠ 1 service degraded</p>
       <div style="display:flex;flex-direction:column;gap:8px;">
         ${services.map(s=>`<div style="display:flex;align-items:center;background:#161b22;border:1px solid #30363d;border-radius:6px;padding:12px 16px;gap:16px;">
@@ -2560,6 +2668,10 @@ function renderSite(url){
     const visited=[
       {place:'Wuhan',country:'China',note:'first city. warmer than expected in every sense.'},
       {place:'Enshi',country:'China',note:'canyon fog. one of the most unexpectedly beautiful places.'},
+      {place:'Shanghai',country:'China',note:'scale and speed unlike anywhere else. 2025.'},
+      {place:'Yichang',country:'China',note:'gateway to the three gorges. quieter than expected. 2025.'},
+      {place:'Dangyang',country:'China',note:'off the map. that was the point. 2025.'},
+      {place:'Beijing',country:'China',note:'weight of history is physical here. 2025.'},
       {place:'Chongqing',country:'China',note:'scale is incomprehensible at night from the hillside.'},
       {place:'Guiyang',country:'China',note:'quieter. less on the radar. that was the point.'},
       {place:'Yichang',country:'China',note:'gateway to the three gorges. river city.'},
@@ -3192,12 +3304,12 @@ For the first time, preservation confronted something it could neither regulate 
       </div>
 
       ${[
-        {id:'SIG-001',time:'03:14',strength:'low',text:`i keep thinking about the way the light looked in enshi.
+        {id:'SIG-001',time:'02:62',strength:'low',text:`i keep thinking about the way the light looked in enshi.
 not the mountains. not the view.
 just the light at that specific hour.
 like the world was deciding whether to continue.`},
 
-        {id:'SIG-002',time:'11:47',strength:'degraded',text:`you get used to moving.
+        {id:'SIG-002',time:'11:29',strength:'degraded',text:`you get used to moving.
 then one day you realize you don't know how to stop.
 and you're not sure you want to.
 and you're not sure that's healthy.
@@ -3209,7 +3321,7 @@ probably is fine.
 i don't think about him much.
 he probably doesn't think about me at all.`},
 
-        {id:'SIG-004',time:'19:02',strength:'low',text:`learned something today in mandarin.
+        {id:'SIG-004',time:'19:26',strength:'low',text:`learned something today in mandarin.
 forgot it by evening.
 this is the third time.
 the word is still not mine yet.
@@ -3221,7 +3333,7 @@ into something i built with my hands.
 i don't know when.
 i know it happens.`},
 
-        {id:'SIG-006',time:'02:33',strength:'degraded',text:`the market was clean today.
+        {id:'SIG-006',time:'02:69',strength:'degraded',text:`the market was clean today.
 one setup. one entry. out.
 walked away before it got interesting.
 discipline is just boredom you chose.`},
@@ -3231,7 +3343,7 @@ discipline is just boredom you chose.`},
 [         signal lost at this point      ]
 [                                        ]`},
 
-        {id:'SIG-008',time:'06:18',strength:'low',text:`woke up before the alarm.
+        {id:'SIG-008',time:'06:29',strength:'low',text:`woke up before the alarm.
 lay there for a while.
 thought about nothing specifically.
 that might be the closest i get to peace.`},
@@ -3242,7 +3354,7 @@ something else.
 i don't have a name for it yet.
 naming things too early ruins them.`},
 
-        {id:'SIG-010',time:'23:59',strength:'lost',text:`the onion has layers.
+        {id:'SIG-010',time:'23:26',strength:'lost',text:`the onion has layers.
 you knew that when you named it.
 some of them you haven't looked at in years.
 some of them you put there and forgot.
@@ -3793,7 +3905,7 @@ one of them you're not ready for yet.`},
         'music stops on browser navigation via _musicStop global callback',
         'travel page: added utah, arizona, portland, boston, columbus, cleveland, seoul with personal notes',
         'uses page: added dell laptop (6th gen i5) arch linux home lab, woksis 5" display, USB-C 14" portable display',
-        'status domain corrected: status.onionhost.space -> status.orionv.io',
+        'status domain updated',
         'total browser bookmarks: 18 pages',
       ]},
       {version:'0.7',date:'2026-02-28',label:'browser + ui cleanup',entries:[
@@ -3818,7 +3930,7 @@ one of them you're not ready for yet.`},
       {version:'0.6',date:'2026-02-26',label:'content from vault',entries:[
         'user uploaded obsidian vault (100+ notes) combed for real content',
         'populated projects/orion/ what the site is, stack, github pages hosting, no analytics ethos',
-        'populated projects/archive/ home server (i7-6800K, 88GB RAM, multiple VMs), iPod classic mod (bluetooth + USB-C planned), camper van research (nissan NV200 shortlisted)',
+        'populated projects/archive/ home lab (dell laptop, arch linux), iPod classic mod (bluetooth + USB-C planned), camper van research (nissan NV200 shortlisted)',
         'home server stack: pihole, vaultwarden, searxng, nginx proxy manager, openvpn-as via docker-compose',
         'populated documents/personal/notes.txt real values from Purpose.md: knowledge, adventure, connection, growth, sustainability, nature, authenticity, freedom',
         'populated documents/research/ mandarin study (HSK approach, consistency over intensity), language methods (comprehensible input, real conversation early), china trip notes (typhoon reroute to guiyang, infrastructure impressions, great firewall reality, move-to-china logistics)',
@@ -4250,12 +4362,14 @@ const VISITED_PINS=[
   {name:'Arizona',lat:34.05,lon:-111.09,color:'#58a6ff',note:'visited'},
   {name:'Portland',lat:45.52,lon:-122.67,color:'#58a6ff',note:'visited'},
   {name:'Seoul',lat:37.57,lon:126.98,color:'#58a6ff',note:'layover'},
-  {name:'Wuhan',lat:30.59,lon:114.3,color:'#58a6ff',note:'china 2024'},
+  {name:'Wuhan',lat:30.59,lon:114.3,color:'#58a6ff',note:'china 2024 + 2025'},
   {name:'Enshi',lat:30.3,lon:109.48,color:'#58a6ff',note:'china 2024'},
   {name:'Chongqing',lat:29.56,lon:106.55,color:'#58a6ff',note:'china 2024'},
   {name:'Guiyang',lat:26.65,lon:106.63,color:'#58a6ff',note:'china 2024'},
-  {name:'Yichang',lat:30.69,lon:111.28,color:'#58a6ff',note:'china 2024'},
-  {name:'Dangyang',lat:30.82,lon:111.78,color:'#58a6ff',note:'china 2024'},
+  {name:'Yichang',lat:30.69,lon:111.28,color:'#58a6ff',note:'china 2024/2025'},
+  {name:'Dangyang',lat:30.82,lon:111.78,color:'#58a6ff',note:'china 2024/2025'},
+  {name:'Shanghai',lat:31.23,lon:121.47,color:'#58a6ff',note:'china 2025'},
+  {name:'Beijing',lat:39.91,lon:116.39,color:'#58a6ff',note:'china 2025'},
   {name:'Shanghai',lat:31.23,lon:121.47,color:'#58a6ff',note:'china 2024'},
   {name:'Beijing',lat:39.9,lon:116.4,color:'#58a6ff',note:'china 2024'},
 ]
