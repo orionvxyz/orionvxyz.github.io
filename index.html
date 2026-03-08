@@ -171,7 +171,7 @@ button.nav{margin-bottom:12px;background:#161b22;border:none;color:#c9d1d9;paddi
 </head>
 <body>
 
-<div id="entryScreen" style="position:fixed;inset:0;background:#000;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;">
+<div id="entryScreen" style="position:fixed;inset:0;background:#000;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;" onclick="document.getElementById('entryInput').focus()">
   <div style="max-width:480px;width:100%;padding:40px;">
     <p id="entryFragment" style="font-size:13px;color:#484f58;line-height:2;margin-bottom:40px;opacity:0;transition:opacity 2s ease;">the difference is in how you arrive.</p>
     <div style="display:flex;align-items:center;gap:8px;opacity:0;transition:opacity 1s ease;" id="entryInputRow">
@@ -179,6 +179,7 @@ button.nav{margin-bottom:12px;background:#161b22;border:none;color:#c9d1d9;paddi
       <input id="entryInput" type="text" autocomplete="off" spellcheck="false" style="background:transparent;border:none;outline:none;font-family:'JetBrains Mono',monospace;font-size:13px;color:#8b949e;width:100%;caret-color:#58a6ff;">
     </div>
     <p id="entryResponse" style="font-size:12px;color:#484f58;margin-top:24px;line-height:2;min-height:20px;opacity:0;transition:opacity 0.8s ease;"></p>
+    <p id="entryMobileHint" style="font-size:10px;color:#21262d;margin-top:32px;opacity:0;transition:opacity 1.5s ease;">tap anywhere to type</p>
   </div>
 </div>
 
@@ -400,6 +401,13 @@ async function runEntry(){
   await wait(1800)
   entryInputRow.style.opacity='1'
   entryInput.focus()
+  // show tap hint on mobile only
+  const isMobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+  if(isMobile){
+    const hint=document.getElementById('entryMobileHint')
+    setTimeout(()=>hint.style.opacity='1',800)
+    entryScreen.addEventListener('touchstart',()=>entryInput.focus(),{passive:true})
+  }
 
   let autoTimer=setTimeout(()=>{
     entryResponse.textContent='you waited. the system did not.'
