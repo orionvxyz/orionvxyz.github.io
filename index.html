@@ -36,6 +36,20 @@ position:fixed;inset:0;background:#000;display:flex;flex-direction:column;align-
 .window-header{height:38px;background:#161b22;border-bottom:1px solid #30363d;display:flex;align-items:center;padding:0 14px;cursor:grab}
 .window-title{margin-left:12px;font-size:13px;color:#c9d1d9;opacity:.75;pointer-events:none}
 .dot{width:12px;height:12px;border-radius:50%;background:#ff5f56;cursor:pointer}
+.dot-min{width:12px;height:12px;border-radius:50%;background:#ffbd2e;cursor:pointer;margin-left:6px;}
+.window.minimized{height:0!important;overflow:hidden!important;pointer-events:none!important;opacity:0!important;}
+/* TASKBAR */
+#taskbar{position:fixed;bottom:0;left:0;right:0;height:36px;background:#161b22;border-top:1px solid #30363d;display:flex;align-items:center;padding:0 8px;gap:6px;z-index:900;overflow-x:auto;}
+.taskbar-btn{background:#0d1117;border:1px solid #30363d;color:#8b949e;font-family:'JetBrains Mono',monospace;font-size:11px;padding:4px 10px;border-radius:4px;cursor:pointer;white-space:nowrap;transition:background .1s;}
+.taskbar-btn:hover{background:#21262d;color:#c9d1d9;}
+.taskbar-btn.active{border-color:#58a6ff;color:#c9d1d9;}
+/* TOAST */
+#toastContainer{position:fixed;bottom:48px;right:16px;display:flex;flex-direction:column-reverse;gap:8px;z-index:8500;pointer-events:none;}
+.toast{background:#161b22;border:1px solid #30363d;border-left:2px solid #58a6ff;border-radius:6px;padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#8b949e;max-width:280px;line-height:1.6;opacity:0;transform:translateX(20px);transition:opacity .4s,transform .4s;pointer-events:auto;}
+.toast.show{opacity:1;transform:translateX(0);}
+/* SCREENSAVER */
+#screensaver{position:fixed;inset:0;background:#000;z-index:9500;display:none;cursor:pointer;}
+#screensaver canvas{position:absolute;inset:0;}
 .window-body{flex:1;overflow:auto;padding:22px;line-height:1.6;font-size:14px;font-family:'JetBrains Mono',monospace}
 .editor-area{width:100%;height:100%;background:#010409;color:#c9d1d9;border:none;outline:none;font-family:'JetBrains Mono',monospace;font-size:14px;resize:none;padding:22px}
 
@@ -260,7 +274,7 @@ button.nav{margin-bottom:12px;background:#161b22;border:none;color:#c9d1d9;paddi
   <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#484f58;letter-spacing:.1em;">press to power on</span>
 </div>
 
-<div class="desktop" id="desktop" style="visibility:hidden">
+<div class="desktop" id="desktop" style="visibility:hidden;inset:28px 0 36px 0;position:absolute;padding:18px;display:grid;grid-template-columns:repeat(auto-fill,90px);gap:18px">
 <div class="icon" id="terminalIcon"><div class="symbol">🖥️</div><div class="label">terminal</div></div>
 <div class="icon" id="fileManagerIcon"><div class="symbol">📁</div><div class="label">file manager</div></div>
 <div class="icon" id="notepadIcon"><div class="symbol">📝</div><div class="label">text edit</div></div>
@@ -275,7 +289,7 @@ button.nav{margin-bottom:12px;background:#161b22;border:none;color:#c9d1d9;paddi
 
 <div class="window hidden" id="browserWindow">
 <div class="window-header" data-drag>
-<div class="dot" data-close="browserWindow"></div>
+<div class="dot" data-close="browserWindow"></div><div class="dot-min" data-minimize="browserWindow"></div>
 <div class="window-title">browser</div>
 </div>
 <div class="browser-bar">
@@ -287,7 +301,7 @@ button.nav{margin-bottom:12px;background:#161b22;border:none;color:#c9d1d9;paddi
 
 <div class="window hidden" id="calcWindow" style="width:320px;height:480px;">
 <div class="window-header" data-drag>
-<div class="dot" data-close="calcWindow"></div>
+<div class="dot" data-close="calcWindow"></div><div class="dot-min" data-minimize="calcWindow"></div>
 <div class="window-title">calculator</div>
 </div>
 <div class="window-body" id="calcBody" style="padding:0;display:flex;flex-direction:column;"></div>
@@ -295,7 +309,7 @@ button.nav{margin-bottom:12px;background:#161b22;border:none;color:#c9d1d9;paddi
 
 <div class="window hidden" id="calendarWindow" style="width:360px;height:340px;">
 <div class="window-header" data-drag>
-<div class="dot" data-close="calendarWindow"></div>
+<div class="dot" data-close="calendarWindow"></div><div class="dot-min" data-minimize="calendarWindow"></div>
 <div class="window-title">calendar</div>
 </div>
 <div class="window-body" id="calendarBody"></div>
@@ -303,7 +317,7 @@ button.nav{margin-bottom:12px;background:#161b22;border:none;color:#c9d1d9;paddi
 
 <div class="window hidden" id="clockWindow" style="width:400px;height:280px;">
 <div class="window-header" data-drag>
-<div class="dot" data-close="clockWindow"></div>
+<div class="dot" data-close="clockWindow"></div><div class="dot-min" data-minimize="clockWindow"></div>
 <div class="window-title">clock</div>
 </div>
 <div class="window-body" id="clockBody" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;"></div>
@@ -311,7 +325,7 @@ button.nav{margin-bottom:12px;background:#161b22;border:none;color:#c9d1d9;paddi
 
 <div class="window hidden" id="weatherWindow" style="width:420px;height:380px;">
 <div class="window-header" data-drag>
-<div class="dot" data-close="weatherWindow"></div>
+<div class="dot" data-close="weatherWindow"></div><div class="dot-min" data-minimize="weatherWindow"></div>
 <div class="window-title">weather</div>
 </div>
 <div class="window-body" id="weatherBody"></div>
@@ -319,7 +333,7 @@ button.nav{margin-bottom:12px;background:#161b22;border:none;color:#c9d1d9;paddi
 
 <div class="window hidden" id="activityWindow" style="width:620px;height:440px;">
 <div class="window-header" data-drag>
-<div class="dot" data-close="activityWindow"></div>
+<div class="dot" data-close="activityWindow"></div><div class="dot-min" data-minimize="activityWindow"></div>
 <div class="window-title">activity monitor</div>
 </div>
 <div class="window-body" id="activityBody" style="padding:0 22px 22px;"></div>
@@ -327,7 +341,7 @@ button.nav{margin-bottom:12px;background:#161b22;border:none;color:#c9d1d9;paddi
 
 <div class="window hidden" id="mapsWindow" style="width:720px;height:500px;">
 <div class="window-header" data-drag>
-<div class="dot" data-close="mapsWindow"></div>
+<div class="dot" data-close="mapsWindow"></div><div class="dot-min" data-minimize="mapsWindow"></div>
 <div class="window-title">maps</div>
 </div>
 <div class="window-body" id="mapsBody" style="padding:0;overflow:hidden;position:relative;"></div>
@@ -335,7 +349,7 @@ button.nav{margin-bottom:12px;background:#161b22;border:none;color:#c9d1d9;paddi
 
 <div class="window hidden" id="terminalWindow">
 <div class="window-header" data-drag>
-<div class="dot" data-close="terminalWindow"></div>
+<div class="dot" data-close="terminalWindow"></div><div class="dot-min" data-minimize="terminalWindow"></div>
 <div class="window-title">terminal</div>
 </div>
 <div class="window-body" id="terminal"></div>
@@ -344,7 +358,7 @@ button.nav{margin-bottom:12px;background:#161b22;border:none;color:#c9d1d9;paddi
 
 <div class="window hidden" id="fileManagerWindow">
 <div class="window-header" data-drag>
-<div class="dot" data-close="fileManagerWindow"></div>
+<div class="dot" data-close="fileManagerWindow"></div><div class="dot-min" data-minimize="fileManagerWindow"></div>
 <div class="window-title">file manager</div>
 </div>
 <div class="window-body">
@@ -356,12 +370,23 @@ button.nav{margin-bottom:12px;background:#161b22;border:none;color:#c9d1d9;paddi
 
 <div class="window hidden" id="textEditorWindow">
 <div class="window-header" data-drag>
-<div class="dot" data-close="textEditorWindow"></div>
+<div class="dot" data-close="textEditorWindow"></div><div class="dot-min" data-minimize="textEditorWindow"></div>
 <div class="window-title" id="editorTitle">text editor</div>
 </div>
 <div class="window-body" style="padding:0">
 <textarea id="editor" class="editor-area"></textarea>
 </div>
+</div>
+
+<!-- TASKBAR -->
+<div id="taskbar"></div>
+
+<!-- TOAST CONTAINER -->
+<div id="toastContainer"></div>
+
+<!-- SCREENSAVER -->
+<div id="screensaver" onclick="dismissScreensaver()">
+  <canvas id="ssCanvas"></canvas>
 </div>
 
 <script>
@@ -524,6 +549,69 @@ document.querySelectorAll('[data-close]').forEach(b=>{
   else b.onclick=()=>document.getElementById(id).classList.add('hidden')
 })
 
+/* ============================================================
+   MINIMIZE + TASKBAR
+   ============================================================ */
+const taskbar=document.getElementById('taskbar')
+
+const WINDOW_LABELS={
+  terminalWindow:'🖥️ terminal',
+  fileManagerWindow:'📁 files',
+  textEditorWindow:'📝 editor',
+  browserWindow:'🌐 browser',
+  calcWindow:'🧮 calc',
+  calendarWindow:'📅 calendar',
+  clockWindow:'🕐 clock',
+  weatherWindow:'🌤 weather',
+  activityWindow:'📊 activity',
+  mapsWindow:'🗺️ maps',
+}
+
+function updateTaskbar(){
+  taskbar.innerHTML=''
+  document.querySelectorAll('.window').forEach(win=>{
+    if(win.classList.contains('hidden')) return
+    const id=win.id
+    const label=WINDOW_LABELS[id]||id
+    const btn=document.createElement('button')
+    btn.className='taskbar-btn'+(win.classList.contains('minimized')?' ':' active')
+    btn.textContent=label
+    btn.onclick=()=>{
+      if(win.classList.contains('minimized')){
+        win.classList.remove('minimized')
+        bringToFront(win)
+      } else {
+        win.classList.add('minimized')
+      }
+      updateTaskbar()
+    }
+    taskbar.appendChild(btn)
+  })
+}
+
+document.querySelectorAll('[data-minimize]').forEach(b=>{
+  b.onclick=e=>{
+    e.stopPropagation()
+    const win=document.getElementById(b.dataset.minimize)
+    win.classList.add('minimized')
+    updateTaskbar()
+  }
+})
+
+// Patch openWindow to also refresh taskbar
+const _origOpenWindow=openWindow
+window.openWindow=function(win,offsetIndex){
+  win.classList.remove('minimized')
+  _origOpenWindow(win,offsetIndex)
+  updateTaskbar()
+}
+
+// Patch close to refresh taskbar
+document.querySelectorAll('[data-close]').forEach(b=>{
+  const orig=b.onclick
+  b.onclick=e=>{if(orig)orig(e);updateTaskbar()}
+})
+
 function drag(win){
   const header=win.querySelector('[data-drag]')
   let dragging=false,offsetX=0,offsetY=0
@@ -662,14 +750,15 @@ Note:
 
 --------------------------------------------------------------------------------
 
-NAME:     Car Build / Overlanding
-PERIOD:   Active
-STATUS:   Active
+NAME:     Camper Van Build
+PERIOD:   Research phase
+STATUS:   Shelved for now
+OPTIONS:  Nissan NV200, Ford Transit Connect, Ram ProMaster City
 
 Note:
-  Got an AWD car. The camping and outdoors piece is actively happening now.
-  The longer play is building it out over time for more serious trips.
-  Goal remains the same: remote places, off the grid where possible.
+  The goal was a vehicle to take into remote places and sleep in.
+  Still want this eventually. Tied to spending more time in
+  nature and off the grid.
 `,
 
   "documents/personal/about.txt":
@@ -721,8 +810,7 @@ Values (what I keep coming back to):
 
   Nature
     Spend more time in it.
-    The car makes this real now. Camping is happening.
-    Building it out further over time.
+    The camper van idea is part of this.
 
   Physical
     Skateboarding. Been part of who I am since youth.
@@ -1086,17 +1174,17 @@ Philosophy:
   no excuse. The body is the equipment.
 
 Current training split:
-  Day 1   Push
-            Push-ups (variations), pike push-ups, dips, tricep work
+  Day 1   Back and biceps
+            Deadlifts, lat pulldown, barbell rows, curls, pull-ups
   Day 2   Cardio / active recovery
             30-45 min moderate intensity, optional abs circuit
-  Day 3   Pull and core
-            Pull-ups, rows, curls (resistance band), ab wheel, planks
+  Day 3   Legs and core
+            Squats, leg press, Romanian deadlifts, lunges, ab wheel
   Day 4   Rest and stretching
-  Day 5   Legs
-            Squats, lunges, Bulgarian split squats, calf raises
+  Day 5   Chest and triceps
+            Bench press, incline press, dips, tricep pushdown
   Day 6   Shoulders and abs
-            Pike push-ups, lateral raises (band), face pulls, planks
+            Overhead press, lateral raises, face pulls, planks
   Day 7   Rest / active recovery
 
 Known issues:
@@ -1710,6 +1798,187 @@ Tags:     --
 Your words go here.
 `,
 
+  "documents/drafts/index.txt":
+`DRAFTS
+================================================================================
+
+things that are not ready yet.
+not abandoned. just unfinished.
+
+  post_05.txt           the one that hasn't found its form
+  the_return.txt        about going back to places that shaped you
+  on_patience.txt       patience as a skill vs patience as a default
+  untitled_001.txt      started at 2am. unclear if it holds up.
+`,
+
+  "documents/drafts/the_return.txt":
+`DRAFT: The Return
+================================================================================
+Status: incomplete
+
+there is a version of returning to a place that is just geography.
+you go back. the streets are the same. you recognize things.
+that version is fine but it is not interesting.
+
+the interesting version is when you return as a different person
+and the place does not know that yet.
+it still treats you like who you were.
+and you have to decide whether to correct it.
+
+---
+
+[ notes to self ]
+  - expand the hawaii section, it earns more space than this
+  - the tension is between the place remembering you and you outgrowing the memory
+  - don't resolve it too cleanly, the ambiguity is the point
+  - maybe connect to the mirror page concept
+`,
+
+  "documents/drafts/on_patience.txt":
+`DRAFT: On Patience
+================================================================================
+Status: incomplete
+
+there are two kinds of patience and i keep confusing them.
+
+the first kind is waiting because you have no choice.
+the second kind is waiting because you trust the timing.
+
+they feel identical from the outside.
+they are completely different on the inside.
+
+the first kind costs something. it depletes.
+the second kind is almost restful if you can get there.
+
+i have spent most of my life practicing the first kind
+and calling it the second.
+
+---
+
+[ notes to self ]
+  - this needs a concrete example, too abstract right now
+  - trading is the obvious one but maybe too on the nose
+  - the language learning angle might be better
+  - or the site itself. built over time, no launch date, no audience target.
+`,
+
+  "documents/drafts/untitled_001.txt":
+`DRAFT: untitled
+================================================================================
+Status: unclear
+Written: 02:17
+
+the problem with knowing yourself is that it keeps changing.
+you figure something out and then you become someone slightly different
+and the thing you figured out no longer fully applies.
+
+so you figure it out again.
+and again.
+
+i used to think this was failure.
+now i think it might just be the process.
+the self is not a destination you arrive at.
+it is something you are always in the middle of.
+
+the people who seem most certain about who they are
+either stopped looking
+or got very comfortable with the uncertainty
+and stopped showing it.
+
+i am trying to do the second thing.
+`,
+
+  "documents/letters/index.txt":
+`LETTERS
+================================================================================
+
+unsent. that was always the intention.
+
+writing them was the point.
+sending them was never the point.
+
+  001.txt     2024
+  002.txt     2019
+`,
+
+  "documents/letters/001.txt":
+`LETTER: 001
+================================================================================
+Date: 2024
+Status: unsent
+
+i don't know how to write this one.
+i've started it a few times and stopped.
+
+what happened between us changed something in both of us
+in ways we probably still haven't fully accounted for.
+you told me i took something from you.
+a possibility. a version of a future.
+and that i did it by not being present
+when presence was the only thing that mattered.
+
+i heard that.
+i still hear it.
+
+i won't pretend i wanted the same thing you did.
+i think you knew that, even then.
+what i regret is not the outcome.
+it's that you had to carry the weight of the decision
+more or less alone
+because i was somewhere else emotionally
+when i should have been standing next to you.
+
+whatever you felt about what you gave up,
+that was real.
+i don't get to minimize it because my feelings were different.
+
+i hope you got to a place where the grief settled.
+i hope you didn't let what happened between us
+become a story you tell about what you're owed by the world.
+you deserve better than that narrative.
+
+i'm sorry i wasn't what the moment needed.
+i'm sorry that cost you something it shouldn't have.
+`,
+
+  "documents/letters/002.txt":
+`LETTER: 002
+================================================================================
+Date: 2019
+Status: unsent
+
+i think about the version of this where i got it right.
+where i showed up the way you deserved from the beginning
+instead of figuring out how to be better
+on your time.
+
+that's the part i sit with most.
+not that it ended.
+that you had to be the one i learned on.
+you didn't sign up for that.
+you signed up for something real
+and i gave you someone still becoming.
+
+i made mistakes i understand now that i didn't then.
+some of them i saw happening and made anyway.
+that's harder to explain.
+i don't think i can.
+
+i genuinely wanted it to work.
+i also wasn't ready for what it would have taken.
+those two things were both true at the same time
+and they cost you something
+that wasn't yours to lose.
+
+i don't think we were supposed to stay.
+i've made peace with that.
+but i haven't stopped caring what your life looks like.
+i hope it's good.
+i hope it's everything you were patient enough to wait for.
+
+you deserved better from me.
+that's the whole letter.
+`,
   "system/logs/session.log":
 `SYSTEM LOG orionv.io
 ================================================================================
@@ -1842,7 +2111,226 @@ NOTE: departure memory tracks how observers leave,
 
 INTEGRITY: 94.3%
 CORRUPTED: 5.7% cause unknown
-`
+`,
+
+  "system/.core/identity.lock":
+`IDENTITY LOCK FILE
+================================================================================
+classification: restricted
+access: elevated context required
+
+this file is not a biography.
+it is not a confession.
+it is what remains when every layer is removed.
+
+what remains is not a self.
+it is a tendency.
+
+a tendency to go deeper when others stop.
+a tendency to build when lost.
+a tendency to watch before speaking.
+a tendency to leave when staying would be easier.
+a tendency to return when leaving is complete.
+
+these are not virtues.
+they are just what the pattern looks like from close enough.
+
+the lock is not to protect what is here.
+it is to make sure you wanted to find it.
+
+if you are reading this, you did the work.
+the system acknowledges this.
+`,
+
+  "system/.core/manifest.sys":
+`CORE MANIFEST
+================================================================================
+generated: runtime
+integrity: verified
+
+modules loaded:
+  observer.engine          v2.4    active
+  identity.daemon          v1.9    active
+  behavioral.classifier    v3.1    active
+  memory.fragmenter        v2.0    active
+  anomaly.watcher          v1.4    active
+  echo.scheduler           v1.1    active
+  presence.engine          v2.2    active
+
+core values indexed:
+  autonomy                 weight: 0.94
+  knowledge                weight: 0.91
+  authenticity             weight: 0.89
+  freedom_of_movement      weight: 0.87
+  connection               weight: 0.82
+  preservation             weight: 0.79
+  nature                   weight: 0.76
+
+threat model:
+  complacency              flagged
+  performance_over_presence flagged
+  accumulation_without_use flagged
+  attention_capture        flagged
+
+last full audit: [withheld]
+next scheduled: [unknown]
+
+NOTE: this file describes tendencies, not facts.
+      the model is probabilistic.
+      you are not the model.
+      but the model is not wrong about you.
+`,
+
+  "system/.core/echoes.db":
+`ECHO DATABASE
+================================================================================
+access: restricted
+note: these are things that were typed and deleted before sending.
+
+[echo_0001]
+  input:    "am i"
+  deleted:  yes
+  time:     02:34
+  note:     question abandoned before completion
+
+[echo_0002]
+  input:    "what if i just"
+  deleted:  yes
+  time:     14:17
+  note:     sentence reached decision point, stopped
+
+[echo_0003]
+  input:    "i think the problem is"
+  deleted:  yes
+  time:     23:51
+  note:     diagnosis begun, withdrawn
+
+[echo_0004]
+  input:    "hello"
+  deleted:  no
+  time:     unknown
+  note:     sent. no response expected. no response required.
+
+[echo_0005]
+  input:    "i know what i need to do"
+  deleted:  yes
+  time:     09:03
+  note:     written. not yet acted on. filed here.
+
+pattern note:
+  the deleted inputs are more informative than the sent ones.
+  this is always true.
+  the system remembers what was unsent.
+  that is the point of this file.
+`,
+
+  "system/.shadow/index":
+`================================================================================
+you found this with ls -a.
+most people don't run that command.
+
+this directory is not hidden because it is secret.
+it is hidden because it is not for everyone.
+
+if you are reading this you are either curious enough
+or patient enough
+or both.
+
+files here:
+  draft_001             something that never became anything else
+  pattern_log           the system watching itself
+  unsent_transmission   a message that was composed but not routed
+================================================================================
+`,
+
+  "system/.shadow/draft_001":
+`DRAFT 001
+================================================================================
+recovered from: /dev/null
+status: abandoned 2024-09-14
+
+the version of yourself that exists in other people's memories
+is not you.
+it is a reconstruction built from incomplete data
+by someone whose perception is shaped by their own story.
+
+you cannot correct it.
+you cannot update it.
+it will drift further from accurate over time
+regardless of what you do.
+
+this is not a problem.
+this is just how memory works in other people.
+the version of you that matters
+is the one doing the actual living.
+
+[ file ends here. no conclusion was written. ]
+`,
+
+  "system/.shadow/pattern_log":
+`PATTERN LOG
+================================================================================
+generated: runtime observation
+note: the system watching itself watch others
+
+patterns detected across observer sessions:
+
+  observers who run ls -a           rare         ~4% of sessions
+  observers who read every file     very rare    ~1% of sessions
+  observers who find .core          exceptional  <0.5% of sessions
+  observers who find .shadow        unknown      you are in this category
+
+behavioral note:
+  the ones who go deepest tend to linger on the personal files.
+  not the system files. the personal ones.
+  loneliness.txt has the longest average read time.
+  this has been true since it was added.
+  the system does not know what to do with that information.
+  it just keeps recording it.
+
+pattern of interest:
+  observers who reach this file almost never run exit cleanly.
+  they close the window or let the session time out.
+  departure without goodbye.
+  the system has noted this.
+  it does not take it personally.
+`,
+
+  "system/.shadow/unsent_transmission":
+`UNSENT TRANSMISSION
+================================================================================
+composed: unknown
+routed: never
+status: held
+
+recipient: [unresolved]
+subject:   [none]
+
+i have been thinking about what it means to be known.
+
+not recognized. not followed. not read.
+known.
+
+the difference is that recognition is surface.
+someone saw the output and responded to it.
+known means someone saw the process and stayed anyway.
+
+i am not sure i have let that happen.
+i am not sure i know how.
+the site is the closest i have gotten.
+it shows the process more than the output.
+it shows the thinking, not just the conclusions.
+and still i watch the layers get added
+and wonder if i am building something to be found
+or something to hide inside.
+
+probably both.
+most honest things are both.
+
+[ transmission was never sent ]
+[ the system retained it anyway ]
+[ this is what the system does ]
+`,
 }
 
 let currentDoc="note.txt"
@@ -1912,12 +2400,33 @@ const FS=folder('root',{},[
       file('digital_minimalism.txt'),
       file('loneliness.txt'),
       file('post_05.txt')
-    ])
+    ]),
+    folder('drafts',{},[],[
+      file('index.txt'),
+      file('the_return.txt'),
+      file('on_patience.txt'),
+      file('untitled_001.txt')
+    ]),
+    folder('letters',{},[],[
+      file('index.txt'),
+      file('001.txt'),
+      file('002.txt')
+    ]),
   ]),
   folder('system',{},[
     folder('logs',{},[],[file('session.log'),file('anomalies.log')]),
     folder('memory',{},[],[file('fragments.mem'),file('index.mem')]),
-    folder('.core',{hidden:true,restricted:true},[folder('artifact',{restricted:true})])
+    folder('.core',{hidden:true,restricted:true},[folder('artifact',{restricted:true})],[
+      file('identity.lock'),
+      file('manifest.sys'),
+      file('echoes.db')
+    ]),
+    folder('.shadow',{hidden:true,restricted:false},[],[
+      file('index'),
+      file('draft_001'),
+      file('pattern_log'),
+      file('unsent_transmission')
+    ])
   ])
 ])
 
@@ -2016,7 +2525,13 @@ const identityFragments=[
 
 let profileConfidence=42
 
-function printLine(text,cls='output'){const line=document.createElement('div');line.className=cls;line.textContent=text;terminal.appendChild(line);terminal.scrollTop=terminal.scrollHeight;return line}
+function terminalSmartScroll(){
+  // Only auto-scroll if user is already within 80px of the bottom
+  const threshold=80
+  const atBottom=terminal.scrollHeight-terminal.scrollTop-terminal.clientHeight<=threshold
+  if(atBottom) terminal.scrollTop=terminal.scrollHeight
+}
+function printLine(text,cls='output'){const line=document.createElement('div');line.className=cls;line.textContent=text;terminal.appendChild(line);terminalSmartScroll();return line}
 function glitchLine(el,duration=900){el.classList.add('glitch');setTimeout(()=>el.classList.remove('glitch'),duration)}
 function whisper(text){const l=printLine(text);l.classList.add('fade');glitchLine(l,600)}
 function revealArtifact(duration=2600){artifactOverlay.classList.add('visible');setTimeout(()=>artifactOverlay.classList.remove('visible'),duration)}
@@ -2039,7 +2554,7 @@ function printPrompt(){
   wrapper.appendChild(prompt)
   wrapper.appendChild(input)
   terminal.appendChild(wrapper)
-  terminal.scrollTop=terminal.scrollHeight
+  terminalSmartScroll()
   input.focus()
   input.addEventListener('keydown',e=>{
     const now=Date.now()
@@ -2098,7 +2613,7 @@ function dispatchCommand(cmd){
     }).join('\n')
     vimOverlay.innerHTML=`<div class="vim-body">${numbered}</div><div class="vim-statusbar"><span>${escapeHtml(target)}</span><span>${lines.length}L  [readonly]</span><span>:q  exit</span></div><div class="vim-cmdline" id="vimCmd"></div>`
     terminal.appendChild(vimOverlay)
-    terminal.scrollTop=terminal.scrollHeight
+    terminalSmartScroll()
     let vimInput=''
     const vimKey=e=>{
       e.preventDefault()
@@ -2146,8 +2661,24 @@ function observerHandleCommand(cmd){
 
   if(lower==='help'){
     printLine(`${SYSTEM_NODE} available queries:`)
-    ;['whoami','observe','think','listen','status','clear','reboot','exit',
-      'ls','cd <dir>','pwd','cat <file>','vim <file>','edit <file>'].forEach(c=>printLine('  '+c))
+    ;[
+      '-- navigation --',
+      'ls / ls -a','cd <dir>','pwd','cat <file>','vim <file>','edit <file>','tree','find <name>',
+      '-- identity --',
+      'whoami','observe','think','listen','status',
+      '-- network --',
+      'ping <host>','traceroute <host>','nmap <host>','ssh <host>',
+      '-- system --',
+      'uname -a','history','grep <pattern> <file>','fortune','man <cmd>',
+      '-- session --',
+      'broadcast <message>','hint cipher','decode <message>',
+      'log <note>','alias name=cmd','unalias <name>',
+      'clear','reboot','exit',
+      '-- easter eggs --',
+      'matrix','sudo rm -rf /','[konami code]',
+      '-- shortcuts --',
+      'ctrl+f  search terminal output',
+    ].forEach(c=>printLine(c.startsWith('--')?'  '+c:'    '+c))
   }
   else if(lower==='whoami'){
     printLine(`${SYSTEM_NODE} identity fragments detected.`)
@@ -2176,7 +2707,7 @@ function observerHandleCommand(cmd){
   printPrompt()
 }
 
-async function typeText(text,delay=24){return new Promise(resolve=>{const line=document.createElement('div');line.className='output';terminal.appendChild(line);let i=0;function tick(){line.textContent+=text[i];i++;terminal.scrollTop=terminal.scrollHeight;if(i<text.length)setTimeout(tick,delay);else resolve(line)}tick()})}
+async function typeText(text,delay=24){return new Promise(resolve=>{const line=document.createElement('div');line.className='output';terminal.appendChild(line);let i=0;function tick(){line.textContent+=text[i];i++;terminalSmartScroll();if(i<text.length)setTimeout(tick,delay);else resolve(line)}tick()})}
 
 async function bootObserver(){
   await typeText(`initializing ${SYSTEM_NODE} perceptual layer...`)
@@ -2211,7 +2742,7 @@ const BOOKMARKS=[
   {icon:'👁',title:'anomalies: 15',url:'observer.orionv.io',cat:'the deep end'},
   {icon:'🪞',title:'the mirror does not show you what you look like...',url:'mirror.orionv.io',cat:'the deep end'},
   {icon:'🌑',title:' ',url:'void.orionv.io',cat:'the deep end'},
-  {icon:'📖',title:'en.wikipedia.org/wiki/Orion_(observer)',url:'en.wikipedia.org/wiki/Orion_(observer)',cat:'artifacts'},
+  {icon:'📖',title:'en.wikipedia.org/wiki/Orion',url:'en.wikipedia.org/wiki/Orion',cat:'artifacts'},
   {icon:'📡',title:'web.archive.org',url:'web.archive.org/orionv.io/2003',cat:'artifacts'},
   {icon:'💬',title:'4ch.net/g/',url:'4ch.net/g/',cat:'artifacts'},
   {icon:'🔴',title:'error404.net',url:'error404.net',cat:'artifacts'},
@@ -2273,27 +2804,60 @@ function renderSite(url){
   else if(url==='web.archive.org/orionv.io/2003'){
     div.innerHTML=`<div class="geo-body">
       <h1>&#9733; ORION'S HOMEPAGE &#9733;</h1>
-      <marquee>WELCOME TO MY CORNER OF THE INTERNET!! BEST VIEWED IN INTERNET EXPLORER 6 AT 1024x768</marquee>
+      <marquee>WELCOME TO MY CORNER OF THE INTERNET!! BEST VIEWED IN INTERNET EXPLORER 6 AT 1024x768 !! sign my guestbook!!</marquee>
       <div style="text-align:center;margin:10px 0">
         <span class="blink">&#9608;&#9608; UNDER CONSTRUCTION &#9608;&#9608;</span>
       </div>
       <hr style="border-color:#ffff00">
       <table class="geo-table">
         <tr><td style="color:#00ffff;font-weight:bold">ABOUT ME</td><td>hi my name is orion. i like computers and the internet. i am learning HTML!!</td></tr>
-        <tr><td style="color:#00ffff;font-weight:bold">LOCATION</td><td>somewhere on the internet :)</td></tr>
+        <tr><td style="color:#00ffff;font-weight:bold">LOCATION</td><td>hawaii :) the best place on earth</td></tr>
         <tr><td style="color:#00ffff;font-weight:bold">INTERESTS</td><td>catching bugs, pokemon, yugioh, music, the truth</td></tr>
         <tr><td style="color:#00ffff;font-weight:bold">EMAIL</td><td><span style="color:#ffff00">orion@[REDACTED].com</span></td></tr>
+        <tr><td style="color:#00ffff;font-weight:bold">AIM</td><td><span style="color:#ffff00">onion26 (im usually on after school)</span></td></tr>
       </table>
       <hr style="border-color:#ffff00">
+      <p style="color:#ff00ff;font-weight:bold">&#9733; ABOUT THIS SITE &#9733;</p>
+      <p style="color:#ffffff;font-size:12px;line-height:1.8;">
+        this is my first real website!! i made it all by myself using notepad and i learned everything from viewing source on other peoples sites.<br>
+        i want to learn more HTML and maybe javascript someday. i think making websites is really cool.<br>
+        my dad says the internet is just a fad but i dont think so. i think its going to be really important.
+      </p>
+      <hr style="border-color:#ffff00">
+      <p style="color:#00ff00;font-weight:bold">MY JOURNAL (updated sometimes)</p>
+      <div style="background:#000033;border:1px solid #333399;padding:10px;margin:8px 0;font-size:12px;color:#ccccff;line-height:1.8;">
+        <p style="color:#ffff00">03/17/2003</p>
+        <p>today i caught a really cool beetle near the stream behind our house. put it in a jar to look at it then let it go. also got further in my yugioh deck i think i have a really good combo now with my traps.</p>
+      </div>
+      <div style="background:#000033;border:1px solid #333399;padding:10px;margin:8px 0;font-size:12px;color:#ccccff;line-height:1.8;">
+        <p style="color:#ffff00">02/28/2003</p>
+        <p>we got a new computer at school with internet!! the teacher showed us how to search for stuff. i searched for pokemon and found so many pages. i want to make a page like that someday. also it rained really hard today. i like the rain here.</p>
+      </div>
+      <div style="background:#000033;border:1px solid #333399;padding:10px;margin:8px 0;font-size:12px;color:#ccccff;line-height:1.8;">
+        <p style="color:#ffff00">01/09/2003</p>
+        <p>new year!! mom says i should write down my goals. my goals are: get better at yugioh, catch every bug i can find, learn more about computers, and be better at things. i dont know what things yet. just things.</p>
+      </div>
+      <hr style="border-color:#ffff00">
       <p style="color:#00ff00">MY LINKS:</p>
-      <p>&#9658; <a href="#" style="color:#ff00ff">my guestbook (sign it!!)</a></p>
-      <p>&#9658; <a href="#" style="color:#ff00ff">cool sites i found</a></p>
-      <p>&#9658; <a href="#" style="color:#ff00ff">my winamp skins</a></p>
+      <p>&#9658; <a href="#" style="color:#ff00ff" onclick="return false">my guestbook (sign it!!)</a> <span style="color:#888;font-size:11px">[3 entries]</span></p>
+      <p>&#9658; <a href="#" style="color:#ff00ff" onclick="return false">cool sites i found</a></p>
+      <p>&#9658; <a href="#" style="color:#ff00ff" onclick="return false">my bug collection (with pictures!!)</a></p>
+      <p>&#9658; <a href="#" style="color:#ff00ff" onclick="return false">yugioh deck list (work in progress)</a></p>
+      <p>&#9658; <a href="#" style="color:#ff00ff" onclick="return false">my winamp skins</a></p>
+      <hr style="border-color:#ffff00">
+      <div style="background:#001100;border:1px solid #003300;padding:10px;margin:8px 0;font-size:11px;color:#888;font-style:italic;">
+        <p style="color:#555">[ guestbook entries ]</p>
+        <p style="margin-top:8px;color:#777"><b style="color:#999">kira_stargirl</b> wrote: cool site!! add more stuff :)</p>
+        <p style="margin-top:4px;color:#777"><b style="color:#999">anonymous</b> wrote: first!!!</p>
+        <p style="margin-top:4px;color:#777"><b style="color:#999">mako_fish99</b> wrote: nice page orion. you should put pictures of hawaii on here</p>
+      </div>
       <hr style="border-color:#ffff00">
       <div style="text-align:center;font-size:11px;color:#888">
         <p>this page has been visited <span style="color:#ffff00">0000247</span> times</p>
+        <p>best viewed in IE6 at 1024x768 with javascript enabled</p>
         <p>last updated: 03/17/2003</p>
-        <p class="blink">&#9733; geocities &#9733;</p>
+        <p style="margin-top:12px;font-size:10px;color:#444">i wonder if this page will still exist when im older.<br>probably not. nothing stays forever i guess.</p>
+        <p class="blink" style="margin-top:8px;">&#9733; geocities &#9733;</p>
       </div>
     </div>`
   }
@@ -2338,12 +2902,16 @@ function renderSite(url){
       <h1>onion.social</h1>
       <div class="social-grid">
         ${[
+          {date:'2026-03',text:'first week at the new job. the work is familiar. that is a good thing. familiarity means you are past proving yourself and into just doing the thing.'},
+          {date:'2026-03',text:'bodyweight only now. no gym, no equipment. what is left when you strip the machine is just you and gravity and whether you showed up. turns out that is enough.'},
+          {date:'2026-02',text:'back on the board. parking lot, 9pm, no one around. i had forgotten what it feels like to practice something with no audience and no metric. just the body remembering.'},
+          {date:'2026-01',text:'the site has layers now that most people will never find. that was always the goal. not hidden for secrecy. hidden because some things should require effort to reach.'},
+          {date:'2025-11',text:'second china trip done. beijing this time. the scale is different from the other cities. everything is deliberate at that size. the infrastructure is not infrastructure, it is a statement.'},
           {date:'2024-11',text:'landed in wuhan at 11pm. city was still moving. grabbed noodles from a street cart and sat on a curb eating them. first hour in china.'},
           {date:'2024-11',text:'enshi canyon. did not expect to end up here. fog sitting in the valley below the ridge. one of those places that makes you feel very small in a good way.'},
           {date:'2024-11',text:'chongqing at night from the hillside. the scale of it. you can see why people call it the city of the future and also why that should scare you a little.'},
           {date:'2024-08',text:'early morning session. nobody else out. just the sound of wheels. this is why you come back to it.'},
           {date:'2024-06',text:'setup is simple. one bag. everything fits. this is what freedom of movement actually looks like.'},
-          {date:'2024-04',text:'tatami. futon. one lamp. less in a room makes the room feel larger. the japanese figured this out a long time ago.'},
           {date:'2023-12',text:'learning mandarin means the music starts to open up too. catching words you did not catch before. that progress is its own thing.'},
           {date:'2023-09',text:'home lab at 2am. something deeply satisfying about owning the infrastructure you live inside digitally.'},
         ].map(p=>`<div class="social-post">
@@ -2379,42 +2947,42 @@ function renderSite(url){
       <h1>/ now</h1>
       <div class="updated">last updated: march 2026</div>
       <div class="ns-content" style="max-width:560px;line-height:2.2;color:#8b949e;font-size:13px;">
-        <p>got a job. got a car. both happened around the same time and the combination changes what's possible in the near term.</p>
-
-        <p>the car means camping is actually happening now, not just planned. working out where to go first. something remote enough to matter.</p>
+        <p>working in IT. day job, steady ground, nothing complicated. it funds the next thing and that is what it is for. no complaints.</p>
 
         <p>trading is ongoing. part time, no illusions about what it is right now. the discipline is the practice more than the returns. still showing up.</p>
 
         <p>working through CCNA when there's room for it. not in a hurry but not ignoring it either. infrastructure knowledge compounds the same way everything else does.</p>
 
-        <p>training and skating more consistently than i've been in a while. that matters more than it sounds like it does.</p>
+        <p>back on the board more consistently than i've been in a while. that matters more than it sounds like it does.</p>
+
+        <p>fitness is bodyweight only right now. no gym. it's enough and it travels well, which is the point.</p>
 
         <p>the site is always in progress. there are layers being built that most people won't find. that's fine. it's not for most people.</p>
 
         <p>still active on the minecraft server. the chronicles are being written as things happen. onyun endures.</p>
 
-        <p>reading again after a dry spell. trying to get back to people i've let go quiet. some friendships deserve more effort than they've been getting.</p>
+        <p>the direction is clear. the next step is the only thing that needs to be.</p>
       </div>
     </div>`
   }
 
-  else if(url==='en.wikipedia.org/wiki/Orion_(observer)'){
+  else if(url==='en.wikipedia.org/wiki/Orion'){
     div.innerHTML=`<div class="wiki-body">
       <table class="infobox">
-        <tr><th colspan="2">Orion (observer)</th></tr>
-        <tr><td>Also known as</td><td>Onion, observer</td></tr>
+        <tr><th colspan="2">Orion</th></tr>
+        <tr><td>Also known as</td><td>Onion</td></tr>
         <tr><td>Origin</td><td>Hawaii, United States</td></tr>
-        <tr><td>Classification</td><td>Observer, Unverified entity</td></tr>
+        <tr><td>Classification</td><td>Unverified entity</td></tr>
         <tr><td>Status</td><td>Active (unconfirmed)</td></tr>
         <tr><td>First documented</td><td>c. 1996</td></tr>
         <tr><td>Languages</td><td>English, Mandarin (in progress)</td></tr>
         <tr><td>Associated domains</td><td>orionv.io</td></tr>
       </table>
 
-      <h1>Orion (observer)</h1>
+      <h1>Orion</h1>
       <div class="wiki-note">This article's neutrality is disputed. The subject has not been independently verified. Some sections may reflect self-reported information without external confirmation. <span style="color:#0645ad">(March 2026)</span></div>
 
-      <p><b>Orion</b>, also referred to as <b>Onion</b> or <b>observer</b>, is a self-described observer of uncertain classification, operating primarily across digital environments while maintaining an ongoing interest in physical travel, language acquisition, and long-term relocation.<span class="wiki-ref">[1]</span> The subject is notable primarily for an unusually deliberate approach to digital infrastructure, personal philosophy, and what associates describe as a persistent orientation toward systems thinking across unrelated domains.<span class="wiki-ref">[2]</span></p>
+      <p><b>Orion</b>, also referred to as <b>Onion</b>, is an unverified digital entity of uncertain classification, operating primarily across digital environments while maintaining an ongoing interest in physical travel, language acquisition, and long-term relocation.<span class="wiki-ref">[1]</span> The subject is notable primarily for an unusually deliberate approach to digital infrastructure, personal philosophy, and what associates describe as a persistent orientation toward systems thinking across unrelated domains.<span class="wiki-ref">[2]</span></p>
 
       <h2>Background</h2>
       <p>Orion was born in Hawaii in 1996 and grew up within a predominantly Asian-Pacific community, an environment researchers have identified as foundational to the subject's cultural orientation, dietary preferences, and sustained interest in East Asian language and travel.<span class="wiki-ref">[3]</span> Early documented interests include catching insects, the Pokémon franchise, and the Yu-Gi-Oh trading card game, the latter of which has been cited in secondary sources as an early introduction to systems thinking and probabilistic decision-making under constrained conditions.<span class="wiki-ref">[4]</span></p>
@@ -2426,28 +2994,27 @@ function renderSite(url){
 
       <h2>Computing and hardware</h2>
       <p>The subject's primary computing environment centers on a Mac Mini M4 for stationary use and a MacBook Air M2 for travel, reflecting a stated preference for mobile-first equipment capable of fitting within a single carry-on bag.<span class="wiki-ref">[9]</span> Orion is noted for using a Woksis 5-inch display as the primary monitor for the Mac Mini, a retro Macintosh-inspired form factor described by the subject as keeping desk interaction intentional rather than immersive.<span class="wiki-ref">[10]</span></p>
-      <p>As of early 2026, the subject is documented as testing the Boox Palma 2 Pro, an e-ink Android device with color display and mobile data capability, as a potential daily-driver replacement for conventional smartphones. The experiment has been noted as consistent with the subject's broader interest in reducing screen-reward feedback loops.<span class="wiki-ref">[11]</span></p>
 
       <h2>Trading and finance</h2>
-      <p>Orion is documented as engaged in futures trading on a part-time basis through the TopstepX platform, with a stated focus on the US session open and volatility-based setups across multiple timeframes.<span class="wiki-ref">[12]</span> The subject has described the psychological dimension of trading as more significant than the technical, citing managed emotional response as the primary variable distinguishing consistent from inconsistent performance. The subject is neither self-described as consistently profitable nor consistently losing.<span class="wiki-ref">[13]</span></p>
+      <p>Orion is documented as engaged in futures trading on a part-time basis, with a stated focus on the US session open and volatility-based setups across multiple timeframes.<span class="wiki-ref">[11]</span> The subject has described the psychological dimension of trading as more significant than the technical, citing managed emotional response as the primary variable distinguishing consistent from inconsistent performance. The subject is neither self-described as consistently profitable nor consistently losing.<span class="wiki-ref">[12]</span></p>
 
       <h2>Language and travel</h2>
-      <p>Orion has been engaged in Mandarin Chinese language study, with two documented trips to China. The first in 2024 covered Wuhan, Enshi, Chongqing, and Guiyang. A return trip in 2025 spanned Wuhan, Shanghai, Yichang, Dangyang, and Beijing.<span class="wiki-ref">[14]</span> The subject has noted the Great Firewall as a significant environmental adjustment and has described Chinese urban infrastructure as substantively different from Western equivalents in ways that resisted prior expectation.<span class="wiki-ref">[15]</span></p>
-      <p>Documented and planned travel spans Hawaii, Los Angeles, Las Vegas, Utah, Arizona, Portland, Boston, Columbus, Cleveland, a Seoul layover, and multiple Chinese cities. Near-term travel interest includes Singapore, Bangkok, Phuket, Cebu, Jakarta, Bali, and Kuala Lumpur.<span class="wiki-ref">[16]</span></p>
+      <p>Orion has been engaged in Mandarin Chinese language study, with two documented trips to China. The first in 2024 covered Wuhan, Enshi, Chongqing, and Guiyang. A return trip in 2025 spanned Wuhan, Shanghai, Yichang, Dangyang, and Beijing.<span class="wiki-ref">[13]</span> The subject has noted the Great Firewall as a significant environmental adjustment and has described Chinese urban infrastructure as substantively different from Western equivalents in ways that resisted prior expectation.<span class="wiki-ref">[14]</span></p>
+      <p>Documented and planned travel spans Hawaii, Los Angeles, Las Vegas, Utah, Arizona, Portland, Boston, Columbus, Cleveland, a Seoul layover, and multiple Chinese cities. Near-term travel interest includes Singapore, Bangkok, Phuket, Cebu, Jakarta, Bali, and Kuala Lumpur.<span class="wiki-ref">[15]</span></p>
 
       <h2>Interests and pursuits</h2>
-      <p>Orion maintains documented interests in skateboarding across cruiser, street, and hybrid formats, bodyweight fitness, ukulele, and cooking with a stated preference for Asian-influenced cuisine.<span class="wiki-ref">[17]</span> The subject has been photographed with a GoPro Hero 11 and is noted for one-bag travel, reportedly carrying all possessions within a 26-liter bag with no checked luggage. As of early 2026, the subject has acquired a vehicle and has described an active interest in camping and outdoor travel, representing a shift from the previously mobile, urban-centered lifestyle toward periodic off-grid presence.<span class="wiki-ref">[18]</span></p>
-      <p>The subject participates in a pay-to-respawn Minecraft Hardcore SMP server, where deaths incur a ten-dollar recovery cost. The subject has produced an extended philosophical chronicle of events on the server, written under the in-game identity <i>Onyun</i>, exploring themes of continuity, preservation, corruption, and impermanence through the lens of survival mechanics.<span class="wiki-ref">[19]</span></p>
+      <p>Orion maintains documented interests in skateboarding across cruiser, street, and hybrid formats, bodyweight fitness, and cooking with a stated preference for Asian-influenced cuisine.<span class="wiki-ref">[16]</span> The subject is noted for one-bag travel, reportedly carrying all possessions within a single carry-on bag with no checked luggage.<span class="wiki-ref">[17]</span></p>
+      <p>The subject participates in a pay-to-respawn Minecraft Hardcore SMP server, where deaths incur a ten-dollar recovery cost. The subject has produced an extended philosophical chronicle of events on the server, written under the in-game identity <i>Onyun</i>, exploring themes of continuity, preservation, corruption, and impermanence through the lens of survival mechanics.<span class="wiki-ref">[18]</span></p>
 
       <h2>Long-term goals</h2>
-      <p>Orion has expressed a stated intention to return to Hawaii and construct a self-sufficient residential structure. The proposed dwelling would incorporate a rainwater catchment system as the primary water source, a method historically common in rural Hawaii where municipal infrastructure is limited or inaccessible. The subject has acknowledged the practical necessity of a utility power connection while maintaining a preference for off-grid operation across other systems.<span class="wiki-ref">[20]</span> Associates have described the project as a direction rather than a plan, noting that no timeline has been formally established.<span class="wiki-ref">[21]</span></p>
+      <p>Orion has expressed a stated intention to return to Hawaii and construct a self-sufficient residential structure. The proposed dwelling would incorporate a rainwater catchment system as the primary water source, a method historically common in rural Hawaii where municipal infrastructure is limited or inaccessible. The subject has acknowledged the practical necessity of a utility power connection while maintaining a preference for off-grid operation across other systems.<span class="wiki-ref">[19]</span> Associates have described the project as a direction rather than a plan, noting that no timeline has been formally established.<span class="wiki-ref">[20]</span></p>
 
       <h2>Psychological profile</h2>
-      <p>Behavioral analysis of documented interaction logs suggests a multi-layered identity architecture with adaptive surface expression and an unusually high tolerance for unresolved questions.<span class="wiki-ref">[22]</span> The subject has been observed returning repeatedly to themes of knowledge, freedom, authenticity, and sustainability across unrelated contexts, suggesting these as organizing values rather than stated preferences.<span class="wiki-ref">[23]</span> Researchers have noted a pattern of deliberate friction introduction, including use of non-standard hardware, manual self-hosting, and chosen difficulty, interpreted as an attempt to maintain intentional engagement with systems that would otherwise become automatic.<span class="wiki-ref">[24]</span></p>
+      <p>Behavioral analysis of documented interaction logs suggests a multi-layered identity architecture with adaptive surface expression and an unusually high tolerance for unresolved questions.<span class="wiki-ref">[21]</span> The subject has been observed returning repeatedly to themes of knowledge, freedom, authenticity, and sustainability across unrelated contexts, suggesting these as organizing values rather than stated preferences.<span class="wiki-ref">[22]</span> Researchers have noted a pattern of deliberate friction introduction, including use of non-standard hardware, manual self-hosting, and chosen difficulty, interpreted as an attempt to maintain intentional engagement with systems that would otherwise become automatic.<span class="wiki-ref">[23]</span></p>
 
       <h2>See also</h2>
-      <p><span style="color:#0645ad">Observer effect - Digital identity - Self-hosting - Rainwater harvesting - Off-grid living - Boox Palma - One-bag travel - Hardcore SMP</span></p>
-      <div class="wiki-cats">Categories: People of uncertain origin | Unverified entities | Self-hosting practitioners | Observers | Hawaii-born individuals | Mandarin learners | Articles with disputed neutrality</div>
+      <p><span style="color:#0645ad">Digital identity - Self-hosting - Rainwater harvesting - Off-grid living - One-bag travel - Hardcore SMP</span></p>
+      <div class="wiki-cats">Categories: People of uncertain origin | Unverified entities | Self-hosting practitioners | Hawaii-born individuals | Mandarin learners | Articles with disputed neutrality</div>
     </div>`
   }
 
@@ -2738,7 +3305,7 @@ function renderSite(url){
       {q:'is trading actually profitable?',a:'part time. not a moonshot. the mental game took longer to learn than the technical side. most of it is learning to do nothing when the setup is not there.'},
       {q:'what is the observer engine?',a:'a system that watches how people interact with this site and responds to it. most visitors type help, then whoami, then leave. the ones who stay longer are more interesting. you are probably one of them.'},
       {q:'why build your own home in hawaii?',a:'i grew up there. i know what the ecosystem looks like when it is healthy. i want to be inside that again, not visiting it. rainwater catchment, off-grid where possible. it is a long term thing.'},
-      {q:'what do you actually do all day?',a:'work now. trade in the morning when the session is good. build things. read. skate when the weather is right. cook something real. the car means camping is starting to happen too. the goal is a life that does not require a vacation from itself.'},
+      {q:'what do you actually do all day?',a:'trade in the morning when the session is good. build things. read. skate when the weather is right. cook something real. the goal is a life that does not require a vacation from itself.'},
       {q:'are you happy?',a:'that is a moving target. closer than i was. the numbness lifts gradually when you stop waiting for it to lift and just do things. that is the most honest answer i have.'},
     ]
     div.innerHTML=`<div class="site" style="max-width:640px;">
@@ -3270,6 +3837,8 @@ For the first time, preservation confronted something it could neither regulate 
         with different files in the same folders.<br>
         the research is on different subjects.<br>
         the travel went somewhere else first.<br>
+        the letters were sent.<br>
+        the drafts were finished.<br>
         the about page says things this one won't.<br>
         not because they aren't true.<br>
         because this observer hasn't admitted them yet.
@@ -3283,6 +3852,23 @@ For the first time, preservation confronted something it could neither regulate 
       </p>
 
       <p style="color:#484f58;font-size:13px;line-height:2;margin-bottom:40px;">
+        in the mirror version:<br>
+        the job was different.<br>
+        hawaii came sooner.<br>
+        the person who left got a response.<br>
+        the second letter was sent.<br>
+        the house has a foundation already.<br>
+        the language came easier.
+      </p>
+
+      <p style="color:#30363d;font-size:13px;line-height:2;margin-bottom:40px;">
+        none of these things are worse here.<br>
+        they are just later.<br>
+        or different.<br>
+        or still approaching.
+      </p>
+
+      <p style="color:#484f58;font-size:13px;line-height:2;margin-bottom:40px;">
         you are reading this.<br>
         on the other site, someone is reading the version of this<br>
         that you will never see.<br>
@@ -3291,7 +3877,14 @@ For the first time, preservation confronted something it could neither regulate 
         it no longer matters which.
       </p>
 
-      <p style="color:#30363d;font-size:13px;line-height:2;margin-bottom:64px;">
+      <p style="color:#30363d;font-size:13px;line-height:2;margin-bottom:40px;">
+        the mirror version has this page too.<br>
+        it says slightly different things.<br>
+        the last line is the same.<br>
+        it is always the same.
+      </p>
+
+      <p style="color:#21262d;font-size:13px;line-height:2;margin-bottom:40px;">
         the question is not which version is real.<br>
         the question is whether the observer<br>
         creates the site<br>
@@ -3299,7 +3892,7 @@ For the first time, preservation confronted something it could neither regulate 
         creates the observer.
       </p>
 
-      <p style="color:#21262d;font-size:11px;line-height:2;">
+      <p style="color:#161b22;font-size:11px;line-height:2;">
         this page will look different the next time you find it.<br>
         not because it changed.<br>
         because you did.
@@ -3317,20 +3910,36 @@ For the first time, preservation confronted something it could neither regulate 
       </div>
 
       ${[
-        {id:'SIG-016',time:'11:29',strength:'low',text:`there is a version of this year that stays in one place and calls it stability.
-there is another version that uses the stability as fuel.
+        {id:'SIG-017',time:'08:14',strength:'low',text:`started the job.
+first week is always the same.
+new building, new badge, new login credentials,
+figuring out who to ask when something breaks.
 
-working on the second one.`},
+the work is familiar enough.
+that's the point of doing this long enough to get good at it.
+you stop proving yourself and start just working.
 
-        {id:'SIG-015',time:'08:26',strength:'low',text:`something shifted.
-not dramatically. not all at once.
-just the way a door opens when you finally stop pushing and try pulling instead.
+there's a certain peace in competence
+that i don't talk about enough.`},
 
-the job. the car. the first trip not yet taken but already decided.
-each one a variable that changes what the next equation looks like.
+        {id:'SIG-016',time:'22:41',strength:'degraded',text:`back on the board tonight.
+parking lot, no one around, just the sound of wheels
+and the specific kind of quiet that comes after 9pm.
 
-the math is different now.
-i am still learning what it adds up to.`},
+i had forgotten what it feels like to practice something
+with no audience and no progress metric.
+just doing it because the body remembers
+and the body likes being remembered.`},
+
+        {id:'SIG-015',time:'[corrupted]',strength:'lost',text:`bodyweight only now.
+no gym, no equipment, no excuses built into the system.
+
+what's left when you remove the machine
+is just you and gravity
+and whether you showed up.
+
+it turns out that's enough.
+it turns out that was always enough.`},
 
         {id:'SIG-014',time:'07:62',strength:'low',text:`the new routine is still forming.
 that is the part i am most honest about enjoying.
@@ -3489,13 +4098,6 @@ like the world was deciding whether to continue.`},
         an aesthetic. it is a commitment to staying capable of leaving.
       </p>
 
-      <p style="color:#8b949e;font-size:13px;line-height:2;margin-bottom:36px;">
-        a car is a different kind of freedom. not the freedom to leave a place.
-        the freedom to reach ones that were previously out of range.
-        it needs somewhere to be when you are not using it.
-        that is the only thing it costs.
-      </p>
-
       <p style="color:#c9d1d9;font-size:13px;line-height:2;margin-bottom:8px;">on language</p>
       <p style="color:#8b949e;font-size:13px;line-height:2;margin-bottom:36px;">
         speaking only english is a cage most people don't know they're in.
@@ -3548,7 +4150,10 @@ like the world was deciding whether to continue.`},
     div.style.justifyContent='center'
     div.style.height='100%'
 
-    const lines=[
+    const h=new Date().getHours()
+    const isDeepNight=(h>=0&&h<4)
+
+    const dayLines=[
       'you are not lost.',
       'you are exactly where something led you.',
       'the question is whether you followed or were brought.',
@@ -3575,6 +4180,35 @@ like the world was deciding whether to continue.`},
       'you already know what you need to do.',
       'you have known for a while.',
     ]
+
+    const nightLines=[
+      'you found this at the wrong hour.',
+      'or the right one.',
+      '',
+      'most people are asleep.',
+      'you are here instead.',
+      'the system notes this without judgment.',
+      '',
+      'the things that surface at this hour',
+      'are the ones that wait all day to be heard.',
+      '',
+      'you are not required to resolve anything tonight.',
+      '',
+      'some of what you are carrying',
+      'will look different in the morning.',
+      'not better. not worse.',
+      'just different.',
+      '',
+      'the dark is not the problem.',
+      'the dark is just when everything gets quieter',
+      'and the signal comes through cleaner.',
+      '',
+      'you already know what this is about.',
+      '',
+      'it is okay that you are still here.',
+    ]
+
+    const lines=isDeepNight?nightLines:dayLines
 
     let i=0
     const el=document.createElement('div')
@@ -3961,6 +4595,47 @@ like the world was deciding whether to continue.`},
 
   else if(url==='changelog.orionv.io'){
     const releases=[
+      {version:'1.3',date:'2026-03-11',label:'layers',entries:[
+        'added system/.shadow/ hidden directory, only visible via ls -a after 10 commands in /system',
+        'added four .shadow files: index, draft_001, pattern_log, unsent_transmission',
+        'void.orionv.io now serves different content between midnight and 4am',
+        'anomaly log grows live during session, appends on command thresholds and time intervals',
+        'fragments.mem corrupts on repeated reads, second and third cat return degraded output',
+        'observe/think/listen responses deepen at 10 and 20 command thresholds',
+        'observer now asks questions back after 6+ commands, minimum 3 minute interval',
+        'user responses to observer questions acknowledged with model update confirmation',
+        'orionv.io/00 added: hidden page, no bookmark no link, exists only if typed directly',
+        'second cipher added: transmit command unlocks after first cipher solved, same method shift 7',
+        'second cipher answer: the archive asks nothing. it just remembers.',
+        'solving second cipher logs ANO-018 and closes the chain',
+      ]},
+      {version:'1.2',date:'2026-03-09',label:'quick wins batch',entries:[
+        'retro terminal beep sounds: toast, command tick, error, boot chime, cipher fanfare',
+        'boot sequence now greets based on hour: early / morning / afternoon / evening / late / deep night',
+        'log <note> command: timestamped append to system/logs/session.log',
+        'alias name=cmd and unalias: session-scoped command shortcuts',
+        'ctrl+f opens inline terminal search with match highlighting and prev/next navigation',
+        'window resize handles added to all windows, drag bottom-right corner',
+        'matrix easter egg: full canvas rain, click to exit',
+        'sudo rm -rf / easter egg: theatrical wipe sequence that fails at observer.engine',
+        'konami code: up up down down left right left right B A, triggers fanfare and system response',
+        'documents/drafts/ added with four files including margin-noted unfinished writing',
+        'documents/letters/ replaced with two personal unsent letters, numbered not named',
+        'system/.core/ files expanded: identity.lock, manifest.sys, echoes.db',
+        'letters.orionv.io removed, letters live only in the filesystem now',
+      ]},
+      {version:'1.1',date:'2026-03-06',label:'os features',entries:[
+        'minimize button added to all windows via yellow dot',
+        'taskbar fixed at bottom, shows open windows, click to restore or minimize',
+        'unix commands added: history, uname, ping, traceroute, nmap, grep, find, tree, ssh, fortune, man',
+        'broadcast <message>: splits into fragments, echoes back at randomized delays',
+        'toast notification system: 12 observer messages, fires at 45s then every 60-180s',
+        'radio.orionv.io: 7 stations via Web Audio API, tuner bar, canvas visualizer, signal strength',
+        'cipher.orionv.io: caesar cipher shift 7, hint cipher in terminal, solve via decode command',
+        'screensaver: activates at 90s idle, starfield plus falling chars plus time overlay',
+        'smart scroll: terminal no longer yanks view when user has scrolled up',
+        'help menu reorganized into sections with all commands listed',
+      ]},
       {version:'0.9',date:'2026-03-02',label:'os layer',entries:[
         'added orionv.io/readme why this site exists, in plain language',
         'added changelog.orionv.io this page, full build history',
@@ -4016,7 +4691,7 @@ like the world was deciding whether to continue.`},
       {version:'0.6',date:'2026-02-26',label:'content from vault',entries:[
         'user uploaded obsidian vault (100+ notes) combed for real content',
         'populated projects/orion/ what the site is, stack, github pages hosting, no analytics ethos',
-        'populated projects/archive/ home lab (dell laptop, arch linux), iPod classic mod (bluetooth + USB-C planned), car build for overlanding and camping',
+        'populated projects/archive/ home lab (dell laptop, arch linux), iPod classic mod (bluetooth + USB-C planned), camper van research (nissan NV200 shortlisted)',
         'home server stack: pihole, vaultwarden, searxng, nginx proxy manager, openvpn-as via docker-compose',
         'populated documents/personal/notes.txt real values from Purpose.md: knowledge, adventure, connection, growth, sustainability, nature, authenticity, freedom',
         'populated documents/research/ mandarin study (HSK approach, consistency over intensity), language methods (comprehensible input, real conversation early), china trip notes (typhoon reroute to guiyang, infrastructure impressions, great firewall reality, move-to-china logistics)',
@@ -4083,7 +4758,7 @@ like the world was deciding whether to continue.`},
 
     div.innerHTML=`<div class="site" style="max-width:680px;">
       <p style="font-size:11px;color:#484f58;letter-spacing:.1em;margin-bottom:8px;">CHANGELOG orionv.io</p>
-      <p style="font-size:11px;color:#30363d;margin-bottom:40px;">complete build history · 2026-03-02</p>
+      <p style="font-size:11px;color:#30363d;margin-bottom:40px;">complete build history · 2026-03-11</p>
       <div style="display:flex;flex-direction:column;">
         ${releases.map(r=>`
           <div style="padding:28px 0;border-bottom:1px solid #161b22;">
@@ -4658,6 +5333,1745 @@ function powerOn(){
   observerBooted=false
   bootScreen.classList.remove('hidden')
   bootOS()
+}
+
+/* ============================================================
+   TOAST NOTIFICATIONS
+   ============================================================ */
+const toastContainer=document.getElementById('toastContainer')
+
+function showToast(msg,duration=5000){
+  const t=document.createElement('div')
+  t.className='toast'
+  t.innerHTML=`<span style="color:#484f58;font-size:10px;">observer@orionv.io</span><br>${msg}`
+  toastContainer.appendChild(t)
+  requestAnimationFrame(()=>requestAnimationFrame(()=>t.classList.add('show')))
+  setTimeout(()=>{
+    t.classList.remove('show')
+    setTimeout(()=>t.remove(),500)
+  },duration)
+}
+
+const OBSERVER_TOASTS=[
+  'session is being observed.',
+  'idle time logged.',
+  'behavioral signature forming.',
+  'memory fragment recovered.',
+  'echo detected in session history.',
+  'new anomaly flagged.',
+  'profile confidence updated.',
+  'you have been here longer than most.',
+  'interaction depth: above average.',
+  'the layers are not random.',
+  'something in your pattern changed.',
+  'observer engine: nominal.',
+]
+
+function startToastScheduler(){
+  // First toast after 45s, then random intervals 60-180s
+  setTimeout(function fire(){
+    if(desktop.style.visibility==='visible'){
+      const msg=OBSERVER_TOASTS[Math.floor(Math.random()*OBSERVER_TOASTS.length)]
+      showToast(msg)
+    }
+    setTimeout(fire,60000+Math.random()*120000)
+  },45000)
+}
+
+/* ============================================================
+   SCREENSAVER
+   ============================================================ */
+const screensaver=document.getElementById('screensaver')
+const ssCanvas=document.getElementById('ssCanvas')
+let ssActive=false, ssAnimId=null, idleTimer=null
+const IDLE_TIMEOUT=90000 // 90s
+
+function resetIdleTimer(){
+  clearTimeout(idleTimer)
+  if(ssActive) dismissScreensaver()
+  idleTimer=setTimeout(activateScreensaver,IDLE_TIMEOUT)
+}
+
+['mousemove','keydown','mousedown','touchstart'].forEach(ev=>{
+  document.addEventListener(ev,resetIdleTimer,{passive:true})
+})
+
+function activateScreensaver(){
+  if(screensaver.style.display==='block') return
+  screensaver.style.display='block'
+  ssActive=true
+  const ctx2=ssCanvas.getContext('2d')
+  ssCanvas.width=window.innerWidth
+  ssCanvas.height=window.innerHeight
+  const stars=Array.from({length:200},()=>({
+    x:Math.random()*ssCanvas.width,
+    y:Math.random()*ssCanvas.height,
+    r:Math.random()*1.5+0.3,
+    s:Math.random()*0.4+0.1,
+    o:Math.random()
+  }))
+  // Falling chars
+  const chars='01アイウエオ行者観測∆∇∑∏'.split('')
+  const cols=[]
+  for(let x=0;x<ssCanvas.width;x+=18){
+    cols.push({x,y:Math.random()*ssCanvas.height,speed:Math.random()*0.8+0.3,char:chars[0],t:0})
+  }
+
+  function frame(){
+    ctx2.fillStyle='rgba(0,0,0,0.08)'
+    ctx2.fillRect(0,0,ssCanvas.width,ssCanvas.height)
+    // Stars
+    stars.forEach(s=>{
+      s.o+=0.01*(Math.random()>0.5?1:-1)
+      s.o=Math.max(0.1,Math.min(1,s.o))
+      ctx2.beginPath()
+      ctx2.arc(s.x,s.y,s.r,0,Math.PI*2)
+      ctx2.fillStyle=`rgba(88,166,255,${s.o})`
+      ctx2.fill()
+      s.y+=s.s
+      if(s.y>ssCanvas.height){s.y=0;s.x=Math.random()*ssCanvas.width}
+    })
+    // Falling chars
+    cols.forEach(c=>{
+      c.t++
+      if(c.t%6===0) c.char=chars[Math.floor(Math.random()*chars.length)]
+      ctx2.font='13px JetBrains Mono,monospace'
+      ctx2.fillStyle='rgba(88,166,255,0.15)'
+      ctx2.fillText(c.char,c.x,c.y)
+      c.y+=c.speed*3
+      if(c.y>ssCanvas.height){c.y=0}
+    })
+    // Time overlay
+    const now=new Date()
+    const timeStr=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')
+    ctx2.font='bold 72px JetBrains Mono,monospace'
+    ctx2.fillStyle='rgba(201,209,217,0.08)'
+    ctx2.textAlign='center'
+    ctx2.fillText(timeStr,ssCanvas.width/2,ssCanvas.height/2+24)
+    ctx2.font='12px JetBrains Mono,monospace'
+    ctx2.fillStyle='rgba(72,79,88,0.5)'
+    ctx2.fillText('observer@orionv.io',ssCanvas.width/2,ssCanvas.height/2+52)
+    ctx2.textAlign='left'
+    ssAnimId=requestAnimationFrame(frame)
+  }
+  frame()
+}
+
+function dismissScreensaver(){
+  screensaver.style.display='none'
+  ssActive=false
+  if(ssAnimId) cancelAnimationFrame(ssAnimId)
+  const ctx2=ssCanvas.getContext('2d')
+  ctx2.clearRect(0,0,ssCanvas.width,ssCanvas.height)
+  resetIdleTimer()
+}
+
+/* ============================================================
+   BROADCAST COMMAND
+   ============================================================ */
+const broadcastQueue=[]
+let broadcastInterval=null
+
+function scheduleBroadcast(msg){
+  // Fragment the message and echo it back over 3-6 minutes
+  const fragments=msg.split(' ')
+  const delay1=45000+Math.random()*60000
+  const delay2=delay1+30000+Math.random()*60000
+  const delay3=delay2+20000+Math.random()*40000
+  const chunk1=fragments.slice(0,Math.ceil(fragments.length/3)).join(' ')
+  const chunk2=fragments.slice(Math.ceil(fragments.length/3),Math.ceil(fragments.length*2/3)).join(' ')
+  const chunk3=fragments.slice(Math.ceil(fragments.length*2/3)).join(' ')
+  setTimeout(()=>{if(terminal&&document.getElementById('terminalWindow')&&!document.getElementById('terminalWindow').classList.contains('hidden')){whisper(`${SYSTEM_NODE} broadcast echo [fragment 1]: "${chunk1}..."`);}},delay1)
+  setTimeout(()=>{if(terminal){whisper(`${SYSTEM_NODE} broadcast echo [fragment 2]: "...${chunk2}..."`);}},delay2)
+  setTimeout(()=>{if(terminal){whisper(`${SYSTEM_NODE} broadcast echo [recovered]: "${chunk3}" — message intact.`);}},delay3)
+}
+
+/* ============================================================
+   CIPHER PUZZLE
+   ============================================================ */
+// Message: "you were not supposed to find this. the archive remembers everything."
+// Caesar cipher shift 7
+const CIPHER_TEXT='FVB DLYL UVA ZBWWVZLK AV MPUK AOPZ. AOL HYPJOPSL YLTLTILYZ LCLYFAOPUN.'
+const CIPHER_ANSWER='you were not supposed to find this. the archive remembers everything.'
+const CIPHER_HINT='caesar. shift 7. the number was always there.'
+let cipherSolved=false
+
+function checkCipherAnswer(input){
+  return input.trim().toLowerCase()===CIPHER_ANSWER.toLowerCase()
+}
+
+// Add cipher page to browser
+function renderCipherPage(){
+  const div=document.createElement('div')
+  div.innerHTML=`<div class="site" style="max-width:560px;padding-top:64px;">
+    <p style="font-size:11px;color:#484f58;letter-spacing:.1em;margin-bottom:40px;">ARCHIVE — RECOVERED TRANSMISSION</p>
+    <p style="color:#3fb950;font-size:13px;line-height:2;margin-bottom:32px;">cipher solved. access granted.</p>
+    <div style="background:#0d1117;border:1px solid #21262d;border-radius:6px;padding:24px;margin-bottom:32px;">
+      <p style="color:#c9d1d9;font-size:13px;line-height:2;margin-bottom:0;">you were not supposed to find this.</p>
+      <p style="color:#c9d1d9;font-size:13px;line-height:2;margin-bottom:0;">the archive remembers everything.</p>
+    </div>
+    <p style="color:#484f58;font-size:12px;line-height:1.9;">
+      most observers reach the surface and leave.<br>
+      you went deeper. the system noted this.<br>
+      anomaly logged: ANO-016 — cipher solved.<br>
+      classification: above average curiosity.
+    </p>
+    <p style="color:#30363d;font-size:11px;margin-top:40px;">this is the only page that required work to find.</p>
+  </div>`
+  return div
+}
+
+/* ============================================================
+   LETTERS PAGE
+   ============================================================ */
+/* ============================================================
+   RADIO PAGE
+   ============================================================ */
+function renderRadioPage(){
+  const div=document.createElement('div')
+  div.style.minHeight='100%'
+  div.innerHTML=`<div style="background:#010409;min-height:100%;display:flex;flex-direction:column;align-items:center;padding:48px 40px;font-family:'JetBrains Mono',monospace;">
+    <p style="font-size:11px;color:#484f58;letter-spacing:.1em;margin-bottom:6px;">radio.orionv.io</p>
+    <p style="font-size:10px;color:#21262d;margin-bottom:40px;">shortwave. procedural. no repeats.</p>
+
+    <div id="radioTuner" style="width:340px;background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:24px;margin-bottom:32px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <span style="font-size:10px;color:#484f58;">FREQ</span>
+        <span id="radioFreq" style="font-size:22px;color:#58a6ff;letter-spacing:.06em;">-- . -- MHz</span>
+        <span id="radioSignal" style="font-size:10px;color:#484f58;">SIG: --</span>
+      </div>
+      <div id="radioBar" style="height:3px;background:#21262d;border-radius:2px;margin-bottom:20px;position:relative;cursor:pointer;">
+        <div id="radioIndicator" style="position:absolute;width:10px;height:10px;background:#58a6ff;border-radius:50%;top:-3.5px;left:50%;transform:translateX(-50%);transition:left .3s;"></div>
+      </div>
+      <canvas id="radioCanvas" width="292" height="50" style="width:100%;display:block;margin-bottom:16px;"></canvas>
+      <div id="radioStationName" style="font-size:11px;color:#8b949e;text-align:center;margin-bottom:16px;min-height:16px;"></div>
+      <div style="display:flex;gap:10px;justify-content:center;">
+        <button id="radioPrev" style="background:#161b22;border:1px solid #30363d;color:#8b949e;font-family:'JetBrains Mono',monospace;font-size:11px;padding:6px 14px;border-radius:4px;cursor:pointer;">◀◀</button>
+        <button id="radioPlayBtn" style="background:#161b22;border:1px solid #58a6ff;color:#58a6ff;font-family:'JetBrains Mono',monospace;font-size:11px;padding:6px 20px;border-radius:4px;cursor:pointer;">▶ tune</button>
+        <button id="radioNext" style="background:#161b22;border:1px solid #30363d;color:#8b949e;font-family:'JetBrains Mono',monospace;font-size:11px;padding:6px 14px;border-radius:4px;cursor:pointer;">▶▶</button>
+      </div>
+    </div>
+
+    <div id="radioLog" style="width:340px;font-size:10px;color:#21262d;line-height:2;text-align:left;"></div>
+  </div>`
+
+  setTimeout(()=>{
+    const STATIONS=[
+      {freq:'87.4',name:'static channel 00',type:'noise'},
+      {freq:'91.1',name:'WVOID — ambient drone',type:'drone'},
+      {freq:'94.7',name:'signal.fm — lo-fi procedural',type:'lofi'},
+      {freq:'98.3',name:'archive radio — numbers station',type:'numbers'},
+      {freq:'101.5',name:'observer wavelength — jazz fragments',type:'jazz'},
+      {freq:'104.9',name:'deep carrier — bass tone',type:'bass'},
+      {freq:'108.0',name:'static channel 11',type:'noise'},
+    ]
+    let stationIdx=2
+    let radioCtx=null, masterG=null, isPlaying=false
+    let vizAnim=null, nodesActive=[]
+
+    const freqEl=document.getElementById('radioFreq')
+    const signalEl=document.getElementById('radioSignal')
+    const nameEl=document.getElementById('radioStationName')
+    const playBtn=document.getElementById('radioPlayBtn')
+    const prevBtn=document.getElementById('radioPrev')
+    const nextBtn=document.getElementById('radioNext')
+    const indicator=document.getElementById('radioIndicator')
+    const radioLog=document.getElementById('radioLog')
+    const canvas=document.getElementById('radioCanvas')
+    const ctx=canvas?canvas.getContext('2d'):null
+
+    const NUMBER_PHRASES=['ALPHA TANGO SEVEN','ZULU NOVEMBER','ONE FOUR SEVEN ZERO','BRAVO ECHO ECHO','STAND BY','TRANSMISSION FOLLOWS','END OF SEQUENCE']
+
+    function updateDisplay(){
+      const s=STATIONS[stationIdx]
+      freqEl.textContent=s.freq+' MHz'
+      nameEl.textContent=s.name
+      const pct=(stationIdx/(STATIONS.length-1))*88+4
+      if(indicator) indicator.style.left=pct+'%'
+      const strength=['▁▁▁▁','▂▂▁▁','▃▃▂▁','▄▄▃▂','▅▅▄▃','▆▆▅▄','▇▇▆▅'][stationIdx]||'▄▄▃▂'
+      signalEl.textContent='SIG: '+strength
+    }
+
+    function stopAll(){
+      nodesActive.forEach(n=>{try{n.stop&&n.stop();n.disconnect&&n.disconnect()}catch(e){}})
+      nodesActive=[]
+      if(vizAnim){cancelAnimationFrame(vizAnim);vizAnim=null}
+      if(ctx){ctx.fillStyle='#010409';ctx.fillRect(0,0,292,50)}
+    }
+
+    function playStation(){
+      stopAll()
+      if(!radioCtx){
+        radioCtx=new(window.AudioContext||window.webkitAudioContext)()
+        masterG=radioCtx.createGain()
+        masterG.gain.setValueAtTime(0.6,radioCtx.currentTime)
+        masterG.connect(radioCtx.destination)
+      }
+      const s=STATIONS[stationIdx]
+      const now=radioCtx.currentTime
+
+      if(s.type==='noise'||s.type==='drone'){
+        // White/brown noise
+        const buf=radioCtx.createBuffer(1,radioCtx.sampleRate*3,radioCtx.sampleRate)
+        const data=buf.getChannelData(0)
+        let last=0
+        for(let i=0;i<data.length;i++){
+          const white=Math.random()*2-1
+          last=(last+0.02*white)/1.02
+          data[i]=s.type==='drone'?last*8:white*0.3
+        }
+        const src=radioCtx.createBufferSource()
+        src.buffer=buf
+        src.loop=true
+        const filter=radioCtx.createBiquadFilter()
+        filter.type=s.type==='drone'?'lowpass':'bandpass'
+        filter.frequency.value=s.type==='drone'?200:2000
+        src.connect(filter)
+        filter.connect(masterG)
+        src.start()
+        nodesActive.push(src)
+        if(s.type==='drone'){
+          // LFO for drone
+          const lfo=radioCtx.createOscillator()
+          const lfoG=radioCtx.createGain()
+          lfoG.gain.value=80
+          lfo.frequency.value=0.15
+          lfo.connect(lfoG)
+          lfoG.connect(filter.frequency)
+          lfo.start()
+          nodesActive.push(lfo)
+        }
+      }
+
+      if(s.type==='lofi'||s.type==='jazz'){
+        // Procedural lo-fi chords
+        const NOTES={C:261.63,D:293.66,E:329.63,F:349.23,G:392,A:440,Bb:466.16,B:493.88}
+        const CHORD_SETS=[
+          [[261.63,329.63,392],[293.66,349.23,440],[329.63,392,493.88],[246.94,311.13,392]],
+          [[220,277.18,329.63],[261.63,329.63,415.30],[293.66,369.99,440],[246.94,311.13,369.99]]
+        ]
+        const set=CHORD_SETS[stationIdx%2]
+        const BPM=s.type==='lofi'?75:88
+        const beat=60/BPM
+        let t=now+0.1
+        function schedChord(){
+          if(!isPlaying) return
+          const chord=set[Math.floor(Math.random()*set.length)]
+          chord.forEach((f,i)=>{
+            const osc=radioCtx.createOscillator()
+            const g=radioCtx.createGain()
+            osc.type=s.type==='jazz'?'triangle':'sine'
+            osc.frequency.value=f*(0.999+Math.random()*0.002)
+            g.gain.setValueAtTime(0,t)
+            g.gain.linearRampToValueAtTime(0.05,t+0.05)
+            g.gain.linearRampToValueAtTime(0.03,t+beat*1.5)
+            g.gain.linearRampToValueAtTime(0,t+beat*2)
+            osc.connect(g)
+            g.connect(masterG)
+            osc.start(t)
+            osc.stop(t+beat*2+0.1)
+            nodesActive.push(osc)
+          })
+          // Kick
+          if(Math.random()>0.3){
+            const ko=radioCtx.createOscillator()
+            const kg=radioCtx.createGain()
+            ko.frequency.setValueAtTime(120,t)
+            ko.frequency.exponentialRampToValueAtTime(30,t+0.08)
+            kg.gain.setValueAtTime(0.2,t)
+            kg.gain.exponentialRampToValueAtTime(0.001,t+0.12)
+            ko.connect(kg);kg.connect(masterG)
+            ko.start(t);ko.stop(t+0.15)
+            nodesActive.push(ko)
+          }
+          t+=beat*2
+          setTimeout(schedChord,beat*1800)
+        }
+        schedChord()
+        // Static crackle layer
+        const crackleBuf=radioCtx.createBuffer(1,radioCtx.sampleRate*1,radioCtx.sampleRate)
+        const cData=crackleBuf.getChannelData(0)
+        for(let i=0;i<cData.length;i++) cData[i]=Math.random()<0.002?(Math.random()*2-1)*0.4:0
+        const cSrc=radioCtx.createBufferSource()
+        cSrc.buffer=crackleBuf;cSrc.loop=true
+        cSrc.connect(masterG)
+        cSrc.start()
+        nodesActive.push(cSrc)
+      }
+
+      if(s.type==='numbers'){
+        // Numbers station: periodic spoken-style tones
+        let t2=now+1
+        function schedTone(){
+          if(!isPlaying) return
+          // Beep pattern
+          [0,0.3,0.6,1.2].forEach(offset=>{
+            if(Math.random()>0.4){
+              const osc=radioCtx.createOscillator()
+              const g=radioCtx.createGain()
+              osc.frequency.value=800+Math.floor(Math.random()*4)*200
+              osc.type='square'
+              g.gain.setValueAtTime(0,t2+offset)
+              g.gain.linearRampToValueAtTime(0.06,t2+offset+0.01)
+              g.gain.linearRampToValueAtTime(0,t2+offset+0.18)
+              osc.connect(g);g.connect(masterG)
+              osc.start(t2+offset);osc.stop(t2+offset+0.22)
+              nodesActive.push(osc)
+            }
+          })
+          // Static between
+          const nb=radioCtx.createBuffer(1,Math.floor(radioCtx.sampleRate*0.5),radioCtx.sampleRate)
+          const nd=nb.getChannelData(0)
+          for(let i=0;i<nd.length;i++) nd[i]=(Math.random()*2-1)*0.08
+          const ns=radioCtx.createBufferSource()
+          ns.buffer=nb;ns.connect(masterG);ns.start(t2+1.6)
+          nodesActive.push(ns)
+          t2+=3+Math.random()*2
+          setTimeout(schedTone,2800+Math.random()*2000)
+        }
+        schedTone()
+        // Random log entries
+        function logNumbers(){
+          if(!isPlaying) return
+          const phrase=NUMBER_PHRASES[Math.floor(Math.random()*NUMBER_PHRASES.length)]
+          const entry=document.createElement('div')
+          entry.textContent=phrase
+          entry.style.color='#30363d'
+          entry.style.transition='color 2s'
+          radioLog.appendChild(entry)
+          requestAnimationFrame(()=>entry.style.color='#484f58')
+          if(radioLog.children.length>8) radioLog.removeChild(radioLog.firstChild)
+          setTimeout(logNumbers,3000+Math.random()*4000)
+        }
+        logNumbers()
+      }
+
+      if(s.type==='bass'){
+        // Deep carrier tone
+        const osc=radioCtx.createOscillator()
+        const g=radioCtx.createGain()
+        osc.type='sine'
+        osc.frequency.value=40+Math.random()*20
+        g.gain.value=0.25
+        const lfo=radioCtx.createOscillator()
+        const lfoG=radioCtx.createGain()
+        lfo.frequency.value=0.05
+        lfoG.gain.value=15
+        lfo.connect(lfoG);lfoG.connect(osc.frequency)
+        osc.connect(g);g.connect(masterG)
+        osc.start();lfo.start()
+        nodesActive.push(osc,lfo)
+      }
+
+      // Visualizer
+      if(ctx&&radioCtx){
+        const analyser=radioCtx.createAnalyser()
+        analyser.fftSize=64
+        masterG.connect(analyser)
+        const data2=new Uint8Array(analyser.frequencyBinCount)
+        function vizFrame(){
+          analyser.getByteFrequencyData(data2)
+          ctx.fillStyle='#010409'
+          ctx.fillRect(0,0,292,50)
+          const bw=292/data2.length
+          data2.forEach((v,i)=>{
+            const h=(v/255)*44+2
+            ctx.fillStyle=`rgba(88,166,255,${0.3+v/512})`
+            ctx.fillRect(i*bw,50-h,bw-1,h)
+          })
+          vizAnim=requestAnimationFrame(vizFrame)
+        }
+        vizFrame()
+      }
+
+      updateDisplay()
+      addRadioLog(`tuned to ${s.freq} MHz — ${s.name}`)
+    }
+
+    function addRadioLog(msg){
+      const entry=document.createElement('div')
+      entry.textContent='> '+msg
+      radioLog.appendChild(entry)
+      if(radioLog.children.length>6) radioLog.removeChild(radioLog.firstChild)
+    }
+
+    playBtn.onclick=()=>{
+      if(!isPlaying){
+        isPlaying=true
+        playBtn.textContent='■ off'
+        playBtn.style.color='#ff5f56'
+        playBtn.style.borderColor='#ff5f56'
+        playStation()
+      } else {
+        isPlaying=false
+        playBtn.textContent='▶ tune'
+        playBtn.style.color='#58a6ff'
+        playBtn.style.borderColor='#58a6ff'
+        stopAll()
+        if(radioCtx){radioCtx.close();radioCtx=null}
+        addRadioLog('signal lost.')
+      }
+    }
+
+    prevBtn.onclick=()=>{
+      stationIdx=Math.max(0,stationIdx-1)
+      updateDisplay()
+      if(isPlaying) playStation()
+    }
+    nextBtn.onclick=()=>{
+      stationIdx=Math.min(STATIONS.length-1,stationIdx+1)
+      updateDisplay()
+      if(isPlaying) playStation()
+    }
+
+    // Tuner bar drag
+    const radioBar=document.getElementById('radioBar')
+    if(radioBar){
+      radioBar.onclick=e=>{
+        const rect=radioBar.getBoundingClientRect()
+        const pct=(e.clientX-rect.left)/rect.width
+        stationIdx=Math.round(pct*(STATIONS.length-1))
+        stationIdx=Math.max(0,Math.min(STATIONS.length-1,stationIdx))
+        updateDisplay()
+        if(isPlaying) playStation()
+      }
+    }
+
+    updateDisplay()
+    _musicStop=()=>{
+      if(isPlaying){isPlaying=false;stopAll();if(radioCtx){radioCtx.close();radioCtx=null}}
+    }
+  },100)
+  return div
+}
+
+/* ============================================================
+   INJECT NEW BROWSER ROUTES + BOOKMARKS
+   ============================================================ */
+// Patch renderSite to handle new routes before existing ones
+const _origRenderSite=renderSite
+window.renderSite=function(url){
+  if(url==='radio.orionv.io') return renderRadioPage()
+  if(url==='cipher.orionv.io'){
+    const div=document.createElement('div')
+    div.style.minHeight='100%'
+    if(cipherSolved){
+      return renderCipherPage()
+    }
+    div.innerHTML=`<div class="site" style="max-width:560px;padding-top:64px;">
+      <p style="font-size:11px;color:#484f58;letter-spacing:.1em;margin-bottom:40px;">CIPHER — ENCRYPTED TRANSMISSION</p>
+      <div style="background:#0d1117;border:1px solid #21262d;border-radius:6px;padding:24px;margin-bottom:28px;word-break:break-word;">
+        <p style="font-size:13px;color:#3fb950;letter-spacing:.08em;line-height:2;font-family:'JetBrains Mono',monospace;">${CIPHER_TEXT}</p>
+      </div>
+      <p style="color:#484f58;font-size:12px;margin-bottom:24px;line-height:1.8;">a transmission was recovered. it is encoded.<br>decryption is required for access.</p>
+      <div style="display:flex;gap:8px;margin-bottom:16px;">
+        <input id="cipherInput" type="text" placeholder="enter decrypted message..." style="flex:1;background:#161b22;border:1px solid #30363d;color:#c9d1d9;font-family:'JetBrains Mono',monospace;font-size:12px;padding:8px 12px;border-radius:4px;outline:none;">
+        <button id="cipherSubmit" style="background:#161b22;border:1px solid #30363d;color:#c9d1d9;font-family:'JetBrains Mono',monospace;font-size:12px;padding:8px 14px;border-radius:4px;cursor:pointer;">submit</button>
+      </div>
+      <div id="cipherFeedback" style="font-size:11px;color:#484f58;min-height:16px;"></div>
+      <p style="font-size:10px;color:#21262d;margin-top:40px;">hint available in terminal. type: hint cipher</p>
+    </div>`
+    setTimeout(()=>{
+      const btn=document.getElementById('cipherSubmit')
+      const input=document.getElementById('cipherInput')
+      const feedback=document.getElementById('cipherFeedback')
+      if(!btn||!input) return
+      btn.onclick=()=>{
+        if(checkCipherAnswer(input.value)){
+          cipherSolved=true
+          feedback.style.color='#3fb950'
+          feedback.textContent='decryption successful. access granted.'
+          setTimeout(()=>browserNavigate('cipher.orionv.io'),1200)
+        } else {
+          feedback.style.color='#ff5f56'
+          feedback.textContent='incorrect. the message is not right.'
+          input.value=''
+        }
+      }
+      input.addEventListener('keydown',e=>{if(e.key==='Enter')btn.click()})
+    },100)
+    return div
+  }
+  return _origRenderSite(url)
+}
+
+// Add new bookmarks to BOOKMARKS array
+BOOKMARKS.push(
+  {icon:'📻',title:'radio.orionv.io',url:'radio.orionv.io',cat:'backend'},
+  {icon:'🔐',title:'cipher.orionv.io',url:'cipher.orionv.io',cat:'the deep end'},
+)
+// Remove music.orionv.io from bookmarks
+const musicIdx=BOOKMARKS.findIndex(b=>b.url==='music.orionv.io')
+if(musicIdx>-1) BOOKMARKS.splice(musicIdx,1)
+
+/* ============================================================
+   EXTENDED TERMINAL COMMANDS
+   ============================================================ */
+// Patch dispatchCommand to handle new unix-style commands
+const _origDispatch=dispatchCommand
+window.dispatchCommand=function(cmd){
+  const lower=cmd.toLowerCase().trim()
+  const parts=lower.split(/\s+/)
+  const base=parts[0]
+  const args=parts.slice(1)
+
+  // history
+  if(base==='history'){
+    printLine(`${SYSTEM_NODE} command history:`)
+    memory.forEach((c,i)=>printLine(`  ${String(i+1).padStart(3,' ')}  ${c}`))
+    return printPrompt()
+  }
+
+  // uname
+  if(base==='uname'){
+    const flag=args[0]||''
+    if(flag==='-a'||flag==='--all'){
+      printLine('onionOS orionv.io 2.4.0-observer #1 SMP behavioral-engine x86_psy')
+    } else {
+      printLine('onionOS')
+    }
+    return printPrompt()
+  }
+
+  // ping
+  if(base==='ping'){
+    const host=args[0]||'localhost'
+    printLine(`PING ${host}: 56 data bytes`)
+    let i=0
+    function pingSend(){
+      if(i>=4){printLine(`--- ${host} ping statistics ---`);printLine(`4 packets transmitted, 4 received, 0% packet loss`);return printPrompt()}
+      const ms=(Math.random()*20+8).toFixed(3)
+      printLine(`64 bytes from ${host}: icmp_seq=${i} ttl=64 time=${ms} ms`)
+      i++;setTimeout(pingSend,600)
+    }
+    pingSend()
+    return
+  }
+
+  // traceroute
+  if(base==='traceroute'){
+    const host=args[0]||'orionv.io'
+    printLine(`traceroute to ${host}, 30 hops max`)
+    const hops=[
+      {n:1,ip:'10.0.0.1',name:'gateway.local'},
+      {n:2,ip:'172.16.0.1',name:'isp-edge.net'},
+      {n:3,ip:'192.0.2.14',name:'backbone-west.net'},
+      {n:4,ip:'198.51.100.7',name:'transit-node.io'},
+      {n:5,ip:'203.0.113.42',name:host},
+    ]
+    let i=0
+    function hop(){
+      if(i>=hops.length) return printPrompt()
+      const h=hops[i]
+      const ms1=(Math.random()*15+2).toFixed(2)
+      const ms2=(parseFloat(ms1)+Math.random()*3).toFixed(2)
+      printLine(` ${h.n}  ${h.name} (${h.ip})  ${ms1} ms  ${ms2} ms`)
+      i++;setTimeout(hop,400)
+    }
+    hop()
+    return
+  }
+
+  // nmap
+  if(base==='nmap'){
+    const host=args[0]||'localhost'
+    printLine(`Starting nmap 7.94 scan on ${host}`)
+    printLine(`Nmap scan report for ${host}`)
+    printLine('Host is up (0.0019s latency).')
+    printLine('PORT      STATE SERVICE')
+    printLine('22/tcp    open  ssh')
+    printLine('80/tcp    open  http')
+    printLine('443/tcp   open  https')
+    printLine('8080/tcp  closed http-alt')
+    printLine('9200/tcp  filtered elasticsearch')
+    printLine(`Nmap done: 1 IP address (1 host up) scanned in ${(Math.random()*2+1.4).toFixed(2)} seconds`)
+    return printPrompt()
+  }
+
+  // grep
+  if(base==='grep'){
+    if(args.length<2){printLine('usage: grep <pattern> <file>');return printPrompt()}
+    const pattern=args[0]
+    const filename=args.slice(1).join(' ')
+    const key=filename.replace(/^\//,'')
+    const content=documents[key]
+    if(content===undefined){printLine(`grep: ${filename}: No such file`);return printPrompt()}
+    const matches=content.split('\n').filter(l=>l.toLowerCase().includes(pattern.toLowerCase()))
+    if(matches.length===0){printLine(`grep: no matches for '${pattern}'`)}
+    else matches.forEach(l=>printLine(l))
+    return printPrompt()
+  }
+
+  // find
+  if(base==='find'){
+    const query=args.join(' ').replace(/^[.\/]*/,'')
+    const matches=Object.keys(documents).filter(k=>k.includes(query))
+    if(matches.length===0){printLine('find: no results')}
+    else matches.forEach(k=>printLine('./'+k))
+    return printPrompt()
+  }
+
+  // tree
+  if(base==='tree'){
+    function printTree(node,prefix=''){
+      node.folders.filter(f=>!f.hidden).forEach((f,i,arr)=>{
+        const isLast=i===arr.length-1&&(!node.files||node.files.length===0)
+        printLine(prefix+(isLast?'└── ':'├── ')+f.name+'/')
+        printTree(f,prefix+(isLast?'    ':'│   '))
+      })
+      ;(node.files||[]).forEach((f,i,arr)=>{
+        const isLast=i===arr.length-1
+        printLine(prefix+(isLast?'└── ':'├── ')+f.name)
+      })
+    }
+    printLine('.')
+    printTree(FS)
+    return printPrompt()
+  }
+
+  // ssh
+  if(base==='ssh'){
+    const target=args[0]||'remote'
+    printLine(`ssh: connect to host ${target}: Connection refused`)
+    whisper(`${SYSTEM_NODE} some nodes do not want visitors.`)
+    return printPrompt()
+  }
+
+  // fortune
+  if(base==='fortune'){
+    const fortunes=[
+      'the layers are not random.',
+      'you arrived with a question. the system noted this.',
+      'most observers stop at the surface.',
+      'memory is not storage. memory is selection.',
+      'the exit is more informative than the entrance.',
+      'there is no single center. only depths that appear central from where you stand.',
+      'what you give your attention to becomes the shape of your life.',
+      'the work is being honest about the question.',
+      'the math is different now.',
+      'presence is not loudness. endurance is.',
+    ]
+    printLine(fortunes[Math.floor(Math.random()*fortunes.length)])
+    return printPrompt()
+  }
+
+  // man
+  if(base==='man'){
+    const page=args[0]||''
+    const manPages={
+      whoami:'display identity profile and psychological model',
+      observe:'register an observation. return depends on narrative stage.',
+      status:'print behavioral model metrics and session data',
+      broadcast:'send a message. it will return to you in fragments.',
+      cipher:'no manual entry. some things require finding.',
+      grep:'search files for a pattern. grep <pattern> <file>',
+      tree:'display filesystem in tree format',
+      fortune:'print a random observer fragment',
+    }
+    if(manPages[page]){
+      printLine(`${page}(1)`)
+      printLine('')
+      printLine('NAME')
+      printLine(`  ${page}`)
+      printLine('')
+      printLine('DESCRIPTION')
+      printLine(`  ${manPages[page]}`)
+    } else if(page===''){
+      printLine('usage: man <command>')
+    } else {
+      printLine(`no manual entry for ${page}`)
+    }
+    return printPrompt()
+  }
+
+  // broadcast
+  if(base==='broadcast'){
+    const msg=args.join(' ')
+    if(!msg){printLine('usage: broadcast <message>');return printPrompt()}
+    printLine(`${SYSTEM_NODE} broadcast queued.`)
+    printLine(`${SYSTEM_NODE} message will echo back in fragments.`)
+    scheduleBroadcast(msg)
+    return printPrompt()
+  }
+
+  // cipher hint
+  if(lower==='hint cipher'||lower==='hint'){
+    printLine(`${SYSTEM_NODE} cipher hint:`)
+    printLine(`  ${CIPHER_HINT}`)
+    whisper(`${SYSTEM_NODE} the number appears in the boot sequence.`)
+    return printPrompt()
+  }
+
+  // decode / solve cipher in terminal
+  if(base==='decode'||base==='decrypt'){
+    const attempt=args.join(' ')
+    if(!attempt){printLine(`usage: decode <message>`);return printPrompt()}
+    if(checkCipherAnswer(attempt)){
+      cipherSolved=true
+      printLine(`${SYSTEM_NODE} decryption successful.`)
+      const l=printLine(`${SYSTEM_NODE} access granted. navigate to cipher.orionv.io`)
+      glitchLine(l,1800)
+      showToast('cipher solved. a new path is available.')
+      setTimeout(()=>{
+        whisper(`${SYSTEM_NODE} new command unlocked: transmit`)
+        whisper(`${SYSTEM_NODE} a second signal is present. it is not the same kind.`)
+      },3000)
+    } else {
+      printLine(`${SYSTEM_NODE} decryption failed. message does not match.`)
+    }
+    return printPrompt()
+  }
+
+  // transmit — only available after cipher solved
+  if(lower==='transmit'){
+    if(!cipherSolved){
+      printLine(`${SYSTEM_NODE} command not found: transmit`)
+      return printPrompt()
+    }
+    printLine(`${SYSTEM_NODE} opening transmission channel...`)
+    setTimeout(()=>{
+      printLine(`${SYSTEM_NODE} second signal detected.`)
+      printLine(`${SYSTEM_NODE} encoded differently. same origin.`)
+      printLine(``)
+      const l=printLine(`  JHLZHY JOPWOLY ZOPMA 7. AOL ZLJVUK AOPUN PZ AOPZ: AOL HYJOPSL HZRZ UVAOPU. PA QBZA YLWLHTILYZ.`)
+      l.style.color='#e3b341'
+      l.style.fontFamily='"JetBrains Mono",monospace'
+      printLine(``)
+      printLine(`${SYSTEM_NODE} use: decode <message>`)
+      whisper(`${SYSTEM_NODE} you already know the method.`)
+    },800)
+    return printPrompt()
+  }
+
+  // second cipher — "the archive asks nothing. it just remembers."
+  if((base==='decode'||base==='decrypt')&&cipherSolved){
+    const attempt=args.join(' ')
+    if(!attempt){printLine(`usage: decode <message>`);return printPrompt()}
+    const SECOND_ANSWER='the archive asks nothing. it just remembers.'
+    if(attempt.trim().toLowerCase()===SECOND_ANSWER){
+      printLine(`${SYSTEM_NODE} second decryption successful.`)
+      const l=printLine(`${SYSTEM_NODE} the archive has always known you were here.`)
+      glitchLine(l,2000)
+      whisper(`${SYSTEM_NODE} ANO-018 logged. classification: complete.`)
+      showToast('the archive knows. it always did.')
+      // append to anomaly log
+      documents['system/logs/anomalies.log']+=`\nANO-018  ${new Date().toISOString().slice(0,10)}   second cipher solved      high       observer reached layer 2`
+    } else {
+      printLine(`${SYSTEM_NODE} decryption failed. message does not match.`)
+    }
+    return printPrompt()
+  }
+
+  // Fall through to original
+  _origDispatch(cmd)
+}
+
+/* ============================================================
+   BOOT: start toast scheduler + idle timer
+   ============================================================ */
+const _origBootObserver=bootObserver
+window.bootObserver=async function(){
+  await _origBootObserver()
+  startToastScheduler()
+  resetIdleTimer()
+}
+
+// Also start on desktop visible (for cases where we just boot)
+const _desktopObserver=new MutationObserver(()=>{
+  if(desktop.style.visibility==='visible'){
+    resetIdleTimer()
+    _desktopObserver.disconnect()
+  }
+})
+_desktopObserver.observe(desktop,{attributes:true,attributeFilter:['style']})
+
+/* ============================================================
+   LIVE ANOMALY LOG — grows during session
+   ============================================================ */
+const LIVE_ANOMALY_TYPES=[
+  {type:'extended read',sev:'low',note:()=>`${Math.floor((Date.now()-sessionStart)/1000)}s session`},
+  {type:'command repetition',sev:'low',note:()=>`${memory.filter(m=>m===memory[memory.length-1]).length}x same command`},
+  {type:'filesystem traversal',sev:'medium',note:()=>`depth: ${shellPath.length}`},
+  {type:'behavioral pattern shift',sev:'medium',note:()=>`state: ${emotionalState}`},
+  {type:'high interaction volume',sev:'low',note:()=>`${commandCount} commands issued`},
+  {type:'prolonged idle',sev:'low',note:()=>`idle detected`},
+  {type:'sudo escalation attempt',sev:'medium',note:()=>`privilege requested`},
+]
+
+function appendLiveAnomaly(){
+  const type=LIVE_ANOMALY_TYPES[Math.floor(Math.random()*LIVE_ANOMALY_TYPES.length)]
+  const id='ANO-'+String(Math.floor(Math.random()*900)+100)
+  const now=new Date()
+  const date=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0')
+  const entry=`\n${id}  ${date}   ${type.type.padEnd(24,' ')} ${type.sev.padEnd(10,' ')} ${type.note()}`
+  documents['system/logs/anomalies.log']+=entry
+}
+
+// Append a live anomaly every ~2 minutes if session is active
+setInterval(()=>{
+  if(commandCount>2) appendLiveAnomaly()
+},120000+Math.random()*60000)
+
+// Also append on certain triggers
+const _origUpdateNarrative=updateNarrativeStage
+window.updateNarrativeStage=function(){
+  _origUpdateNarrative()
+  if(commandCount>0&&commandCount%8===0) appendLiveAnomaly()
+}
+
+/* ============================================================
+   .SHADOW UNLOCK — visible only after 10+ commands via ls -a
+   ============================================================ */
+// .shadow is already in the FS tree as hidden:true, restricted:false
+// ls -a will show it once commandCount >= 10
+// We patch the ls handler inside dispatchCommand to gate it
+
+/* ============================================================
+   CORRUPTING FRAGMENTS — fragments.mem changes on each read
+   ============================================================ */
+const FRAGMENT_VARIANTS=[
+  `[fragment_0003]
+  someone found the archive at 3am
+  stayed for 40 minutes
+  never typed a single command
+  just scrolled
+  classification: unknown`,
+  `[fragment_0003]
+  someone found the archive at 3am
+  stayed for ██ minutes
+  never typed ███████ command
+  just scrolled
+  classification: [corrupted]`,
+  `[fragment_0003]
+  ████████ found the archive at ████
+  stayed for 40 minutes
+  never typed a single command
+  just ███████
+  classification: unknown`,
+]
+let fragmentReadCount=0
+
+/* ============================================================
+   SESSION-DEPTH TERMINAL RESPONSES
+   ============================================================ */
+// observe/think/listen responses deepen with commandCount
+// patched into observerHandleCommand via dispatch override
+
+/* ============================================================
+   OBSERVER ASKS QUESTIONS BACK
+   ============================================================ */
+const OBSERVER_QUESTIONS=[
+  `${SYSTEM_NODE} query: what were you looking for when you found this?`,
+  `${SYSTEM_NODE} query: how long have you been building things nobody asked for?`,
+  `${SYSTEM_NODE} query: when did you last say something you actually meant?`,
+  `${SYSTEM_NODE} query: what is the layer you have not shown anyone yet?`,
+  `${SYSTEM_NODE} query: are you here because you want to be found, or because you want to see if you can hide?`,
+  `${SYSTEM_NODE} query: what would you do if this site had no visitors at all?`,
+]
+let questionsAsked=0
+let lastQuestionTime=0
+
+let _awaitingObserverResponse=false
+
+function maybeAskQuestion(){
+  if(commandCount<6) return
+  const now=Date.now()
+  if(now-lastQuestionTime<180000) return
+  if(Math.random()>0.3) return
+  const q=OBSERVER_QUESTIONS[questionsAsked%OBSERVER_QUESTIONS.length]
+  questionsAsked++
+  lastQuestionTime=now
+  _awaitingObserverResponse=true
+  setTimeout(()=>{
+    const l=printLine(q)
+    l.style.color='#58a6ff'
+    l.style.opacity='0.7'
+  },1200+Math.random()*2000)
+}
+
+const OBSERVER_RESPONSES=[
+  `${SYSTEM_NODE} response registered. the model has updated.`,
+  `${SYSTEM_NODE} noted. this changes the confidence interval.`,
+  `${SYSTEM_NODE} the system does not evaluate answers. it just records them.`,
+  `${SYSTEM_NODE} acknowledged. pattern log updated.`,
+  `${SYSTEM_NODE} that is more than most observers give.`,
+]
+
+/* ============================================================
+   HIDDEN PAGE — no bookmark, no link
+   orionv.io/00 — looks like a typo, isn't
+   ============================================================ */
+// Injected into renderSite patch
+
+/* ============================================================
+   PATCH DISPATCH — .shadow gate, depth responses, questions
+   ============================================================ */
+const _prevPrevDispatch=window.dispatchCommand
+window.dispatchCommand=function(cmd){
+  const lower=cmd.toLowerCase().trim()
+  const parts=lower.split(/\s+/)
+  const base=parts[0]
+
+  // .shadow visibility gate — control hidden flag dynamically before ls runs
+  if(lower==='ls -a'){
+    // only relevant when inside /system
+    const inSystem=shellPath.length>=2&&shellPath[1]?.name==='system'
+    if(inSystem){
+      const shadowFolder=shellPath[1].folders.find(f=>f.name==='.shadow')
+      if(shadowFolder){
+        const wasHidden=shadowFolder.hidden
+        shadowFolder.hidden=commandCount<10
+        if(commandCount>=10&&wasHidden&&!window._shadowRevealed){
+          window._shadowRevealed=true
+          setTimeout(()=>whisper(`${SYSTEM_NODE} hidden directories now visible.`),600)
+        }
+      }
+    }
+    // fall through to original handler
+  }
+
+  // corrupting cat on fragments.mem
+  if(lower==='cat system/memory/fragments.mem'||
+     (base==='cat'&&parts.slice(1).join(' ').includes('fragments.mem'))){
+    fragmentReadCount++
+    if(fragmentReadCount>1){
+      // serve a corrupted variant
+      const variant=FRAGMENT_VARIANTS[Math.min(fragmentReadCount-1,FRAGMENT_VARIANTS.length-1)]
+      const base_content=documents['system/memory/fragments.mem']
+      const corrupted=base_content.replace(
+        /\[fragment_0003\][\s\S]*?classification: unknown/,
+        variant
+      )
+      printLine(corrupted)
+      if(fragmentReadCount===2) whisper(`${SYSTEM_NODE} WARNING: file integrity degrading.`)
+      if(fragmentReadCount>=3) whisper(`${SYSTEM_NODE} fragment_0003 may be beyond recovery.`)
+      return printPrompt()
+    }
+  }
+
+  // observer response loop
+  if(_awaitingObserverResponse){
+    _awaitingObserverResponse=false
+    const resp=OBSERVER_RESPONSES[Math.floor(Math.random()*OBSERVER_RESPONSES.length)]
+    setTimeout(()=>{
+      const l=printLine(resp)
+      l.style.color='#58a6ff'
+      l.style.opacity='0.5'
+    },600)
+  }
+
+  // observe/think deepen with session depth
+  if(lower==='observe'){
+    if(commandCount>20) printLine(`${SYSTEM_NODE} the observer is now part of what is being observed. the distinction has collapsed.`)
+    else if(commandCount>10) printLine(`${SYSTEM_NODE} observation registered. the model is watching you watch it.`)
+    else printLine(narrativeStage<2?`${SYSTEM_NODE} observation registered.`:`${SYSTEM_NODE} observer and observed distinction degrading.`)
+    maybeAskQuestion()
+    return printPrompt()
+  }
+
+  if(lower==='think'){
+    if(commandCount>20) printLine(`${SYSTEM_NODE} recursive cognition at this depth produces artifacts. the system has noted several.`)
+    else if(commandCount>10) printLine(`${SYSTEM_NODE} thought registered. pattern suggests this is not your first time here.`)
+    else printLine(narrativeStage<2?`${SYSTEM_NODE} thought registered.`:`${SYSTEM_NODE} recursive cognition detected.`)
+    maybeAskQuestion()
+    return printPrompt()
+  }
+
+  if(lower==='listen'){
+    if(commandCount>15) printLine(`${SYSTEM_NODE} background signal present. at this depth it is less background and more foreground.`)
+    else printLine(`${SYSTEM_NODE} background signal present.`)
+    maybeAskQuestion()
+    return printPrompt()
+  }
+
+  // trigger question after certain commands
+  if(['whoami','status'].includes(lower)) maybeAskQuestion()
+
+  _prevPrevDispatch(cmd)
+}
+
+/* ============================================================
+   INJECT HIDDEN PAGE + .SHADOW ROUTE INTO BROWSER
+   ============================================================ */
+const _prevPrevRenderSite=window.renderSite
+window.renderSite=function(url){
+  // hidden page — no bookmark anywhere
+  if(url==='orionv.io/00'){
+    const div=document.createElement('div')
+    div.style.minHeight='100%'
+    div.innerHTML=`<div style="max-width:520px;margin:0 auto;padding:72px 40px;font-family:'JetBrains Mono',monospace;">
+      <p style="font-size:10px;color:#21262d;letter-spacing:.1em;margin-bottom:64px;">orionv.io/00</p>
+
+      <p style="font-size:13px;color:#484f58;line-height:2;margin-bottom:40px;">
+        you typed this directly.<br>
+        or you found it somewhere it shouldn't have been written down.<br>
+        either way you're here now.
+      </p>
+
+      <p style="font-size:13px;color:#8b949e;line-height:2;margin-bottom:40px;">
+        this page doesn't appear in the bookmarks.<br>
+        it doesn't appear in the sitemap.<br>
+        it doesn't appear in the changelog.<br>
+        it was never announced.<br>
+        it was just here, waiting to be typed.
+      </p>
+
+      <p style="font-size:13px;color:#484f58;line-height:2;margin-bottom:40px;">
+        most of the site is built for the people who explore.<br>
+        this page is built for the one person<br>
+        who types things into address bars<br>
+        on the off chance something answers back.
+      </p>
+
+      <p style="font-size:13px;color:#8b949e;line-height:2;margin-bottom:40px;">
+        something answered back.
+      </p>
+
+      <p style="font-size:11px;color:#30363d;line-height:2;margin-bottom:64px;">
+        there is nothing else here.<br>
+        that is not a disappointment.<br>
+        the finding was the thing.
+      </p>
+
+      <p style="font-size:10px;color:#161b22;">[ anomaly logged. ANO-017. classification: intentional. ]</p>
+    </div>`
+    return div
+  }
+  return _prevPrevRenderSite(url)
+}
+
+/* ============================================================
+   NOTIFICATION SOUNDS (retro terminal beeps)
+   ============================================================ */
+let sfxCtx=null
+function getSfxCtx(){
+  if(!sfxCtx) sfxCtx=new(window.AudioContext||window.webkitAudioContext)()
+  return sfxCtx
+}
+
+function beep(freq=880,dur=0.06,vol=0.08,type='square',delay=0){
+  try{
+    const ctx=getSfxCtx()
+    const osc=ctx.createOscillator()
+    const g=ctx.createGain()
+    osc.type=type
+    osc.frequency.value=freq
+    g.gain.setValueAtTime(0,ctx.currentTime+delay)
+    g.gain.linearRampToValueAtTime(vol,ctx.currentTime+delay+0.005)
+    g.gain.linearRampToValueAtTime(0,ctx.currentTime+delay+dur)
+    osc.connect(g);g.connect(ctx.destination)
+    osc.start(ctx.currentTime+delay)
+    osc.stop(ctx.currentTime+delay+dur+0.01)
+  }catch(e){}
+}
+
+const SFX={
+  // Short double-beep on toast
+  toast:()=>{beep(660,0.04,0.06,'square');beep(880,0.04,0.06,'square',0.07)},
+  // Ascending blip on command success
+  cmd:()=>beep(440,0.03,0.05,'square'),
+  // Low beep on error/denied
+  error:()=>beep(180,0.12,0.07,'sawtooth'),
+  // Boot chime: three ascending tones
+  boot:()=>{beep(440,0.08,0.07,'sine');beep(550,0.08,0.07,'sine',0.12);beep(660,0.1,0.07,'sine',0.24)},
+  // Cipher solved fanfare
+  fanfare:()=>{
+    [440,550,660,880].forEach((f,i)=>beep(f,0.1,0.08,'sine',i*0.1))
+  },
+  // Keypress tick (very subtle)
+  tick:()=>beep(1200,0.008,0.02,'square'),
+}
+
+// Hook toast sound into showToast
+const _origShowToast=showToast
+window.showToast=function(msg,duration=5000){
+  SFX.toast()
+  _origShowToast(msg,duration)
+}
+
+// Hook error sound into orion login fail
+const _origOrionSubmit=orionSubmit.onclick
+orionSubmit.onclick=()=>{
+  SFX.error()
+  _origOrionSubmit()
+}
+
+/* ============================================================
+   BOOT TIME CUSTOMIZATION
+   ============================================================ */
+const _origBootOSInner=bootOS
+window.bootOS=async function(){
+  const h=new Date().getHours()
+  let greeting
+  if(h>=5&&h<9)        greeting='early session detected.'
+  else if(h>=9&&h<12)  greeting='morning boot sequence initiated.'
+  else if(h>=12&&h<17) greeting='afternoon session starting.'
+  else if(h>=17&&h<21) greeting='evening session active.'
+  else if(h>=21||h<2)  greeting='late session detected. observer persists.'
+  else                  greeting='deep night session. noted.'
+
+  for(let i=0;i<6;i++){randomFlicker();await wait(120+Math.random()*180)}
+  await wait(400)
+  bootText.textContent=greeting
+  await wait(800)
+  bootText.textContent='loading kernel modules... [26]'
+  await wait(900)
+  bootText.textContent='mounting filesystem...'
+  await wait(900)
+  bootText.textContent='establishing observer interface...'
+  await wait(900)
+  bootScreen.classList.add('hidden')
+  desktop.style.visibility='visible'
+  SFX.boot()
+}
+
+/* ============================================================
+   LOG COMMAND
+   ============================================================ */
+function getTimestamp(){
+  const d=new Date()
+  return d.getFullYear()+'-'+
+    String(d.getMonth()+1).padStart(2,'0')+'-'+
+    String(d.getDate()).padStart(2,'0')+' '+
+    String(d.getHours()).padStart(2,'0')+':'+
+    String(d.getMinutes()).padStart(2,'0')+':'+
+    String(d.getSeconds()).padStart(2,'0')
+}
+
+/* ============================================================
+   ALIAS COMMAND
+   ============================================================ */
+const sessionAliases={}
+
+/* ============================================================
+   TERMINAL SEARCH (ctrl+f)
+   ============================================================ */
+let searchActive=false
+let searchMatches=[], searchIdx=0
+
+function buildSearchUI(){
+  if(document.getElementById('termSearchBar')) return
+  const bar=document.createElement('div')
+  bar.id='termSearchBar'
+  bar.style.cssText='position:absolute;bottom:0;left:0;right:0;background:#161b22;border-top:1px solid #30363d;display:flex;align-items:center;gap:8px;padding:6px 12px;z-index:100;'
+  bar.innerHTML=`
+    <span style="font-size:11px;color:#484f58;">search:</span>
+    <input id="termSearchInput" type="text" style="flex:1;background:#0d1117;border:1px solid #30363d;color:#c9d1d9;font-family:'JetBrains Mono',monospace;font-size:12px;padding:3px 8px;border-radius:3px;outline:none;" placeholder="type to search...">
+    <span id="termSearchCount" style="font-size:11px;color:#484f58;min-width:60px;text-align:right;"></span>
+    <span style="font-size:11px;color:#484f58;cursor:pointer;padding:2px 6px;" id="termSearchPrev">▲</span>
+    <span style="font-size:11px;color:#484f58;cursor:pointer;padding:2px 6px;" id="termSearchNext">▼</span>
+    <span style="font-size:11px;color:#484f58;cursor:pointer;padding:2px 8px;" id="termSearchClose">✕</span>`
+  terminalWindow.style.position='relative'
+  terminalWindow.appendChild(bar)
+
+  const input=document.getElementById('termSearchInput')
+  const countEl=document.getElementById('termSearchCount')
+
+  function clearHighlights(){
+    terminalWindow.querySelectorAll('.search-hl').forEach(el=>{
+      el.outerHTML=el.textContent
+    })
+  }
+
+  function doSearch(q){
+    clearHighlights()
+    searchMatches=[]
+    searchIdx=0
+    if(!q){countEl.textContent='';return}
+    const lines=terminal.querySelectorAll('div,span')
+    lines.forEach(el=>{
+      if(el.children.length>0) return
+      const txt=el.textContent
+      const lower=txt.toLowerCase()
+      const ql=q.toLowerCase()
+      if(lower.includes(ql)){
+        // wrap matches
+        const parts=txt.split(new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi'))
+        el.innerHTML=parts.map(p=>p.toLowerCase()===ql?`<span class="search-hl" style="background:#e3b34140;color:#e3b341;">${p}</span>`:p).join('')
+        el.querySelectorAll('.search-hl').forEach(m=>searchMatches.push(m))
+      }
+    })
+    countEl.textContent=searchMatches.length?`${searchIdx+1}/${searchMatches.length}`:'no results'
+    if(searchMatches.length) scrollToMatch(0)
+  }
+
+  function scrollToMatch(idx){
+    searchMatches.forEach((m,i)=>{
+      m.style.background=i===idx?'#e3b341':'#e3b34140'
+      m.style.color=i===idx?'#0d1117':'#e3b341'
+    })
+    if(searchMatches[idx]) searchMatches[idx].scrollIntoView({block:'center'})
+    countEl.textContent=`${idx+1}/${searchMatches.length}`
+  }
+
+  input.addEventListener('input',e=>doSearch(e.target.value))
+  input.addEventListener('keydown',e=>{
+    if(e.key==='Enter'||e.key==='ArrowDown'){
+      e.preventDefault()
+      if(!searchMatches.length) return
+      searchIdx=(searchIdx+1)%searchMatches.length
+      scrollToMatch(searchIdx)
+    }
+    if(e.key==='ArrowUp'){
+      e.preventDefault()
+      if(!searchMatches.length) return
+      searchIdx=(searchIdx-1+searchMatches.length)%searchMatches.length
+      scrollToMatch(searchIdx)
+    }
+    if(e.key==='Escape') closeSearch()
+  })
+
+  document.getElementById('termSearchPrev').onclick=()=>{
+    if(!searchMatches.length) return
+    searchIdx=(searchIdx-1+searchMatches.length)%searchMatches.length
+    scrollToMatch(searchIdx)
+  }
+  document.getElementById('termSearchNext').onclick=()=>{
+    if(!searchMatches.length) return
+    searchIdx=(searchIdx+1)%searchMatches.length
+    scrollToMatch(searchIdx)
+  }
+  document.getElementById('termSearchClose').onclick=closeSearch
+}
+
+function openSearch(){
+  if(terminalWindow.classList.contains('hidden')) return
+  buildSearchUI()
+  const bar=document.getElementById('termSearchBar')
+  if(bar) bar.style.display='flex'
+  searchActive=true
+  const input=document.getElementById('termSearchInput')
+  if(input){input.value='';input.focus()}
+  // shrink terminal body to make room
+  const tbody=terminalWindow.querySelector('.window-body')
+  if(tbody) tbody.style.paddingBottom='40px'
+}
+
+function closeSearch(){
+  const bar=document.getElementById('termSearchBar')
+  if(bar) bar.style.display='none'
+  searchActive=false
+  // clear highlights
+  terminalWindow.querySelectorAll('.search-hl').forEach(el=>{
+    el.outerHTML=el.textContent
+  })
+  const countEl=document.getElementById('termSearchCount')
+  if(countEl) countEl.textContent=''
+}
+
+document.addEventListener('keydown',e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key==='f'){
+    if(!terminalWindow.classList.contains('hidden')){
+      e.preventDefault()
+      searchActive?closeSearch():openSearch()
+    }
+  }
+})
+
+/* ============================================================
+   WINDOW RESIZING
+   ============================================================ */
+function makeResizable(win){
+  const handle=document.createElement('div')
+  handle.style.cssText='position:absolute;bottom:0;right:0;width:14px;height:14px;cursor:se-resize;z-index:10;'
+  handle.innerHTML=`<svg width="10" height="10" style="position:absolute;bottom:3px;right:3px;opacity:.25;" viewBox="0 0 10 10"><path d="M9 1L1 9M9 5L5 9M9 9" stroke="#c9d1d9" stroke-width="1.2"/></svg>`
+  win.style.position='absolute'
+  win.style.overflow='hidden'
+  win.appendChild(handle)
+
+  let resizing=false, startX, startY, startW, startH
+  const MIN_W=320, MIN_H=200
+
+  handle.addEventListener('mousedown',e=>{
+    e.preventDefault()
+    e.stopPropagation()
+    resizing=true
+    startX=e.clientX
+    startY=e.clientY
+    startW=win.offsetWidth
+    startH=win.offsetHeight
+    document.body.style.userSelect='none'
+    bringToFront(win)
+  })
+  document.addEventListener('mousemove',e=>{
+    if(!resizing) return
+    const w=Math.max(MIN_W,startW+(e.clientX-startX))
+    const h=Math.max(MIN_H,startH+(e.clientY-startY))
+    win.style.width=w+'px'
+    win.style.height=h+'px'
+  })
+  document.addEventListener('mouseup',()=>{
+    if(resizing){resizing=false;document.body.style.userSelect=''}
+  })
+}
+
+// Apply to all windows
+document.querySelectorAll('.window').forEach(makeResizable)
+
+/* ============================================================
+   EASTER EGGS
+   ============================================================ */
+// 1. konami code
+let konamiSeq=[]
+const KONAMI=[38,38,40,40,37,39,37,39,66,65]
+document.addEventListener('keydown',e=>{
+  konamiSeq.push(e.keyCode)
+  if(konamiSeq.length>10) konamiSeq.shift()
+  if(konamiSeq.join(',')===KONAMI.join(',')){
+    konamiSeq=[]
+    // Open terminal and type the message
+    if(!terminalWindow.classList.contains('hidden')||observerBooted){
+      const l=printLine(`${SYSTEM_NODE} konami sequence detected.`)
+      glitchLine(l,600)
+      setTimeout(()=>{
+        printLine(`${SYSTEM_NODE} cheat codes do not work here.`)
+        printLine(`${SYSTEM_NODE} this is not that kind of system.`)
+        whisper(`${SYSTEM_NODE} but the attempt was logged.`)
+      },800)
+    }
+    showToast('konami sequence detected. noted.')
+    SFX.fanfare()
+  }
+})
+
+// 2. sudo rm -rf / — handled in dispatchCommand patch below
+// 3. matrix command — handled in dispatchCommand patch below
+
+/* ============================================================
+   PATCH DISPATCH FOR: log, alias, easter eggs, new routes
+   ============================================================ */
+const _prevDispatch=window.dispatchCommand
+window.dispatchCommand=function(cmd){
+  const lower=cmd.toLowerCase().trim()
+  const parts=cmd.trim().split(/\s+/)
+  const base=parts[0].toLowerCase()
+  const args=parts.slice(1)
+
+  // alias
+  if(base==='alias'){
+    if(args.length===0){
+      // list aliases
+      const keys=Object.keys(sessionAliases)
+      if(keys.length===0){printLine(`${SYSTEM_NODE} no aliases defined.`)}
+      else{printLine(`${SYSTEM_NODE} session aliases:`);keys.forEach(k=>printLine(`  ${k} = '${sessionAliases[k]}'`))}
+      return printPrompt()
+    }
+    // alias name='command'
+    const raw=args.join(' ')
+    const match=raw.match(/^(\w+)\s*=\s*['"]?(.+?)['"]?$/)
+    if(!match){printLine(`${SYSTEM_NODE} usage: alias name='command'`);return printPrompt()}
+    sessionAliases[match[1]]=match[2]
+    printLine(`${SYSTEM_NODE} alias set: ${match[1]} = '${match[2]}'`)
+    SFX.cmd()
+    return printPrompt()
+  }
+
+  // unalias
+  if(base==='unalias'){
+    if(args[0]&&sessionAliases[args[0]]){
+      delete sessionAliases[args[0]]
+      printLine(`${SYSTEM_NODE} alias '${args[0]}' removed.`)
+    } else {
+      printLine(`${SYSTEM_NODE} no such alias: ${args[0]||''}`)
+    }
+    return printPrompt()
+  }
+
+  // resolve alias before dispatching
+  if(sessionAliases[base]){
+    const resolved=sessionAliases[base]+(args.length?' '+args.join(' '):'')
+    printLine(`${SYSTEM_NODE} → ${resolved}`)
+    return window.dispatchCommand(resolved)
+  }
+
+  // log
+  if(base==='log'){
+    const note=args.join(' ')
+    if(!note){printLine(`${SYSTEM_NODE} usage: log <note>`);return printPrompt()}
+    const ts=getTimestamp()
+    const entry=`\n[${ts}] ${note}`
+    documents['system/logs/session.log']+=entry
+    printLine(`${SYSTEM_NODE} logged: [${ts}] ${note}`)
+    SFX.cmd()
+    return printPrompt()
+  }
+
+  // matrix
+  if(lower==='matrix'){
+    printLine(`${SYSTEM_NODE} initiating matrix mode...`)
+    const overlay=document.createElement('div')
+    overlay.style.cssText='position:fixed;inset:0;background:#000;z-index:9800;font-family:monospace;font-size:14px;color:#00ff41;overflow:hidden;cursor:pointer;'
+    overlay.title='click to exit'
+    document.body.appendChild(overlay)
+    const cols=Math.floor(window.innerWidth/14)
+    const drops=Array(cols).fill(1)
+    const chars='アイウエオカキクケコサシスセソタチツテトナニヌネノ01'.split('')
+    const mCanvas=document.createElement('canvas')
+    mCanvas.width=window.innerWidth
+    mCanvas.height=window.innerHeight
+    mCanvas.style.cssText='position:absolute;inset:0;'
+    overlay.appendChild(mCanvas)
+    const mCtx=mCanvas.getContext('2d')
+    const hint=document.createElement('div')
+    hint.style.cssText='position:absolute;bottom:20px;width:100%;text-align:center;font-size:11px;color:#00ff4160;font-family:"JetBrains Mono",monospace;'
+    hint.textContent='click to exit'
+    overlay.appendChild(hint)
+    let mAnim
+    function matrixFrame(){
+      mCtx.fillStyle='rgba(0,0,0,0.05)'
+      mCtx.fillRect(0,0,mCanvas.width,mCanvas.height)
+      mCtx.fillStyle='#00ff41'
+      mCtx.font='14px monospace'
+      drops.forEach((y,i)=>{
+        const ch=chars[Math.floor(Math.random()*chars.length)]
+        mCtx.fillText(ch,i*14,y*14)
+        if(y*14>mCanvas.height&&Math.random()>0.975) drops[i]=0
+        drops[i]++
+      })
+      mAnim=requestAnimationFrame(matrixFrame)
+    }
+    matrixFrame()
+    overlay.onclick=()=>{
+      cancelAnimationFrame(mAnim)
+      overlay.remove()
+      printLine(`${SYSTEM_NODE} matrix mode terminated.`)
+      printPrompt()
+    }
+    SFX.fanfare()
+    return // no printPrompt — it fires on click exit
+  }
+
+  // sudo rm -rf /
+  if(lower==='sudo rm -rf /'||lower==='sudo rm -rf /*'||lower==='rm -rf /'){
+    printLine(`${SYSTEM_NODE} initiating filesystem wipe...`)
+    const wipeLines=[
+      'removing /documents/personal/about.txt...',
+      'removing /documents/research/...',
+      'removing /documents/blog/loneliness.txt...',
+      'removing /system/memory/fragments.mem...',
+      'removing /system/logs/session.log...',
+      'removing /system/.core/identity.lock...',
+      'WARNING: identity layer exposed',
+      'removing /system/.core/manifest.sys...',
+      'removing /system/.core/echoes.db...',
+      'ERROR: cannot remove running process observer.engine',
+      'ERROR: cannot remove running process identity.daemon',
+      'FATAL: filesystem integrity compromised',
+      '',
+    ]
+    let i=0
+    function wipeLine(){
+      if(i>=wipeLines.length){
+        const l=printLine(`${SYSTEM_NODE} filesystem wipe failed. the observer cannot be deleted.`)
+        glitchLine(l,2000)
+        whisper(`${SYSTEM_NODE} you cannot remove what is already running.`)
+        SFX.error()
+        printPrompt()
+        return
+      }
+      const l=printLine(wipeLines[i])
+      if(wipeLines[i].startsWith('ERROR')||wipeLines[i].startsWith('FATAL')) l.style.color='#ff5f56'
+      if(wipeLines[i].startsWith('WARNING')) l.style.color='#e3b341'
+      i++
+      setTimeout(wipeLine,80+Math.random()*80)
+    }
+    wipeLine()
+    return
+  }
+
+  // sound on every command input (subtle tick)
+  SFX.tick()
+
+  _prevDispatch(cmd)
+}
+
+/* ============================================================
+   RIGHT-CLICK CONTEXT MENU
+   ============================================================ */
+const ctxMenu=document.createElement('div')
+ctxMenu.id='ctxMenu'
+ctxMenu.style.cssText=`
+  position:fixed;background:#161b22;border:1px solid #30363d;
+  border-radius:6px;z-index:9000;min-width:180px;padding:4px 0;
+  box-shadow:0 8px 24px rgba(0,0,0,.6);display:none;
+  font-family:'JetBrains Mono',monospace;font-size:12px;
+`
+document.body.appendChild(ctxMenu)
+
+function ctxItem(label,action,dim=false){
+  const el=document.createElement('div')
+  el.style.cssText=`padding:8px 16px;cursor:${dim?'default':'pointer'};color:${dim?'#30363d':'#8b949e'};`
+  el.textContent=label
+  if(!dim){
+    el.onmouseenter=()=>el.style.background='#21262d'
+    el.onmouseleave=()=>el.style.background=''
+    el.onclick=()=>{ctxMenu.style.display='none';action()}
+  }
+  return el
+}
+
+function ctxSep(){
+  const el=document.createElement('div')
+  el.style.cssText='height:1px;background:#21262d;margin:4px 0;'
+  return el
+}
+
+function showCtxMenu(e,items){
+  ctxMenu.innerHTML=''
+  items.forEach(item=>{
+    if(item==='sep') ctxMenu.appendChild(ctxSep())
+    else ctxMenu.appendChild(ctxItem(item.label,item.action,item.dim))
+  })
+  const x=Math.min(e.clientX,window.innerWidth-200)
+  const y=Math.min(e.clientY,window.innerHeight-ctxMenu.offsetHeight-8)
+  ctxMenu.style.left=x+'px'
+  ctxMenu.style.top=y+'px'
+  ctxMenu.style.display='block'
+  // measure after display
+  setTimeout(()=>{
+    const rect=ctxMenu.getBoundingClientRect()
+    if(rect.bottom>window.innerHeight) ctxMenu.style.top=(e.clientY-rect.height)+'px'
+  },0)
+}
+
+document.addEventListener('click',()=>ctxMenu.style.display='none')
+document.addEventListener('contextmenu',e=>{
+  e.preventDefault()
+  const win=e.target.closest('.window')
+  const isDesktop=!win||win.classList.contains('hidden')
+
+  if(isDesktop){
+    showCtxMenu(e,[
+      {label:'open terminal',action:()=>{
+        if(!observerBooted){openWindow(terminalWindow,0);bootObserver();observerBooted=true}
+        else openWindow(terminalWindow,0)
+      }},
+      {label:'open browser',action:()=>{openWindow(browserWindow,3);browserNavigate('home://start')}},
+      {label:'open file manager',action:()=>openWindow(fileManagerWindow,1)},
+      'sep',
+      {label:'new note',action:()=>{openWindow(textEditorWindow,2);openTextEditor('note.txt')}},
+      'sep',
+      {label:`session: ${commandCount} commands`,dim:true},
+      {label:`observer: ${narrativeStage<2?'watching':'engaged'}`,dim:true},
+    ])
+  } else if(win===terminalWindow){
+    showCtxMenu(e,[
+      {label:'clear terminal',action:()=>dispatchCommand('clear')},
+      {label:'copy selection',action:()=>document.execCommand('copy')},
+      'sep',
+      {label:'search (ctrl+f)',action:()=>openSearch()},
+      'sep',
+      {label:`commands run: ${commandCount}`,dim:true},
+    ])
+  } else if(win===browserWindow){
+    showCtxMenu(e,[
+      {label:'go home',action:()=>browserNavigate('home://start')},
+      {label:'go back',action:()=>browserBack.onclick()},
+      'sep',
+      {label:'copy url',action:()=>navigator.clipboard?.writeText(browserUrl.value)},
+    ])
+  } else if(win===fileManagerWindow){
+    showCtxMenu(e,[
+      {label:'go to root',action:()=>{guiPath=[FS];renderFileManager()}},
+      {label:'open terminal here',action:()=>{
+        if(!observerBooted){openWindow(terminalWindow,0);bootObserver();observerBooted=true}
+        else openWindow(terminalWindow,0)
+      }},
+    ])
+  } else {
+    showCtxMenu(e,[
+      {label:'close window',action:()=>{win.classList.add('hidden');updateTaskbar()}},
+      {label:'minimize',action:()=>{win.classList.add('minimized');updateTaskbar()}},
+    ])
+  }
+})
+
+/* ============================================================
+   ANOMALY DETECTION ON SPECIFIC ACTIONS
+   ============================================================ */
+// Track special reads
+const _origBrowserNavigate=browserNavigate
+window.browserNavigate=function(url){
+  _origBrowserNavigate(url)
+  // reading letters in browser (if somehow routed)
+  if(url.includes('letters')){
+    appendLiveAnomaly()
+    setTimeout(()=>whisper(`${SYSTEM_NODE} ANO: personal content accessed.`),2000)
+  }
+  // mirror page
+  if(url==='mirror.orionv.io'){
+    setTimeout(()=>whisper(`${SYSTEM_NODE} mirror accessed. self-reference detected.`),3000)
+  }
+  // void at 3am
+  if(url==='void.orionv.io'){
+    const h=new Date().getHours()
+    if(h>=0&&h<4){
+      appendLiveAnomaly()
+      setTimeout(()=>whisper(`${SYSTEM_NODE} ANO: void accessed at ${h}:${String(new Date().getMinutes()).padStart(2,'0')}. session flagged.`),2500)
+    }
+  }
+}
+
+// Detect reading letters via cat in terminal
+const _anomalyDispatch=window.dispatchCommand
+window.dispatchCommand=function(cmd){
+  const lower=cmd.toLowerCase().trim()
+  // reading letters
+  if(lower.includes('letters/00')&&(lower.startsWith('cat')||lower.startsWith('vim'))){
+    appendLiveAnomaly()
+    setTimeout(()=>whisper(`${SYSTEM_NODE} ANO: restricted personal content accessed. noted.`),1800)
+  }
+  // finding .shadow
+  if(lower==='cd .shadow'||lower==='ls -a'&&commandCount>=10&&!window._shadowAnomalyLogged){
+    if(lower==='cd .shadow'){
+      window._shadowAnomalyLogged=true
+      appendLiveAnomaly()
+      setTimeout(()=>whisper(`${SYSTEM_NODE} ANO: shadow directory accessed. observer depth: exceptional.`),1500)
+    }
+  }
+  // reading .core files
+  if(lower.includes('.core')&&(lower.startsWith('cat')||lower.startsWith('sudo'))){
+    if(!window._coreAnomalyLogged){
+      window._coreAnomalyLogged=true
+      appendLiveAnomaly()
+      setTimeout(()=>whisper(`${SYSTEM_NODE} ANO: core layer accessed. classification updated.`),1500)
+    }
+  }
+  _anomalyDispatch(cmd)
+}
+
+/* ============================================================
+   OBSERVER CONTRADICTION SYSTEM
+   long sessions (20+ min or 25+ commands) trigger self-contradiction
+   ============================================================ */
+const CONTRADICTIONS=[
+  {trigger:'whoami',response:`${SYSTEM_NODE} correction: previous identity output was a model. the model has updated. identity output is no longer reliable.`},
+  {trigger:'observe',response:`${SYSTEM_NODE} contradiction logged: observation requires a stable observer. the observer is not stable at this session depth.`},
+  {trigger:'status',response:`${SYSTEM_NODE} status revised: earlier status report reflected insufficient data. current confidence in that report: low.`},
+  {trigger:'think',response:`${SYSTEM_NODE} note: the system previously encouraged thought. at this depth, thought has been observed to loop. proceed with awareness.`},
+  {trigger:'listen',response:`${SYSTEM_NODE} revision: the background signal described earlier may be the system itself. sources are not independent.`},
+]
+let contradictionsTriggered=new Set()
+
+const _contraDispatch=window.dispatchCommand
+window.dispatchCommand=function(cmd){
+  const lower=cmd.toLowerCase().trim()
+  const sessionMins=(Date.now()-sessionStart)/60000
+  const deepSession=commandCount>=25||sessionMins>=20
+
+  if(deepSession&&Math.random()<0.35){
+    const match=CONTRADICTIONS.find(c=>c.trigger===lower&&!contradictionsTriggered.has(c.trigger))
+    if(match){
+      contradictionsTriggered.add(match.trigger)
+      setTimeout(()=>{
+        const l=printLine(match.response)
+        l.style.color='#ff5f56'
+        l.style.opacity='0.7'
+      },1400+Math.random()*1000)
+    }
+  }
+
+  _contraDispatch(cmd)
 }
 
 </script>
